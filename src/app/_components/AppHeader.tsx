@@ -1,12 +1,14 @@
+import Image from "next/image";
+
 export function AppHeader() {
   return (
     <div>
       <a
-        className="font-serif text-lg font-extralight text-gray-500"
-        href="https://github.com/langmanus/langmanus"
+        className="flex items-center font-serif text-lg font-normal text-gray-700"
+        href="https://manus.im/app"
         target="_blank"
       >
-        LangManus
+        manus
       </a>
     </div>
   );

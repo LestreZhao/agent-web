@@ -64,7 +64,7 @@ function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
           <GlobalOutlined className="h-4 w-4 text-sm" />
         </div>
         <div>
-          <span>Reading</span>{" "}
+          <span>正在读取</span>{" "}
           <a
             className="text-sm font-bold"
             href={task.payload.input.url}
@@ -102,7 +102,7 @@ function TravilySearchToolCallView({
           <SearchOutlined className="h-4 w-4 text-sm" />
         </div>
         <div>
-          Searching for{" "}
+          正在搜索{" "}
           <span className="font-bold">
             &quot;{task.payload.input.query}&quot;
           </span>
@@ -116,7 +116,7 @@ function TravilySearchToolCallView({
             </div>
             <div>
               <span className="text-sm text-gray-500">
-                {results.length} results found
+                找到 {results.length} 条结果
               </span>
             </div>
           </div>
@@ -161,7 +161,7 @@ function PythonReplToolCallView({
           <PythonOutlined className="h-4 w-4 text-sm" />
         </div>
         <div>
-          <span>Writing and executing Python Code</span>
+          <span>编写并执行 Python 代码</span>
         </div>
       </div>
       {task.payload.input.code && (
@@ -184,7 +184,7 @@ function BashToolCallView({ task }: { task: ToolCallTask<{ cmd: string }> }) {
         </div>
         <div>
           <span>
-            Executing <a className="font-medium">Bash Command</a>
+            执行 <a className="font-medium">Bash 命令</a>
           </span>
         </div>
       </div>

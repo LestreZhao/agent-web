@@ -1,0 +1,37 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# FusionAI Web UI 项目概述
+
+这是一个基于Next.js 15的现代Web UI项目，为FusionAI医疗AI平台提供用户界面。
+
+## 核心技术栈
+- **框架**: Next.js 15 (App Router)
+- **语言**: TypeScript
+- **样式**: Tailwind CSS
+- **状态管理**: Zustand
+- **包管理器**: pnpm
+- **UI组件**: Ant Design
+
+## 主要文件结构
+- [package.json](mdc:package.json) - 项目依赖和脚本配置
+- [next.config.js](mdc:next.config.js) - Next.js配置文件
+- [tailwind.config.ts](mdc:tailwind.config.ts) - Tailwind CSS配置
+- [tsconfig.json](mdc:tsconfig.json) - TypeScript配置
+- [src/app/layout.tsx](mdc:src/app/layout.tsx) - 根布局组件
+- [src/app/page.tsx](mdc:src/app/page.tsx) - 首页组件
+- [src/env.js](mdc:src/env.js) - 环境变量验证
+
+## 核心目录
+- `src/app/` - Next.js App Router页面和路由
+- `src/core/` - 核心业务逻辑模块
+- `src/styles/` - 全局样式文件
+- `src/typings/` - TypeScript类型定义
+
+## 开发命令
+- `pnpm dev` - 启动开发服务器
+- `pnpm build` - 构建生产版本
+- `pnpm lint` - 代码检查
+- `pnpm format:write` - 代码格式化

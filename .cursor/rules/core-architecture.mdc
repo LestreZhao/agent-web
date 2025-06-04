@@ -1,0 +1,47 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 核心架构指南
+
+## 核心模块概述
+`src/core/` 目录包含应用的核心业务逻辑，按功能模块组织：
+
+## 模块结构
+- `src/core/api/` - API调用和数据获取逻辑
+- `src/core/store/` - 全局状态管理（Zustand）
+- `src/core/utils/` - 通用工具函数
+- `src/core/workflow/` - 工作流相关逻辑
+- `src/core/sse/` - Server-Sent Events处理
+- `src/core/messaging/` - 消息处理逻辑
+- `src/core/icons/` - 图标组件和资源
+
+## API模块设计原则
+- 所有API调用应该封装在 `src/core/api/` 中
+- 使用环境变量配置API端点，参考 [src/env.js](mdc:src/env.js)
+- API函数应该返回类型化的数据
+- 错误处理应该统一且明确
+
+## 状态管理
+- 使用Zustand进行全局状态管理
+- 状态store文件放在 `src/core/store/` 目录
+- 每个功能模块应有独立的store
+- 使用TypeScript确保状态类型安全
+
+## 工具函数组织
+- 通用工具函数放在 `src/core/utils/` 目录
+- 按功能分组（如：字符串处理、日期处理、格式化等）
+- 每个工具函数都应该有明确的输入输出类型
+- 优先使用纯函数，避免副作用
+
+## 类型定义
+- 全局类型定义放在 `src/typings/` 目录
+- API响应类型应该与后端保持一致
+- 使用接口定义复杂对象类型
+- 导出类型供其他模块使用
+
+## 环境变量管理
+- 环境变量验证在 [src/env.js](mdc:src/env.js) 中定义
+- 使用@t3-oss/env-nextjs进行类型安全的环境变量管理
+- 客户端变量使用NEXT_PUBLIC_前缀

@@ -30,7 +30,7 @@ export function WorkflowProgressView({
     <div className="flex flex-col gap-4">
       <div className={cn("flex overflow-hidden rounded-2xl border", className)}>
         <aside className="flex w-[220px] flex-shrink-0 flex-col border-r bg-[rgba(0,0,0,0.02)]">
-          <div className="flex-shrink-0 px-4 py-4 font-medium">Flow</div>
+          <div className="flex-shrink-0 px-4 py-4 font-medium">工作流程</div>
           <ol className="flex flex-grow list-disc flex-col gap-4 px-4 py-2">
             {steps.map((step) => (
               <li
@@ -57,7 +57,7 @@ export function WorkflowProgressView({
             {steps.map((step, stepIndex) => (
               <li key={step.id} className="flex flex-col gap-2">
                 <h3 id={step.id} className="ml-[-4px] text-lg font-bold">
-                  📍 Step {stepIndex + 1}: {getStepName(step)}
+                  📍 步骤 {stepIndex + 1}: {getStepName(step)}
                 </h3>
                 <ul className="flex flex-col gap-2">
                   {step.tasks
@@ -133,7 +133,7 @@ function PlanTaskView({ task }: { task: ThinkingTask }) {
               onClick={() => setShowReason(!showReason)}
             >
               <Atom className="h-4 w-4" />
-              <span>Deep Thought</span>
+              <span>深度思考</span>
               {showReason ? (
                 <UpOutlined className="text-xs" />
               ) : (
@@ -158,17 +158,17 @@ function PlanTaskView({ task }: { task: ThinkingTask }) {
 function getStepName(step: WorkflowStep) {
   switch (step.agentName) {
     case "browser":
-      return "Browsing Web";
+      return "浏览网页";
     case "coder":
-      return "Coding";
+      return "编写代码";
     case "file_manager":
-      return "File Management";
+      return "文件管理";
     case "planner":
-      return "Planning";
+      return "制定计划";
     case "researcher":
-      return "Researching";
+      return "搜索研究";
     case "supervisor":
-      return "Thinking";
+      return "思考分析";
     default:
       return step.agentName;
   }

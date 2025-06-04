@@ -25,13 +25,17 @@ export function InputBox({
   const [searchBeforePlanning, setSearchBeforePlanning] = useState(false);
   const [imeStatus, setImeStatus] = useState<"active" | "inactive">("inactive");
   const saveConfig = useCallback(() => {
-    localStorage.setItem(
-      "langmanus.config.inputbox",
-      JSON.stringify({ deepThinkingMode, searchBeforePlanning }),
-    );
+    try {
+      localStorage.setItem(
+        "fusionai.config.inputbox",
+        JSON.stringify({ deepThinkingMode, searchBeforePlanning }),
+      );
+    } catch (e) {
+      console.error("保存配置到localStorage失败", e);
+    }
   }, [deepThinkingMode, searchBeforePlanning]);
   useEffect(() => {
-    const config = localStorage.getItem("langmanus.config.inputbox");
+    const config = localStorage.getItem("fusionai.config.inputbox");
     if (config) {
       const { deepThinkingMode, searchBeforePlanning } = JSON.parse(config);
       setDeepThinkMode(deepThinkingMode);
@@ -84,10 +88,10 @@ export function InputBox({
       <div className="w-full">
         <textarea
           className={cn(
-            "m-0 w-full resize-none border-none px-4 py-3 text-lg",
+            "m-0 w-full resize-none border-none px-4 py-3 text-lg focus:outline-none",
             size === "large" ? "min-h-32" : "min-h-4",
           )}
-          placeholder="What can I do for you?"
+          placeholder="有什么可以帮助您？"
           value={message}
           onCompositionStart={() => setImeStatus("active")}
           onCompositionEnd={() => setImeStatus("inactive")}
@@ -111,7 +115,7 @@ export function InputBox({
             }}
           >
             <Atom className="h-4 w-4" />
-            <span>Deep Think</span>
+            <span>深度思考</span>
           </button>
           <button
             className={cn(
@@ -125,7 +129,7 @@ export function InputBox({
             }}
           >
             <GlobalOutlined className="h-6 w-6" />
-            <span>Search</span>
+            <span>搜索</span>
           </button>
         </div>
         <div className="flex flex-shrink-0 items-center gap-2">
@@ -134,7 +138,7 @@ export function InputBox({
               "h-10 w-10 rounded-full text-button transition-shadow hover:bg-button-hover hover:text-button-hover hover:shadow",
               responding ? "bg-button-hover" : "bg-button",
             )}
-            title={responding ? "Cancel" : "Send"}
+            title={responding ? "取消" : "发送"}
             onClick={handleSendMessage}
           >
             {responding ? (

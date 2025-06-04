@@ -55,14 +55,13 @@ export default function HomePage() {
           )}
         >
           {messages.length === 0 && (
-            <div className="flex w-[640px] translate-y-[-32px] flex-col">
-              <h3 className="mb-2 text-center text-3xl font-medium">
-                👋 Hello, there!
-              </h3>
-              <div className="px-4 text-center text-lg text-gray-400">
-                LangManus, built on cutting-edge language models, helps you
-                search on web, browse information, and handle complex tasks.
-              </div>
+            <div className="flex w-[640px] translate-y-[-32px] flex-col items-center">
+              <h2 className="mb-2 text-center text-2xl font-normal text-gray-700">
+                你好，{typeof window !== 'undefined' && window.localStorage.getItem('userName') || 'zhao Lester'}
+              </h2>
+              <h1 className="mb-8 text-center text-3xl font-normal text-gray-700">
+                我能为你做什么？
+              </h1>
             </div>
           )}
           <div className="flex flex-col overflow-hidden rounded-[24px] border bg-white shadow-lg">
@@ -76,6 +75,28 @@ export default function HomePage() {
               }}
             />
           </div>
+          {messages.length === 0 && (
+            <div className="mt-4 flex gap-3">
+              <button 
+                className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50 hover:shadow-sm"
+                onClick={() => handleSendMessage('帮我制作一份个人简历', { deepThinkingMode: false, searchBeforePlanning: false })}
+              >
+                个人简历制作 <span className="text-xs">↑</span>
+              </button>
+              <button 
+                className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50 hover:shadow-sm"
+                onClick={() => handleSendMessage('帮我搜索特惠公寓信息', { deepThinkingMode: false, searchBeforePlanning: true })}
+              >
+                特惠公寓搜索 <span className="text-xs">↑</span>
+              </button>
+              <button 
+                className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50 hover:shadow-sm"
+                onClick={() => handleSendMessage('帮我制作一个p5.js动画效果', { deepThinkingMode: false, searchBeforePlanning: false })}
+              >
+                制作 p5.j s动画 <span className="text-xs">↑</span>
+              </button>
+            </div>
+          )}
           <div className="absolute bottom-[-32px] h-8 w-page backdrop-blur-sm" />
         </footer>
       </div>

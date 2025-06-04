@@ -1,0 +1,42 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 编码标准和最佳实践
+
+## TypeScript规范
+- 使用严格的TypeScript配置，参考 [tsconfig.json](mdc:tsconfig.json)
+- 所有组件和函数都应该有明确的类型定义
+- 优先使用接口而不是类型别名来定义对象类型
+- 避免使用 `any` 类型，使用 `unknown` 替代
+
+## React/Next.js最佳实践
+- 使用函数组件和React Hooks
+- 组件文件使用PascalCase命名（如 `UserProfile.tsx`）
+- 自定义Hooks以 `use` 开头（如 `useUserData`）
+- 使用Next.js App Router约定，页面文件命名为 `page.tsx`
+- 服务端组件优先，仅在需要交互时使用客户端组件
+
+## 样式规范
+- 使用Tailwind CSS进行样式设计，配置见 [tailwind.config.ts](mdc:tailwind.config.ts)
+- 避免内联样式，优先使用Tailwind类
+- 复杂样式可以创建组件类或使用CSS模块
+- 响应式设计使用Tailwind的响应式前缀
+
+## 代码组织
+- 核心业务逻辑放在 `src/core/` 目录
+- 可复用组件放在 `src/app/_components/` 目录
+- 工具函数放在 `src/core/utils/` 目录
+- 类型定义放在 `src/typings/` 目录
+
+## 格式化和Lint
+- 使用Prettier进行代码格式化，配置见 [prettier.config.js](mdc:prettier.config.js)
+- 使用ESLint进行代码检查，配置见 [.eslintrc.cjs](mdc:.eslintrc.cjs)
+- 提交前运行 `pnpm check` 确保代码质量
+
+## 导入规范
+- 使用绝对路径导入项目内模块
+- 第三方库导入在顶部
+- 项目内模块导入在第三方库之后
+- 类型导入使用 `import type`

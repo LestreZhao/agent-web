@@ -1,5 +1,5 @@
 {
-  "name": "langmanus-web",
+  "name": "fusionai-web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -32,6 +32,7 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@stagewise/toolbar-next": "^0.1.2",
     "@types/eslint": "^8.56.10",
     "@types/node": "^20.14.10",
     "@types/react": "^18.3.3",

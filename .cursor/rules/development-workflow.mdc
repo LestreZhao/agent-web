@@ -1,0 +1,52 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 开发工作流程
+
+## 开发环境设置
+1. 确保安装了Node.js v22.14.0+和pnpm v10.6.2+
+2. 克隆仓库并安装依赖：`pnpm install`
+3. 复制环境变量配置：`cp .env.example .env`
+4. 配置 [.env](mdc:.env) 文件中的API端点
+
+## 常用开发命令
+参考 [package.json](mdc:package.json) 中的scripts配置：
+
+### 开发调试
+- `pnpm dev` - 启动开发服务器（带Turbo加速）
+- `pnpm dev --port 3001` - 在指定端口启动
+
+### 代码质量检查
+- `pnpm check` - 运行完整检查（lint + 类型检查）
+- `pnpm lint` - ESLint代码检查
+- `pnpm lint:fix` - 自动修复ESLint问题
+- `pnpm typecheck` - TypeScript类型检查
+
+### 代码格式化
+- `pnpm format:write` - 格式化所有代码文件
+- `pnpm format:check` - 检查代码格式
+
+### 构建和部署
+- `pnpm build` - 构建生产版本
+- `pnpm start` - 启动生产服务器
+- `pnpm preview` - 构建并预览生产版本
+
+## 开发最佳实践
+1. **提交前检查**：运行 `pnpm check` 确保代码质量
+2. **增量开发**：小步快跑，频繁提交
+3. **类型安全**：充分利用TypeScript的类型系统
+4. **组件复用**：将通用UI逻辑抽取为可复用组件
+5. **性能优化**：使用Next.js的服务端渲染和静态生成
+
+## 调试技巧
+- 使用浏览器开发者工具
+- 利用Next.js的热重载功能
+- 查看Network面板监控API调用
+- 使用React DevTools调试组件状态
+
+## 文件监视和热重载
+- Next.js自动监视文件变化
+- 保存文件后自动刷新浏览器
+- 支持快速刷新（Fast Refresh）保持组件状态
