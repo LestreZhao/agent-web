@@ -1,26 +1,32 @@
-import { ArrowUpOutlined, GlobalOutlined } from "@ant-design/icons";
+import { motion } from "framer-motion";
+import { ArrowUp, Square } from "lucide-react";
 import { type KeyboardEvent, useCallback, useEffect, useState } from "react";
 
-import { Atom } from "~/core/icons";
+import { Button } from "~/components/ui/button";
 import { cn } from "~/core/utils";
 
 export function InputBox({
+  message,
+  setMessage,
   className,
   size,
   responding,
   onSend,
   onCancel,
+  placeholder,
 }: {
+  message: string;
+  setMessage: (message: string) => void;
   className?: string;
-  size?: "large" | "normal";
+  size?: "large" | "normal" | "small";
   responding?: boolean;
   onSend?: (
     message: string,
     options: { deepThinkingMode: boolean; searchBeforePlanning: boolean },
   ) => void;
   onCancel?: () => void;
+  placeholder?: string;
 }) {
-  const [message, setMessage] = useState("");
   const [deepThinkingMode, setDeepThinkMode] = useState(false);
   const [searchBeforePlanning, setSearchBeforePlanning] = useState(false);
   const [imeStatus, setImeStatus] = useState<"active" | "inactive">("inactive");
@@ -59,12 +65,14 @@ export function InputBox({
     }
   }, [
     responding,
+    setMessage,
     onCancel,
     message,
     onSend,
     deepThinkingMode,
     searchBeforePlanning,
   ]);
+
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLTextAreaElement>) => {
       if (responding) {
@@ -85,72 +93,77 @@ export function InputBox({
   );
   return (
     <div className={cn(className)}>
-      <div className="w-full">
-        <textarea
-          className={cn(
-            "m-0 w-full resize-none border-none px-4 py-3 text-lg focus:outline-none",
-            size === "large" ? "min-h-32" : "min-h-4",
-          )}
-          placeholder="有什么可以帮助您？"
-          value={message}
-          onCompositionStart={() => setImeStatus("active")}
-          onCompositionEnd={() => setImeStatus("inactive")}
-          onKeyDown={handleKeyDown}
-          onChange={(event) => {
-            setMessage(event.target.value);
-          }}
-        />
-      </div>
-      <div className="flex items-center px-4 py-2">
-        <div className="flex flex-grow items-center gap-2">
-          <button
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        className="flex flex-col overflow-hidden rounded-[24px] border bg-white p-3 shadow-lg"
+      >
+        <div className="w-full">
+          <textarea
             className={cn(
-              "flex h-8 items-center gap-2 rounded-2xl border px-4 text-sm transition-shadow hover:shadow",
-              deepThinkingMode
-                ? "border-primary bg-primary/15 text-primary"
-                : "text-button hover:bg-button-hover hover:text-button-hover",
+              "m-0 w-full resize-none border-none text-[15px]",
+              size === "large" ? "h-12" : size === "small" ? "h-8" : "min-h-4",
             )}
-            onClick={() => {
-              setDeepThinkMode(!deepThinkingMode);
+            placeholder={placeholder}
+            value={message}
+            onCompositionStart={() => setImeStatus("active")}
+            onCompositionEnd={() => setImeStatus("inactive")}
+            onKeyDown={handleKeyDown}
+            onChange={(event) => {
+              setMessage(event.target.value);
             }}
-          >
-            <Atom className="h-4 w-4" />
-            <span>深度思考</span>
-          </button>
-          <button
-            className={cn(
-              "flex h-8 items-center rounded-2xl border px-4 text-sm transition-shadow hover:shadow",
-              searchBeforePlanning
-                ? "border-primary bg-primary/15 text-primary"
-                : "text-button hover:bg-button-hover hover:text-button-hover",
-            )}
-            onClick={() => {
-              setSearchBeforePlanning(!searchBeforePlanning);
-            }}
-          >
-            <GlobalOutlined className="h-6 w-6" />
-            <span>搜索</span>
-          </button>
+          />
         </div>
-        <div className="flex flex-shrink-0 items-center gap-2">
-          <button
-            className={cn(
-              "h-10 w-10 rounded-full text-button transition-shadow hover:bg-button-hover hover:text-button-hover hover:shadow",
-              responding ? "bg-button-hover" : "bg-button",
-            )}
-            title={responding ? "取消" : "发送"}
-            onClick={handleSendMessage}
-          >
-            {responding ? (
-              <div className="flex h-10 w-10 items-center justify-center">
-                <div className="h-4 w-4 rounded bg-red-300" />
-              </div>
-            ) : (
-              <ArrowUpOutlined />
-            )}
-          </button>
+        <div className="flex justify-end">
+          {/* <div className="flex flex-grow items-center gap-2">
+            <button
+              className={cn(
+                "flex h-8 items-center gap-2 rounded-2xl border px-4 text-sm transition-shadow hover:shadow",
+                deepThinkingMode
+                  ? "border-primary bg-primary/15 text-primary"
+                  : "text-button hover:bg-button-hover hover:text-button-hover",
+              )}
+              onClick={() => {
+                setDeepThinkMode(!deepThinkingMode);
+              }}
+            >
+              <Atom className="h-4 w-4" />
+              <span>Deep Think</span>
+            </button>
+            <button
+              className={cn(
+                "flex h-8 items-center rounded-2xl border px-4 text-sm transition-shadow hover:shadow",
+                searchBeforePlanning
+                  ? "border-primary bg-primary/15 text-primary"
+                  : "text-button hover:bg-button-hover hover:text-button-hover",
+              )}
+              onClick={() => {
+                setSearchBeforePlanning(!searchBeforePlanning);
+              }}
+            >
+              <GlobalOutlined className="h-6 w-6" />
+              <span>Search</span>
+            </button>
+          </div> */}
+          <div className="flex flex-shrink-0 justify-end gap-2">
+            <Button
+              className={`h-8 w-8 rounded-full bg-[#37352F14] font-medium ${
+                message.length > 0 || responding
+                  ? "bg-black text-white"
+                  : "bg-[#37352F14] text-[#b9b9b7] hover:bg-[#37352F14]"
+              }`}
+              onClick={handleSendMessage}
+            >
+              {responding ? (
+                <Square className="h-4 w-4" />
+              ) : (
+                <ArrowUp className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

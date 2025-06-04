@@ -5,6 +5,7 @@ import { type ChatEvent, type StartOfWorkflowEvent } from "../api";
 import { type WorkflowStep } from "./steps";
 import { type ThinkingTask, type ToolCallTask } from "./tasks";
 import { type Workflow } from "./workflow";
+import { useTaskStore } from "../store/task";
 
 export class WorkflowEngine {
   private _workflow: Workflow | undefined;
@@ -34,17 +35,40 @@ export class WorkflowEngine {
     let currentThinkingTask: ThinkingTask | null = null;
     let pendingToolCallTasks: ToolCallTask[] = [];
     let toolCallTask: ToolCallTask | undefined = undefined;
+    let stepMessage = null;
 
     for await (const event of stream) {
       switch (event.type) {
+        case "plan_generated": {
+          this.workflow.plans = event.data.plan_steps;
+          yield this.workflow;
+          break;
+        }
+        case "step_started":
+          stepMessage = event.data;
+          // 设置当前步骤信息
+          useTaskStore.setState({ currentStepInfo: stepMessage });
+          break;
         case "start_of_agent":
-          currentStep = {
-            id: event.data.agent_id,
-            agentId: event.data.agent_id,
-            agentName: event.data.agent_name,
-            type: "agentic",
-            tasks: [],
-          };
+          if (stepMessage) {
+            currentStep = {
+              ...stepMessage,
+              id: event.data.agent_id,
+              agentId: event.data.agent_id,
+              agentName: event.data.agent_name,
+              type: "agentic",
+              tasks: [],
+            };
+            stepMessage = null;
+          } else {
+            currentStep = {
+              id: event.data.agent_id,
+              agentId: event.data.agent_id,
+              agentName: event.data.agent_name,
+              type: "agentic",
+              tasks: [],
+            };
+          }
           this.workflow.steps.push(currentStep);
           yield this.workflow;
           break;

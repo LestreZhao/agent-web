@@ -6,9 +6,9 @@ import { useCallback, useRef } from "react";
 import { sendMessage, useStore } from "~/core/store";
 import { cn } from "~/core/utils";
 
-import { AppHeader } from "./_components/AppHeader";
-import { InputBox } from "./_components/InputBox";
-import { MessageHistoryView } from "./_components/MessageHistoryView";
+import { AppHeader } from "../_components/AppHeader";
+import { InputBox } from "../_components/InputBox";
+import { MessageHistoryView } from "../_components/MessageHistoryView";
 
 export default function HomePage() {
   const abortControllerRef = useRef<AbortController | null>(null);

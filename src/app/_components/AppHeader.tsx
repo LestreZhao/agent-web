@@ -2,14 +2,12 @@ import Image from "next/image";
 
 export function AppHeader() {
   return (
-    <div>
-      <a
-        className="flex items-center font-serif text-lg font-normal text-gray-700"
-        href="https://manus.im/app"
-        target="_blank"
-      >
-        manus
-      </a>
+    <div className="ml-6 p-4">
+      <img
+        src="/images/fusion_ai.png"
+        alt="Fusion AI"
+        className="h-[28px] w-auto"
+      />
     </div>
   );
 }

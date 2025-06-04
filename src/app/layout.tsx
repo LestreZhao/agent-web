@@ -5,20 +5,19 @@ import "~/styles/globals.css";
 import { StagewiseDevToolbar } from "./_components/StagewiseDevToolbar";
 
 export const metadata: Metadata = {
-  title: "FusionAI",
+  title: "Fusion",
   description:
-    "科技创造健康生活 - 生成式AI全面重塑多元医疗应用场景",
-  icons: [{ rel: "icon", url: "/icon.png" }],
+    "A community-driven AI automation framework that builds upon the incredible work of the open source community.",
+  icons: [{ rel: "icon", url: "/images/fusion-circle.png" }],
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="zh-CN" className={`${GeistSans.variable}`}>
-      <body className="min-w-screen flex min-h-screen bg-body">
+    <html lang="en" className={`${GeistSans.variable}`}>
+      <body className="min-w-screen flex h-[100vh] max-h-screen flex-col bg-[#f8f8f7]">
         {children}
-        <StagewiseDevToolbar />
       </body>
     </html>
   );

@@ -10,13 +10,16 @@ import {
 import { clone } from "../utils";
 import { WorkflowEngine } from "../workflow";
 
-export const useStore = create<{
+export const useMessageStore = create<{
   messages: Message[];
+  initMessages: string;
   responding: boolean;
   state: {
     messages: { role: string; content: string }[];
   };
 }>(() => ({
+  // 初始化消息
+  initMessages: "",
   messages: [],
   responding: false,
   state: {
@@ -24,13 +27,20 @@ export const useStore = create<{
   },
 }));
 
+// 设置初始化消息
+export function setInitMessages(message: string) {
+  useMessageStore.setState({ initMessages: message });
+}
+
 export function addMessage(message: Message) {
-  useStore.setState((state) => ({ messages: [...state.messages, message] }));
+  useMessageStore.setState((state) => ({
+    messages: [...state.messages, message],
+  }));
   return message;
 }
 
 export function updateMessage(message: Partial<Message> & { id: string }) {
-  useStore.setState((state) => {
+  useMessageStore.setState((state) => {
     const index = state.messages.findIndex((m) => m.id === message.id);
     if (index === -1) {
       return state;
@@ -62,7 +72,12 @@ export async function sendMessage(
   if (window.location.search.includes("mock")) {
     stream = mockChatStream(message);
   } else {
-    stream = chatStream(message, useStore.getState().state, params, options);
+    stream = chatStream(
+      message,
+      useMessageStore.getState().state,
+      params,
+      options,
+    );
   }
   setResponding(true);
 
@@ -127,15 +142,15 @@ export async function sendMessage(
 }
 
 export function clearMessages() {
-  useStore.setState({ messages: [] });
+  useMessageStore.setState({ messages: [] });
 }
 
 export function setResponding(responding: boolean) {
-  useStore.setState({ responding });
+  useMessageStore.setState({ responding });
 }
 
 export function _setState(state: {
   messages: { role: string; content: string }[];
 }) {
-  useStore.setState({ state });
+  useMessageStore.setState({ state });
 }

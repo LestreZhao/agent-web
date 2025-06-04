@@ -116,7 +116,9 @@ function PlanTaskView({ task }: { task: ThinkingTask }) {
     steps?: { title?: string; description?: string }[];
   }>(() => {
     if (task.payload.text) {
-      return parse(task.payload.text);
+      return parse(
+        task.payload.text.replace(/```json/g, "").replace(/```/g, ""),
+      );
     }
     return {};
   }, [task]);
