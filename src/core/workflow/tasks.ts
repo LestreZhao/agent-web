@@ -1,6 +1,7 @@
 interface GenericWorkflowTask<T extends string, P extends object> {
   id: string;
   type: T;
+  agentName: string;
   state: "pending" | "success" | "error";
   payload: P;
 }

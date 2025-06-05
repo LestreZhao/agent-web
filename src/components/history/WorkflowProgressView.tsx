@@ -10,7 +10,7 @@ import {
   type ThinkingTask,
 } from "~/core/workflow";
 
-import { Markdown } from "./Markdown";
+import { Markdown } from "../comon/Markdown";
 import { ToolCallView } from "./ToolCallView";
 
 export function WorkflowProgressView({

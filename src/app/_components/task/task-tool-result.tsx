@@ -4,11 +4,13 @@ import { useMemo } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
-import { Markdown } from "~/app/_components/Markdown";
+import { Markdown } from "~/components/comon/Markdown";
 import { type ToolCallTask } from "~/core/workflow";
 
-export function ToolCallView({ task }: { task: ToolCallTask }) {
-  if (task.type === "thinking") {
+export function TaskToolResultView({ task }: { task: ToolCallTask }) {
+  if (task.type === "thinking" && task.agentName === "planner") {
+    return <PlanTaskView task={task} />;
+  } else if (task.type === "thinking") {
     return <Markdown className="text-sm">{task.payload.text}</Markdown>;
   }
   if (task.payload.toolName === "tavily_search") {
@@ -28,10 +30,10 @@ export function ToolCallView({ task }: { task: ToolCallTask }) {
   ) {
     const search =
       task.payload.toolName === "execute_oracle_query"
-        ? "执行的sql语句：\n" + (task.payload.input as any).sql
+        ? (task.payload.input as any).sql
         : "查询的表名：\n" + (task.payload.input as any).table_name;
     const content =
-      "```sql\n" +
+      "执行的sql语句：\n```sql\n" +
       search +
       "\n```\n" +
       `执行结果：\n \`\`\`json\n${task.payload.output}\n\`\`\``;
@@ -46,28 +48,48 @@ function BrowserToolCallView({
   task: ToolCallTask<{ instruction: string }>;
 }) {
   return (
-    <div>
-      <div className="flex items-center gap-2">
-        <div>
-          <GlobalOutlined className="h-4 w-4 text-sm" />
-        </div>
-        <div>
-          <span className="text-sm">{task.payload.input.instruction}</span>
-        </div>
+    <div className="flex items-center gap-2">
+      <div>
+        <GlobalOutlined className="h-4 w-4 text-sm" />
+      </div>
+      <div>
+        <span className="text-sm">{task.payload.input.instruction}</span>
       </div>
     </div>
   );
 }
 
+function PlanTaskView({ task }: { task: any }) {
+  const plan = useMemo<{
+    title?: string;
+    steps?: { title?: string; description?: string }[];
+  }>(() => {
+    if (task.payload.text && task.state === "success") {
+      return JSON.parse(
+        task.payload.text.replace(/```json/g, "").replace(/```/g, ""),
+      );
+    }
+    return {};
+  }, [task]);
+  const markdown = `## ${plan.title ?? ""}\n\n${plan.steps?.map((step) => `- **${step.title ?? ""}**\n\n${step.description ?? ""}`).join("\n\n") ?? ""}`;
+  return (
+    <li key={task.id} className="flex flex-col">
+      <div>
+        <Markdown className="pl-6">{markdown ?? ""}</Markdown>
+      </div>
+    </li>
+  );
+}
+
 const pageCache = new LRUCache<string, string>({ max: 100 });
 function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
-  const results = useMemo(() => {
-    try {
-      return JSON.parse(task.payload.output ?? "") ?? null;
-    } catch (error) {
-      return null;
-    }
-  }, [task.payload.output]);
+  // const results = useMemo(() => {
+  //   try {
+  //     return JSON.parse(task.payload.output ?? "") ?? null;
+  //   } catch (error) {
+  //     return null;
+  //   }
+  // }, [task.payload.output]);
   const title = useMemo(() => {
     return pageCache.get(task.payload.input.url);
   }, [task.payload.input.url]);
@@ -89,8 +111,25 @@ function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
           </a>
         </div>
       </div>
-      <div className="mt-2">
-        {/* <Markdown>{task.payload.output}</Markdown> */}
+      <div className="relative mt-2 w-full">
+        <div className="rounded-lg border border-gray-100 bg-white p-4">
+          <div className="mb-4 text-sm text-gray-600">
+            由于网站安全限制，无法直接嵌入显示内容。您可以：
+            <a
+              href={task.payload.input.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-1 font-medium text-blue-600 hover:underline"
+            >
+              在新窗口中查看
+            </a>
+          </div>
+          {task.payload.output && (
+            <div className="prose prose-sm max-h-[300px] max-w-none overflow-auto">
+              <Markdown>{task.payload.output}</Markdown>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

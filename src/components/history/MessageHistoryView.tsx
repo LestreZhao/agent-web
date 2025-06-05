@@ -3,7 +3,7 @@ import Markdown from "react-markdown";
 import { type Message } from "~/core/messaging";
 import { cn } from "~/core/utils";
 
-import { LoadingAnimation } from "./LoadingAnimation";
+import { LoadingAnimation } from "../../app/_components/messages/message-loading";
 import { WorkflowProgressView } from "./WorkflowProgressView";
 
 export function MessageHistoryView({

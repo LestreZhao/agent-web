@@ -4,45 +4,33 @@ import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
 import { useRef, useEffect, useState, useMemo } from "react";
 
-import ChatHeader from "~/app/_components/ChatHeader";
-import { InputBox } from "~/app/_components/InputBox";
+import ChatHeader from "~/app/_components/chat-header";
+import { ChatInput } from "~/app/_components/chat-input";
 import { sendMessage, setInitMessages, useMessageStore } from "~/core/store";
+import { useTaskStore } from "~/core/store/task";
 import { useUIStore } from "~/core/store/ui";
 
-import { MessageHistoryView } from "../_components/MessageHistoryView";
-import TaskPreview from "../_components/TaskPreview";
-import { mockMessages } from "../mock";
-import { useTaskStore } from "~/core/store/task";
-
-// 获取最新step的最新task的函数
-const getLatestStepTask = (messages: any[]) => {
-  const lastMessage =
-    messages.length > 0 ? messages[messages.length - 1] : null;
-
-  if (
-    lastMessage?.role !== "assistant" ||
-    !lastMessage?.content?.workflow?.steps
-  )
-    return null;
-  const steps = lastMessage.content.workflow.steps;
-  const latestStep = steps[steps.length - 1];
-  if (!latestStep?.tasks) return null;
-
-  const tasks = latestStep.tasks;
-  return tasks[tasks.length - 1];
-};
+import { MessagesView } from "../../_components/messages";
+import TaskPreview from "~/app/_components/task/task-preview";
+import { mockMessages } from "./mock";
 
 export default function ChatPage() {
   // 添加ref来跟踪初始消息是否已发送
   const initialMessageSentRef = useRef(false);
+  // 断开请求的控制器
   const abortControllerRef = useRef<AbortController | null>(null);
-  const messages = useMessageStore((state) => state.messages);
-  // const messages = mockMessages;
+  // const messages = useMessageStore((state) => state.messages);
+  const messages = mockMessages;
+  // 是否正在响应
   const responding = useMessageStore((state) => state.responding);
+  // 初始消息
   const initMessage = useMessageStore((state) => state.initMessages);
+  // 用户输入
   const [message, setMessage] = useState("");
 
+  // 设置当前模型正在执行的任务
   const { setCurrentTask } = useTaskStore();
+  // 是否展开任务视图
   const { expandTaskView, setExpandTaskView } = useUIStore();
 
   // 获取最新step的最新task
@@ -56,8 +44,18 @@ export default function ChatPage() {
   // 获取聊天标题
   const chatHeader = useMemo(() => {
     return messages[0]?.role === "user"
-      ? messages[0]?.content.toString().slice(0, 12) + "..."
+      ? messages[0]?.content.toString()
       : "Fusion";
+  }, [messages]);
+
+  // 是否显示任务预览组件
+  const showTaskPreview = useMemo(() => {
+    return (
+      messages[messages.length - 1]?.role === "assistant" &&
+      messages[messages.length - 1]?.content.workflow &&
+      messages[messages.length - 1]?.content.workflow.plans &&
+      messages[messages.length - 1]?.content.workflow.plans.length > 0
+    );
   }, [messages]);
 
   // 获取聊天id
@@ -95,7 +93,7 @@ export default function ChatPage() {
           searchBeforePlanning: false,
         });
         // 发送后清除初始化消息
-        setInitMessages("");
+        setInitMessages(null);
       }
     };
     void sendInitialMessage();
@@ -113,28 +111,23 @@ export default function ChatPage() {
           <div className="sticky top-0 z-10 flex flex-shrink-0 flex-row items-center justify-between bg-[var(--background-gray-main)] pb-1 pt-3">
             <ChatHeader header={chatHeader} />
           </div>
-          <div className="flex w-full flex-1 flex-col gap-[12px] overflow-scroll pb-[60px] pt-[12px]">
-            <MessageHistoryView
+          <div className="flex w-full flex-1 flex-col gap-[12px] overflow-scroll pb-[20px] pt-[12px]">
+            <MessagesView
               className="w-full"
               messages={messages}
               loading={responding}
             />
           </div>
           <div className="sticky bottom-4 flex flex-col">
-            {!expandTaskView &&
-              messages[messages.length - 1]?.role === "assistant" &&
-              messages[messages.length - 1]?.content.workflow &&
-              messages[messages.length - 1]?.content.workflow.plans &&
-              messages[messages.length - 1]?.content.workflow.plans.length >
-                0 && (
-                <TaskPreview
-                  responding={responding}
-                  expand={expandTaskView}
-                  setExpand={setExpandTaskView}
-                  tasks={messages[messages.length - 1]?.content.workflow?.plans}
-                />
-              )}
-            <InputBox
+            {!expandTaskView && showTaskPreview && (
+              <TaskPreview
+                responding={responding}
+                expand={expandTaskView}
+                setExpand={setExpandTaskView}
+                tasks={messages[messages.length - 1]?.content.workflow?.plans}
+              />
+            )}
+            <ChatInput
               message={message}
               setMessage={setMessage}
               className="w-full"
@@ -165,4 +158,21 @@ export default function ChatPage() {
       </motion.div>
     </div>
   );
+}
+
+// 获取最新step的最新task的函数
+function getLatestStepTask(messages: any[]) {
+  const lastMessage =
+    messages.length > 0 ? messages[messages.length - 1] : null;
+  if (
+    lastMessage?.role !== "assistant" ||
+    !lastMessage?.content?.workflow?.steps
+  )
+    return null;
+  const steps = lastMessage.content.workflow.steps;
+  const latestStep = steps[steps.length - 1];
+  if (!latestStep?.tasks) return null;
+
+  const tasks = latestStep.tasks;
+  return tasks[tasks.length - 1];
 }

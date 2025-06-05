@@ -2,23 +2,19 @@
 
 import { nanoid } from "nanoid";
 import { useRouter } from "next/navigation";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 
-import { setInitMessages, useMessageStore } from "~/core/store";
+import { setInitMessages } from "~/core/store";
 import { cn } from "~/core/utils";
 
-import { AppHeader } from "../_components/AppHeader";
-import { InputBox } from "../_components/InputBox";
-import { QuickSuggestion } from "../_components/QuickSuggestion";
-import { SidebarTrigger } from "~/components/ui/sidebar";
+import { AppHeader } from "../../components/AppHeader";
+import { ChatInput } from "../_components/chat-input";
+import { ChatSuggestions } from "../_components/chat-suggestions";
 
 export default function HomePage() {
-  const abortControllerRef = useRef<AbortController | null>(null);
-  // 用户输入的message
-  const [message, setMessage] = useState("");
-  // 消息历史
-  const messages = useMessageStore((state) => state.messages);
   const router = useRouter();
+  // 用户输入
+  const [message, setMessage] = useState("");
   // 发送消息
   const handleSendMessage = async (
     content: string,
@@ -27,7 +23,6 @@ export default function HomePage() {
     setInitMessages(content);
     router.push(`/${nanoid()}`);
   };
-
   // 点击快速建议
   const handleSuggestionClick = useCallback((action: string) => {
     setMessage(action);
@@ -55,20 +50,15 @@ export default function HomePage() {
             <h4 className="text-[#858481]">我能为你做什么?</h4>
           </div>
           <div>
-            <InputBox
+            <ChatInput
               message={message}
               setMessage={setMessage}
-              size={messages.length === 0 ? "large" : "normal"}
               onSend={handleSendMessage}
-              onCancel={() => {
-                abortControllerRef.current?.abort();
-                abortControllerRef.current = null;
-              }}
               placeholder="给 Fusion AI 一个任务…"
             />
           </div>
           <div className="my-4 w-full">
-            <QuickSuggestion onSuggestionClick={handleSuggestionClick} />
+            <ChatSuggestions onSuggestionClick={handleSuggestionClick} />
           </div>
         </div>
       </main>

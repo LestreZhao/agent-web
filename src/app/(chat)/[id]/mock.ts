@@ -29,6 +29,7 @@ export const mockMessages = [
               {
                 id: "UVCFBT1LDK19HzoPSl8XV",
                 type: "thinking",
+                agentName: "planner",
                 state: "success",
                 payload: {
                   text: '```json\n{\n  "thought": "用户希望筛查出血糖控制不佳的糖尿病患者，并为这些患者制定个性化的管理方案。这需要通过数据收集、分析血糖控制指标、识别高风险患者，最终提出定制化的干预措施。",\n  "title": "筛查血糖控制不佳的糖尿病患者并制定个性化管理方案",\n  "steps": [\n    {\n      "agent_name": "researcher",\n      "title": "研究糖尿病血糖控制的标准和最新指南",\n      "description": "研究员将搜索血糖控制不佳的标准定义（如HbA1c水平超过7%）、相关危险因素，以及如何判断患者的病情是否需要干预。输出一份Markdown报告总结发现。",\n      "note": "确保涵盖国际和国内最新的医学指南。"\n    },\n    {\n      "agent_name": "db_analyst",\n      "title": "分析糖尿病患者数据库中的血糖控制数据",\n      "description": "数据库分析师查询电子健康记录系统中与糖尿病相关的表，提取患者的血糖控制关键指标（如HbA1c、空腹血糖值等），并筛选出血糖控制不佳的患者列表。同时分析是否存在其他相关变量（如年龄、性别、病史）对血糖控制的影响。",\n      "note": "仅执行SELECT查询操作，确保安全合规。"\n    },\n    {\n      "agent_name": "coder",\n      "title": "计算血糖控制不佳的比例及相关统计特征",\n      "description": "程序员根据数据库分析师提供的患者数据，计算血糖控制不佳患者占总糖尿病患者的比例，并生成描述性统计信息（如平均值、标准差、分布情况）。输出一份Markdown报告展示结果。",\n      "note": "必须使用Python完成数学运算。"\n    },\n    {\n      "agent_name": "researcher",\n      "title": "调研个性化管理方案的最佳实践",\n      "description": "研究员进一步查找针对血糖控制不佳患者的个性化管理方法，包括药物调整、生活方式干预、饮食建议等方面的文献资料，并整理成Markdown报告。",\n      "note": "重点考虑临床试验或真实世界研究支持的策略。"\n    },\n    {\n      "agent_name": "reporter",\n      "title": "撰写完整的个性化管理方案报告",\n      "description": "记者综合之前所有步骤的结果，编写一份专业报告，内容包括：血糖控制不佳患者的标准及现状、数据分析结果、以及推荐的个性化管理方案。",\n      "note": "作为最后一步，确保内容全面且逻辑清晰。"\n    }\n  ]\n}\n```',

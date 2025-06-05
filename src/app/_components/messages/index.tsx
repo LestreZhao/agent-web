@@ -2,14 +2,14 @@ import Markdown from "react-markdown";
 
 import { type Message } from "~/core/messaging";
 import { cn } from "~/core/utils";
+import { MessagesTaskView } from "./messages-task-view";
+import { MessageLoading } from "~/app/_components/messages/message-loading";
 
-import { LoadingAnimation } from "~/app/_components/LoadingAnimation";
-import { WorkflowProgressView } from "./WorkflowProgressView";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowDown } from "lucide-react";
 
-export function MessageHistoryView({
+export function MessagesView({
   className,
   messages,
   loading,
@@ -18,7 +18,6 @@ export function MessageHistoryView({
   messages: Message[];
   loading: boolean;
 }) {
-
   const endRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -52,20 +51,22 @@ export function MessageHistoryView({
   }, [messages]);
 
   return (
-    <div className={cn(className, "relative flex h-full flex-col")}>
+    <div
+      className={cn(className, "relative flex h-full flex-col overflow-hidden")}
+    >
       <div
-        className="flex-1 overflow-auto"
+        className="flex-1 overflow-y-scroll"
         ref={containerRef}
         onScroll={handleScroll}
       >
         {messages.map((message) => (
           <MessageView key={message.id} message={message} loading={loading} />
         ))}
-        {loading && <LoadingAnimation className="mt-2" />}
+        {loading && <MessageLoading className="mt-2" />}
         <div className="h-1" ref={endRef} />
       </div>
       {showScrollButton && (
-        <div className="absolute bottom-[-10px] flex w-full justify-center">
+        <div className="absolute bottom-1 flex w-full justify-center">
           <motion.button
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -122,7 +123,7 @@ function MessageView({
             className="h-5 w-auto"
           />
         </div>
-        <WorkflowProgressView
+        <MessagesTaskView
           loading={loading}
           className="max-w-full pr-4"
           workflow={message.content.workflow}

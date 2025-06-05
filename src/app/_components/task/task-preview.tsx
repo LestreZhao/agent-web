@@ -20,14 +20,16 @@ import {
 import { useTaskStore } from "~/core/store/task";
 import { cn } from "~/core/utils";
 
-import { ToolCallView } from "./ToolCallView";
-import { getStepName, TaskView } from "./WorkflowProgressView";
+import { getStepName } from "~/app/_components/messages/messages-task-view";
+import { TaskToolResultView } from "~/app/_components/task/task-tool-result";
+import { TaskTag } from "./task-tag";
 
 interface TaskItem {
   text: string;
   completed: boolean;
 }
 
+// 任务预览 （左侧及消息底部）
 export default function TaskPreview({
   tasks,
   className,
@@ -115,7 +117,7 @@ export default function TaskPreview({
                     Fusion AI 正在执行任务
                   </span>
                   {expand && (
-                    <TaskView
+                    <TaskTag
                       task={task}
                       key={task.text}
                       title={getStepName(task).title}
@@ -156,7 +158,6 @@ export default function TaskPreview({
             </div>
           </div>
         }
-
         <motion.div
           className={
             expand
@@ -262,6 +263,7 @@ export default function TaskPreview({
   );
 }
 
+// 任务内容视图
 function TaskContentView({
   task,
   isSelectedTask,
@@ -281,7 +283,7 @@ function TaskContentView({
     >
       <ResizablePanel defaultSize={6}>
         <div className="flex h-full items-center justify-center text-sm font-bold text-[#858481]">
-          {task.type === "thinking" ? "LLM 正在思考…" : task.payload.toolName}
+          {getStepName(task).typeName}
         </div>
       </ResizablePanel>
       <ResizableHandle />
@@ -292,7 +294,7 @@ function TaskContentView({
           padding: "10px",
         }}
       >
-        <ToolCallView task={task} />
+        <TaskToolResultView task={task} />
         {isSelectedTask && (
           <motion.div className="absolute bottom-4 left-0 right-0 flex w-full justify-center">
             <motion.button

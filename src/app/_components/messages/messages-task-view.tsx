@@ -20,13 +20,15 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Markdown } from "~/app/_components/Markdown";
+import { Markdown } from "~/components/comon/Markdown";
 import { useTaskStore } from "~/core/store/task";
 import { useUIStore } from "~/core/store/ui";
 import { cn } from "~/core/utils";
 import { type ThinkingTask, type Workflow } from "~/core/workflow";
+import { TaskTag } from "../task/task-tag";
 
-export function WorkflowProgressView({
+// 消息任务视图
+export function MessagesTaskView({
   className,
   workflow,
   loading,
@@ -35,23 +37,38 @@ export function WorkflowProgressView({
   workflow: Workflow;
   loading: boolean;
 }) {
-  const { currentStepInfo } = useTaskStore();
+  const { currentStepInfo, setSelectedTask, setIsSelectedTask } =
+    useTaskStore();
+  const { setExpandTaskView } = useUIStore();
+
   const steps = useMemo(() => {
     return workflow.steps.filter((step) => step.agentName !== "reporter");
   }, [workflow]);
   const reportStep = useMemo(() => {
     return workflow.steps.find((step) => step.agentName === "reporter");
   }, [workflow]);
+
+  // 点击任务标签
+  const handleTaskTagClick = (task: any) => {
+    setSelectedTask?.(task);
+    setExpandTaskView?.(true);
+    setIsSelectedTask(true);
+  };
+
   return (
     <div className="flex w-full flex-col gap-2">
-      <div className={cn("flex overflow-hidden rounded-2xl", className)}>
-        <main className="flex-grow overflow-auto">
+      <div className={cn("flex rounded-2xl", className)}>
+        <main className="flex-grow">
           <ul className="">
             {steps.map((step, index) =>
               step.agentName === "planner" ? (
                 step.tasks &&
                 step.tasks.length > 0 && (
-                  <PlanTaskView key={step.agentId} task={step.tasks[0]!} />
+                  <PlanTaskView
+                    key={step.agentId}
+                    task={step.tasks[0]!}
+                    handleClick={handleTaskTagClick}
+                  />
                 )
               ) : (
                 <StepView
@@ -59,6 +76,7 @@ export function WorkflowProgressView({
                   loading={loading}
                   step={{ ...step, index }}
                   currentStep={currentStepInfo}
+                  handleClick={handleTaskTagClick}
                 />
               ),
             )}
@@ -78,8 +96,14 @@ export function WorkflowProgressView({
   );
 }
 
-function PlanTaskView({ task }: { task: ThinkingTask }) {
-  const { setSelectedTask } = useTaskStore();
+// 计划任务视图
+function PlanTaskView({
+  task,
+  handleClick,
+}: {
+  task: ThinkingTask;
+  handleClick: (task: any) => void;
+}) {
   const plan = useMemo<{
     title?: string;
     steps?: { title?: string; description?: string }[];
@@ -100,7 +124,7 @@ function PlanTaskView({ task }: { task: ThinkingTask }) {
           <Markdown>{thought}</Markdown>
         </div>
       )}
-      <TaskView
+      <TaskTag
         task={task}
         key={task.id}
         title={
@@ -108,23 +132,25 @@ function PlanTaskView({ task }: { task: ThinkingTask }) {
             ? "任务计划已生成"
             : "正在分析用户需求,生成执行计划…"
         }
-        setSelectedTask={setSelectedTask}
+        handleClick={handleClick}
         icon={<ListTodo className="mr-2 h-4 w-4" />}
       />
     </div>
   );
 }
 
+// 步骤视图
 function StepView({
   step,
   currentStep,
   loading,
+  handleClick,
 }: {
   step: any;
   currentStep: any;
   loading: boolean;
+  handleClick: (task: any) => void;
 }) {
-  const { setSelectedTask } = useTaskStore();
   const stepName = step.step_info?.title;
   const tasks = step.tasks.filter((task) => {
     if (task.type === "thinking") {
@@ -176,12 +202,12 @@ function StepView({
         <CollapsibleContent>
           {tasks.map((task) => {
             return (
-              <TaskView
+              <TaskTag
                 key={task.id}
                 task={task}
                 title={getStepName(task).title}
-                setSelectedTask={setSelectedTask}
                 icon={getStepName(task).icon}
+                handleClick={handleClick}
               />
             );
           })}
@@ -191,44 +217,12 @@ function StepView({
   );
 }
 
-export function TaskView({
-  task,
-  title,
-  icon,
-  setSelectedTask,
-}: {
-  task?: any;
-  title?: string;
-  icon?: React.ReactNode;
-  setSelectedTask?: (task: any) => void;
-}) {
-  const { setExpandTaskView } = useUIStore();
-  const { setIsSelectedTask } = useTaskStore();
-  return (
-    <motion.div className="flex items-center justify-between">
-      <motion.div
-        whileHover={{ scale: 1.01 }}
-        transition={{ duration: 0.2 }}
-        onClick={() => {
-          setExpandTaskView?.(true);
-          setIsSelectedTask(true);
-          setSelectedTask?.({ ...task, taskTitle: title, icon });
-        }}
-        className="my-2 flex cursor-pointer items-center overflow-hidden rounded-full border bg-[#37352f0a] px-2.5 py-1.5"
-      >
-        {icon}
-        <motion.span className="ml-2 line-clamp-1 text-xs">{title}</motion.span>
-      </motion.div>
-      <div></div>
-    </motion.div>
-  );
-}
-
 export function getStepName(task: any) {
   let taskInfo = {};
   switch (task.type) {
     case "thinking":
       taskInfo = {
+        typeName: "FusionAI 正在分析",
         title: "正在分析数据内容…",
         icon: <Atom className="h-4 w-4" />,
       };
@@ -236,60 +230,65 @@ export function getStepName(task: any) {
     case "tool_call":
       if (task.payload.toolName === "tavily_search") {
         taskInfo = {
+          typeName: "检索数据",
           title: `正在检索 ${task.payload.input.query}`,
           icon: <Search className="h-4 w-4 shrink-0 text-sm" />,
         };
       }
       if (task.payload.toolName === "crawl_tool") {
         taskInfo = {
+          typeName: "浏览网页",
           title: `正在浏览网页 ${task.payload.input.url}`,
-          // title: `正在浏览网页…`,
           icon: <TextSearch className="h-4 w-4 shrink-0 text-sm" />,
         };
       }
       if (task.payload.toolName === "get_table_info") {
         taskInfo = {
-          // title: `正在查询数据库 ${task.payload.input.table_name ?? ""}`,
-          title: `正在查询数据库…`,
+          typeName: "正在学习数据库",
+          title: `正在学习数据库  ${task.payload.input.table_name ?? ""}`,
           icon: <Database className="h-4 w-4 shrink-0 text-sm" />,
         };
       }
       if (task.payload.toolName === "get_table_relationships") {
         taskInfo = {
-          // title: `正在查询表关系 ${task.payload.input.table_name ?? ""}`,
-          title: `正在查询表关系…`,
+          typeName: "正在分析数据库结构",
+          title: `正在分析数据库结构 ${task.payload.input.table_name ?? ""}`,
           icon: <Database className="h-4 w-4 shrink-0 text-sm" />,
         };
       }
       if (task.payload.toolName === "execute_oracle_query") {
         taskInfo = {
-          // title: `正在执行数据库命令 ${task.payload.input.sql ?? ""}`,
-          title: `正在执行数据库命令…`,
+          typeName: "正在查询数据库",
+          title: `正在查询数据库 ${task.payload.input.sql ?? ""}`,
           icon: <DatabaseBackup className="h-4 w-4 shrink-0 text-sm" />,
         };
       }
       return taskInfo;
     case "planner":
       taskInfo = {
-        title: "正在规划",
+        typeName: "规划任务",
+        title: "正在规划任务",
         icon: <Search className="h-4 w-4 shrink-0 text-sm" />,
       };
       return taskInfo;
     case "researcher":
       taskInfo = {
-        title: "正在研究",
+        typeName: "研究任务",
+        title: "正在研究任务",
         icon: <Search className="h-4 w-4 shrink-0 text-sm" />,
       };
       return taskInfo;
     case "supervisor":
       taskInfo = {
-        title: "正在思考",
+        typeName: "思考任务",
+        title: "正在思考任务",
         icon: <Search className="h-4 w-4 shrink-0 text-sm" />,
       };
       return taskInfo;
     case "reporter":
       taskInfo = {
-        title: "正在总结",
+        typeName: "总结任务",
+        title: "正在总结任务",
         icon: <Search className="h-4 w-4 shrink-0 text-sm" />,
       };
       return taskInfo;

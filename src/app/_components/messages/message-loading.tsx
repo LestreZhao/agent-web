@@ -1,8 +1,8 @@
 import { cn } from "~/core/utils";
 
-import styles from "./LoadingAnimation.module.css";
+import styles from "~/app/_styles/message-loading.module.css";
 
-export function LoadingAnimation({ className }: { className?: string }) {
+export function MessageLoading({ className }: { className?: string }) {
   return (
     <div className={cn(styles.loadingAnimation, className)}>
       <div></div>

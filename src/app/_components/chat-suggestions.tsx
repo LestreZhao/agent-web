@@ -3,7 +3,7 @@ import { ArrowUp } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
 
-export function QuickSuggestion({
+export function ChatSuggestions({
   onSuggestionClick,
 }: {
   onSuggestionClick?: (action: string) => void;

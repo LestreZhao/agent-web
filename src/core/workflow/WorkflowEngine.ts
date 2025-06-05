@@ -79,6 +79,7 @@ export class WorkflowEngine {
           currentThinkingTask = {
             id: nanoid(),
             type: "thinking",
+            agentName: currentStep!.agentName,
             state: "pending",
             payload: {
               text: "",
@@ -114,6 +115,7 @@ export class WorkflowEngine {
             id: event.data.tool_call_id,
             type: "tool_call",
             state: "pending",
+            agentName: currentStep!.agentName,
             payload: {
               toolName: event.data.tool_name,
               input: event.data.tool_input,

@@ -5,7 +5,7 @@ import { type KeyboardEvent, useCallback, useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/core/utils";
 
-export function InputBox({
+export function ChatInput({
   message,
   setMessage,
   className,
