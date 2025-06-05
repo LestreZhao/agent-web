@@ -1,7 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, ChevronDown, LoaderCircle, Maximize2 } from "lucide-react";
+import {
+  Atom,
+  Check,
+  ChevronDown,
+  LoaderCircle,
+  Maximize2,
+  Play,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Button } from "~/components/ui/button";
@@ -14,7 +21,7 @@ import { useTaskStore } from "~/core/store/task";
 import { cn } from "~/core/utils";
 
 import { ToolCallView } from "./ToolCallView";
-import { TaskView } from "./WorkflowProgressView";
+import { getStepName, TaskView } from "./WorkflowProgressView";
 
 interface TaskItem {
   text: string;
@@ -26,10 +33,12 @@ export default function TaskPreview({
   className,
   expand,
   setExpand,
+  responding,
 }: {
   tasks: TaskItem[];
   className?: string;
   expand?: boolean;
+  responding: boolean;
   setExpand?: (expand: boolean) => void;
 }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -37,10 +46,17 @@ export default function TaskPreview({
     setCollapsed(!collapsed);
   };
 
-  const { selectedTask, currentStepInfo } = useTaskStore();
+  const {
+    selectedTask,
+    currentStepInfo,
+    isSelectedTask,
+    currentTask,
+    setIsSelectedTask,
+  } = useTaskStore();
+
   const task = useMemo(() => {
-    return selectedTask;
-  }, [selectedTask]);
+    return isSelectedTask ? selectedTask : currentTask;
+  }, [selectedTask, currentTask, isSelectedTask]);
   const stepInfo = useMemo(() => {
     return currentStepInfo;
   }, [currentStepInfo]);
@@ -59,24 +75,41 @@ export default function TaskPreview({
         {
           <div
             className={cn(
-              "flex flex-1",
-              expand ? "flex-col" : "relative items-center gap-4",
+              expand ? "flex-col" : "",
+              !expand && !collapsed
+                ? "absolute bottom-2.5 left-2.5 z-50"
+                : "relative flex flex-1 gap-4",
             )}
           >
-            <div className="mb-4 flex flex-col">
+            <div
+              className={cn(
+                "flex flex-col",
+                expand ? "" : "flex-1",
+                !expand && !collapsed ? "hidden" : "",
+              )}
+            >
               <div className="flex items-center justify-between">
                 <h2 className="text-base font-bold">Fusion AI 的计算机</h2>
-                {expand && (
+                {expand ? (
                   <button
                     onClick={() => setExpand?.(!expand)}
                     className="rounded-full p-1 hover:bg-gray-100"
                   >
                     <Maximize2 size={18} className="text-[#858481]" />
                   </button>
+                ) : (
+                  <button
+                    onClick={() => setCollapsed?.(!collapsed)}
+                    className="rounded-full p-1 hover:bg-gray-100"
+                  >
+                    <ChevronDown size={18} className="text-[#858481]" />
+                  </button>
                 )}
               </div>
               <div className="flex items-center gap-4">
-                <div className="h-10 w-10 rounded-lg bg-[#f7f7f7]"></div>
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f7f7f7]">
+                  {task ? getStepName(task).icon : <Atom size={20} />}
+                </div>
                 <div>
                   <span className="text-xs text-[#858481]">
                     Fusion AI 正在执行任务
@@ -85,7 +118,8 @@ export default function TaskPreview({
                     <TaskView
                       task={task}
                       key={task.text}
-                      title={task.taskTitle}
+                      title={getStepName(task).title}
+                      icon={getStepName(task).icon}
                     />
                   )}
                 </div>
@@ -94,11 +128,23 @@ export default function TaskPreview({
             <div
               className={
                 expand
-                  ? "my-4 mb-14 flex-1"
+                  ? "mb-14 flex-1"
                   : "bg-menu-white group bottom-[7px] start-3 order-[-1] h-[38px] w-[56px] cursor-pointer overflow-hidden rounded-lg border shadow-lg backdrop-blur-[40px] transition-transform hover:scale-[1.03] sm:h-[68px] sm:w-[100px]"
               }
             >
-              <TaskContentView expand={expand} task={task} />
+              <div
+                className={cn(
+                  expand
+                    ? "h-full"
+                    : "pointer-events-none flex h-[284px] w-[355px] origin-[0_0] scale-x-[0.157] scale-y-[0.248] flex-col overflow-hidden rounded-lg border border-[var(--border-dark)] bg-[var(--background-gray-main)] shadow-[0px_4px_32px_0px_rgba(0,0,0,0.04)] dark:border-black/30 sm:scale-x-[0.282] sm:scale-y-[0.242] rtl:origin-[100%_0]",
+                )}
+              >
+                <TaskContentView
+                  task={task}
+                  isSelectedTask={isSelectedTask}
+                  setIsSelectedTask={setIsSelectedTask}
+                />
+              </div>
               <div className="absolute bottom-1 right-1 flex h-[16px] w-[16px] items-center justify-center rounded-sm bg-[var(--fill-black)] opacity-0 transition-opacity group-hover:opacity-100 sm:h-[28px] sm:w-[28px] sm:rounded-lg">
                 <button
                   className="rounded-lg bg-[#28282973] p-1"
@@ -134,27 +180,28 @@ export default function TaskPreview({
                 任务进度
                 <div className="flex items-center">
                   <div className="float-right cursor-pointer text-xs font-normal text-gray-400">
-                    <span className="text-xs">7</span>
-                    <span className="text-xs">/ 7</span>
+                    {stepInfo?.step_index} / {stepInfo?.total_steps}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-full p-1"
-                    onClick={toggleExpanded}
-                  >
-                    <ChevronDown size={20} />
-                  </Button>
+                  {!expand && collapsed ? null : (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full p-1"
+                      onClick={toggleExpanded}
+                    >
+                      <ChevronDown size={20} />
+                    </Button>
+                  )}
                 </div>
               </h3>
               <div className="space-y-4">
                 {tasks.map((task, index) => (
                   <div key={index} className="flex items-start">
                     <div className="mr-2.5 flex h-5 w-5 items-center justify-center">
-                      {stepInfo?.step_index > index && (
+                      {stepInfo?.step_index > index + 1 && (
                         <Check size={20} className="text-green-500" />
                       )}
-                      {stepInfo?.step_index === index && (
+                      {stepInfo?.step_index === index + 1 && (
                         <LoaderCircle
                           size={20}
                           className="animate-spin text-[#858481]"
@@ -174,17 +221,24 @@ export default function TaskPreview({
               )}
               onClick={toggleExpanded}
             >
-              <div className="flex items-start">
+              <div
+                className={cn(
+                  "flex items-start",
+                  !expand && !collapsed ? "ml-[120px]" : "",
+                )}
+              >
                 <div className="mr-3 text-green-500">
-                  {stepInfo?.step_index === stepInfo?.total_steps && (
-                    <Check size={20} className="text-green-500" />
-                  )}
-                  {stepInfo?.step_index < stepInfo?.total_steps && (
-                    <LoaderCircle
-                      size={20}
-                      className="animate-spin text-[#858481]"
-                    />
-                  )}
+                  {stepInfo?.step_index === stepInfo?.total_steps ||
+                    (!responding && (
+                      <Check size={20} className="text-green-500" />
+                    ))}
+                  {stepInfo?.step_index < stepInfo?.total_steps &&
+                    responding && (
+                      <LoaderCircle
+                        size={20}
+                        className="animate-spin text-[#858481]"
+                      />
+                    )}
                 </div>
                 <h3 className="text-sm font-medium">
                   {stepInfo?.step_info?.title}
@@ -198,7 +252,7 @@ export default function TaskPreview({
                 >
                   {stepInfo?.step_index} / {stepInfo?.total_steps}
                 </motion.span>
-                <ChevronDown size={20} className="ml-2" />
+                {!expand && <ChevronDown size={20} className="ml-2" />}
               </div>
             </div>
           )}
@@ -208,14 +262,22 @@ export default function TaskPreview({
   );
 }
 
-function TaskContentView({ task }: { task: TaskItem }) {
+function TaskContentView({
+  task,
+  isSelectedTask,
+  setIsSelectedTask,
+}: {
+  task: TaskItem;
+  isSelectedTask: boolean;
+  setIsSelectedTask: (isSelectedTask: boolean) => void;
+}) {
   if (!task) {
     return null;
   }
   return (
     <ResizablePanelGroup
       direction="vertical"
-      className="h-full max-w-full rounded-lg border bg-[#f8f8f7]"
+      className="relative h-full max-w-full rounded-lg border bg-[#f8f8f7]"
     >
       <ResizablePanel defaultSize={6}>
         <div className="flex h-full items-center justify-center text-sm font-bold text-[#858481]">
@@ -225,9 +287,23 @@ function TaskContentView({ task }: { task: TaskItem }) {
       <ResizableHandle />
       <ResizablePanel
         defaultSize={94}
-        style={{ overflowY: "scroll", padding: "10px" }}
+        style={{
+          overflowY: "scroll",
+          padding: "10px",
+        }}
       >
         <ToolCallView task={task} />
+        {isSelectedTask && (
+          <motion.div className="absolute bottom-4 left-0 right-0 flex w-full justify-center">
+            <motion.button
+              className="flex h-10 items-center justify-center gap-2 rounded-3xl border-[#E5E5E5] bg-white px-4 text-sm font-medium shadow-lg hover:border hover:bg-accent"
+              onClick={() => setIsSelectedTask(false)}
+            >
+              <Play className="h-4 w-4" />
+              <span>跳到实时</span>
+            </motion.button>
+          </motion.div>
+        )}
       </ResizablePanel>
     </ResizablePanelGroup>
   );

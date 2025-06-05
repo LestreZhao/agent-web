@@ -10,6 +10,7 @@ import { cn } from "~/core/utils";
 import { AppHeader } from "../_components/AppHeader";
 import { InputBox } from "../_components/InputBox";
 import { QuickSuggestion } from "../_components/QuickSuggestion";
+import { SidebarTrigger } from "~/components/ui/sidebar";
 
 export default function HomePage() {
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -34,7 +35,7 @@ export default function HomePage() {
 
   return (
     <div className="flex w-full flex-col">
-      <header className="flex h-16 w-full items-center px-4">
+      <header className="flex h-16 w-full items-center">
         <AppHeader />
       </header>
       <main className="flex w-full flex-col items-center justify-center">

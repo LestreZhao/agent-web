@@ -23,9 +23,18 @@ export function ToolCallView({ task }: { task: ToolCallTask }) {
     return <BashToolCallView task={task as ToolCallTask<any>} />;
   } else if (
     task.payload.toolName === "execute_oracle_query" ||
-    task.payload.toolName === "get_table_info"
+    task.payload.toolName === "get_table_info" ||
+    task.payload.toolName === "get_table_relationships"
   ) {
-    const content = `- ${task.payload.input.sql} - ${task.payload.output}`;
+    const search =
+      task.payload.toolName === "execute_oracle_query"
+        ? "执行的sql语句：\n" + (task.payload.input as any).sql
+        : "查询的表名：\n" + (task.payload.input as any).table_name;
+    const content =
+      "```sql\n" +
+      search +
+      "\n```\n" +
+      `执行结果：\n \`\`\`json\n${task.payload.output}\n\`\`\``;
     return <Markdown className="text-sm">{content}</Markdown>;
   }
   return <div>{task.payload.toolName}</div>;
@@ -79,6 +88,9 @@ function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
             &quot;{title ?? task.payload.input.url}&quot;
           </a>
         </div>
+      </div>
+      <div className="mt-2">
+        {/* <Markdown>{task.payload.output}</Markdown> */}
       </div>
     </div>
   );

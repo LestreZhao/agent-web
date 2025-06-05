@@ -12,19 +12,48 @@ import { useUIStore } from "~/core/store/ui";
 import { MessageHistoryView } from "../_components/MessageHistoryView";
 import TaskPreview from "../_components/TaskPreview";
 import { mockMessages } from "../mock";
+import { useTaskStore } from "~/core/store/task";
+
+// 获取最新step的最新task的函数
+const getLatestStepTask = (messages: any[]) => {
+  const lastMessage =
+    messages.length > 0 ? messages[messages.length - 1] : null;
+
+  if (
+    lastMessage?.role !== "assistant" ||
+    !lastMessage?.content?.workflow?.steps
+  )
+    return null;
+  const steps = lastMessage.content.workflow.steps;
+  const latestStep = steps[steps.length - 1];
+  if (!latestStep?.tasks) return null;
+
+  const tasks = latestStep.tasks;
+  return tasks[tasks.length - 1];
+};
 
 export default function ChatPage() {
   // 添加ref来跟踪初始消息是否已发送
   const initialMessageSentRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
-  // const messages = useMessageStore((state) => state.messages);
-  const messages = mockMessages;
+  const messages = useMessageStore((state) => state.messages);
+  // const messages = mockMessages;
   const responding = useMessageStore((state) => state.responding);
   const initMessage = useMessageStore((state) => state.initMessages);
   const [message, setMessage] = useState("");
 
+  const { setCurrentTask } = useTaskStore();
   const { expandTaskView, setExpandTaskView } = useUIStore();
 
+  // 获取最新step的最新task
+  useEffect(() => {
+    const latestTask = getLatestStepTask(messages);
+    if (latestTask) {
+      setCurrentTask(latestTask);
+    }
+  }, [messages, setCurrentTask]);
+
+  // 获取聊天标题
   const chatHeader = useMemo(() => {
     return messages[0]?.role === "user"
       ? messages[0]?.content.toString().slice(0, 12) + "..."
@@ -99,6 +128,7 @@ export default function ChatPage() {
               messages[messages.length - 1]?.content.workflow.plans.length >
                 0 && (
                 <TaskPreview
+                  responding={responding}
                   expand={expandTaskView}
                   setExpand={setExpandTaskView}
                   tasks={messages[messages.length - 1]?.content.workflow?.plans}
@@ -126,6 +156,7 @@ export default function ChatPage() {
         className="h-full w-full overflow-hidden"
       >
         <TaskPreview
+          responding={responding}
           className="h-full"
           expand={expandTaskView}
           setExpand={setExpandTaskView}
