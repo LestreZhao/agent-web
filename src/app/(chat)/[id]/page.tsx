@@ -20,12 +20,16 @@ import { useUIStore } from "~/core/store/ui";
 import { MessagesView } from "../../_components/messages";
 
 import { mockMessages } from "./mock";
+import { toast } from "sonner";
+import FileContent from "~/app/_components/file-content";
 
 export default function ChatPage() {
   // 添加ref来跟踪初始消息是否已发送
   const initialMessageSentRef = useRef(false);
   // 断开请求的控制器
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  const { currentFile } = useMessageStore();
   const messages = useMessageStore((state) => state.messages);
   // const messages = mockMessages;
   // 是否正在响应
@@ -38,7 +42,8 @@ export default function ChatPage() {
   // 设置当前模型正在执行的任务
   const { setCurrentTask } = useTaskStore();
   // 是否展开任务视图
-  const { expandTaskView, setExpandTaskView } = useUIStore();
+  const { expandTaskView, setExpandTaskView, isFilePreview, setIsFilePreview } =
+    useUIStore();
 
   // 获取最新step的最新task
   useEffect(() => {
@@ -84,7 +89,7 @@ export default function ChatPage() {
       content: message,
     };
     if (files.length > 0) {
-      userMessage.content += `。用户上传了文件，文件ID为：${files.map((file) => file.file_id).join(",")}`;
+      userMessage.content += `。用户上传了文件，文件ID为：${files.map((file) => file.id).join(",")}`;
       userMessage.files = files;
     }
     await sendMessage(userMessage, config, {
@@ -114,15 +119,28 @@ export default function ChatPage() {
   // 上传文件
   const handleFileUpload = useCallback(
     (file: File) => {
-      return uploadFile(file).then((res) => {
-        if (res.success) {
-          setFiles([res, ...files]);
-        }
-        return res;
-      });
+      return uploadFile(file)
+        .then((res) => {
+          if (res.success) {
+            const reviewFile = {
+              id: res.file_id,
+              name: res.document_info.filename,
+              size: res.document_info.file_size,
+              type: res.document_info.file_type,
+              url: res.download_url,
+            };
+            setFiles([reviewFile, ...files]);
+          }
+          return res;
+        })
+        .catch((err) => {
+          toast.error("上传失败,请重新上传");
+          return null;
+        });
     },
     [files],
   );
+
   const handleDeleteFile = useCallback(
     (file: File) => {
       setFiles(files.filter((f) => f.name !== file.name));
@@ -169,10 +187,8 @@ export default function ChatPage() {
                 abortControllerRef.current?.abort();
               }}
               placeholder="发送消息给Fusion AI"
-              fetchUpload={handleFileUpload}
-              files={files}
+              onUpload={handleFileUpload}
               deleteFile={handleDeleteFile}
-              immediateUpload={true}
             />
           </div>
         </div>
@@ -183,13 +199,23 @@ export default function ChatPage() {
         transition={{ duration: 0.3 }}
         className="h-full w-full overflow-hidden"
       >
-        <TaskPreview
-          responding={responding}
-          className="h-full"
-          expand={expandTaskView}
-          setExpand={setExpandTaskView}
-          tasks={messages[messages.length - 1]?.content.workflow?.plans}
-        />
+        {isFilePreview ? (
+          <FileContent
+            file={currentFile}
+            onClose={() => {
+              setIsFilePreview(false);
+              setExpandTaskView(false);
+            }}
+          />
+        ) : (
+          <TaskPreview
+            responding={responding}
+            className="h-full"
+            expand={expandTaskView}
+            setExpand={setExpandTaskView}
+            tasks={messages[messages.length - 1]?.content.workflow?.plans}
+          />
+        )}
       </motion.div>
     </div>
   );

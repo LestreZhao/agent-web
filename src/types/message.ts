@@ -5,6 +5,15 @@ export type UploadedFile = {
   lastModified: number;
 };
 
+export type ReviewFile = {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  url: string;
+  content: string;
+};
+
 export type ResponseFile = {
   file_id: string;
   download_url: string;

@@ -1,5 +1,7 @@
 import { create } from "zustand";
 
+import { UploadedFile, type ReviewFile } from "~/types/message";
+
 import { type ChatEvent, chatStream } from "../api";
 import { chatStream as mockChatStream } from "../api/mock";
 import {
@@ -16,24 +18,42 @@ export const useMessageStore = create<{
   initMessages: string;
   responding: boolean;
   state: {
-    messages: { role: string; content: string }[];
+    messages: Message[];
   };
-  files: File[];
+  // 上传的文件
+  files: ReviewFile[];
+  // 当前文件
+  currentFile: ReviewFile | null;
 }>(() => ({
   // 当前对话 id
   chatId: "",
   // 初始化消息
   initMessages: "",
+  // 当前对话的消息
   messages: [],
+  // 是否正在响应
   responding: false,
+  // 对话中上传的文件
+  files: [],
+  currentFile: {
+    id: "cf2270e0-61fb-4d0b-a551-1be8a84b6f2b",
+    name: "模块划在油气领域国内外的应用以及相关的难点、未来方向调研报告-AIGC检测报告-20250407.pdf",
+    size: 48513,
+    type: ".pdf",
+    url: "http://192.168.120.251:8000/api/documents/cf2270e0-61fb-4d0b-a551-1be8a84b6f2b/download",
+  },
   state: {
     messages: [],
   },
-  files: [],
 }));
 
+// 设置当前文件
+export function setCurrentFile(file: ReviewFile) {
+  useMessageStore.setState({ currentFile: file });
+}
+
 // 设置文件
-export function setFiles(files: File[]) {
+export function setFiles(files: ReviewFile[]) {
   useMessageStore.setState({ files });
 }
 
@@ -148,6 +168,16 @@ export async function sendMessage(
     if (e instanceof DOMException && e.name === "AbortError") {
       return;
     }
+    // 添加错误消息
+    if (textMessage) {
+      textMessage.content = "\n\n任务意外终止，请重新尝试";
+      addMessage({
+        id: textMessage.id,
+        role: "assistant",
+        type: "text",
+        content: textMessage.content,
+      });
+    }
     throw e;
   } finally {
     setResponding(false);
@@ -156,7 +186,15 @@ export async function sendMessage(
 }
 
 export function clearMessages() {
-  useMessageStore.setState({ messages: [], initMessages: "", chatId: "" });
+  useMessageStore.setState({
+    state: {
+      messages: [],
+    },
+    messages: [],
+    initMessages: "",
+    chatId: "",
+    files: [],
+  });
 }
 
 export function setResponding(responding: boolean) {

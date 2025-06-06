@@ -1,7 +1,9 @@
-import { FolderUp } from "lucide-react";
-import { useCallback, useRef } from "react";
+import { FolderUp, Loader2 } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { TooltipButton } from "~/components/ui/tooltip-button";
+import { type ResponseFile } from "~/types/message";
 
 interface FileUploadProps {
   onUpload?: (file: File) => void;
@@ -9,6 +11,7 @@ interface FileUploadProps {
   accept?: string;
   // 上传文件的接口，如果为空，则不进行上传
   fetchUpload?: (file: File) => Promise<string>;
+  fetchUploadCallback?: (file: File, result: ResponseFile) => void;
   // 是否立即上传，如果为false，则需要手动调用fetchUpload
   immediateUpload?: boolean;
 }
@@ -18,8 +21,11 @@ export function FileUpload({
   maxFiles = 5,
   accept = ".doc,.docx,.pdf",
   fetchUpload,
+  fetchUploadCallback,
   immediateUpload = true,
+  disabled = false,
 }: FileUploadProps) {
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = useCallback(
@@ -48,17 +54,21 @@ export function FileUpload({
         }
 
         if (fetchUpload && immediateUpload) {
+          setUploading(true);
           const result = await fetchUpload(file)
             .then((result) => {
               return result;
             })
             .catch((error) => {
               console.error(error);
-              // toast.error("上传失败");
-              return "";
+              toast.error("上传失败");
+              return null;
+            })
+            .finally(() => {
+              setUploading(false);
             });
           if (result) {
-            onUpload?.(file, result);
+            fetchUploadCallback?.(file, result);
           }
         } else {
           onUpload?.(file);
@@ -70,7 +80,14 @@ export function FileUpload({
         fileInputRef.current.value = "";
       }
     },
-    [onUpload, maxFiles, fetchUpload, immediateUpload, accept],
+    [
+      onUpload,
+      maxFiles,
+      fetchUpload,
+      immediateUpload,
+      accept,
+      fetchUploadCallback,
+    ],
   );
 
   const handleUploadClick = useCallback(() => {
@@ -83,6 +100,7 @@ export function FileUpload({
         ref={fileInputRef}
         type="file"
         accept=".doc,.docx,.pdf"
+        disabled={disabled}
         onChange={handleFileUpload}
         multiple
         className="hidden"
@@ -94,8 +112,13 @@ export function FileUpload({
         variant="outline"
         className="h-8 w-8 rounded-full"
         onClick={handleUploadClick}
+        disabled={uploading || disabled}
       >
-        <FolderUp className="h-4 w-4" />
+        {uploading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <FolderUp className="h-4 w-4" />
+        )}
       </TooltipButton>
     </>
   );

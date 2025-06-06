@@ -131,7 +131,11 @@ function MessageView({
             {message.files && (
               <div className="mt-2 flex flex-col gap-2">
                 {message.files.map((file) => (
-                  <ChatFilePreviewItem key={file.file_id} file={file} />
+                  <ChatFilePreviewItem
+                    key={file.name}
+                    file={file}
+                    canRemove={false}
+                  />
                 ))}
               </div>
             )}

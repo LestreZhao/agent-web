@@ -1,12 +1,15 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, FileIcon, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileIcon, Loader2, X } from "lucide-react";
 import { useRef, useState } from "react";
+import { setCurrentFile } from "~/core/store";
+import { useUIStore } from "~/core/store/ui";
+import { cn } from "~/core/utils";
 
-import { type ResponseFile } from "~/types/message";
+import { ReviewFile, type ResponseFile } from "~/types/message";
 
 interface FilePreviewProps {
-  files: ResponseFile[];
-  onRemove?: (file: ResponseFile) => void;
+  files: ReviewFile[];
+  onRemove?: (file: ReviewFile) => void;
 }
 
 export function FilePreview({ files, onRemove }: FilePreviewProps) {
@@ -65,9 +68,9 @@ export function FilePreview({ files, onRemove }: FilePreviewProps) {
         onScroll={() => checkScroll()}
       >
         <AnimatePresence initial={false}>
-          {files.map((file: ResponseFile) => (
+          {files.map((file: ReviewFile) => (
             <ChatFilePreviewItem
-              key={file.file_id}
+              key={file.id}
               file={file}
               onRemove={onRemove}
             />
@@ -82,39 +85,51 @@ export function ChatFilePreviewItem({
   file,
   onRemove,
   canRemove = true,
+  className,
 }: {
-  file: ResponseFile;
+  file: ReviewFile;
   onRemove?: (file: ResponseFile) => void;
   canRemove?: boolean;
+  className?: string;
 }) {
+  const { setIsFilePreview, setExpandTaskView } = useUIStore();
   return (
     <motion.div
-      key={file.file_id}
+      key={file.name}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.8 }}
-      className="flex w-[250px] shrink-0 items-center gap-2 rounded-lg bg-[#efefef] p-2 backdrop-blur-sm"
+      whileHover={{ scale: 1.02 }}
+      transition={{ duration: 0.2 }}
+      onClick={() => {
+        setCurrentFile(file);
+        setIsFilePreview(true);
+        setExpandTaskView(true);
+      }}
+      className={cn(
+        "flex w-[250px] shrink-0 cursor-pointer items-center gap-2 rounded-lg bg-[#efefef] p-2 backdrop-blur-sm",
+        className,
+      )}
     >
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#37352F14]">
-        <FileIcon className="h-4 w-4 text-[#37352F]" />
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#37352F14]">
+        {file.isUploading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <FileIcon className="h-4 w-4 text-[#37352F]" />
+        )}
       </div>
       <div className="flex flex-1 flex-col">
-        <span
-          className="line-clamp-1 cursor-pointer text-sm font-medium text-[#37352F]"
-          onClick={() => {
-            window.open(file.download_url, "_blank");
-          }}
-        >
-          {file.document_info.filename}
-        </span>
+        <p className="line-clamp-1 w-[165px] cursor-pointer text-ellipsis text-sm font-medium text-[#37352F]">
+          {file.name}
+        </p>
         <span className="text-xs text-[#37352F80]">
-          {formatFileSize(file.document_info.file_size)}
+          {formatFileSize(file.size)}
         </span>
       </div>
       {canRemove && (
         <button
           onClick={() => onRemove?.(file)}
-          className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-[#37352F14]"
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full hover:bg-[#37352F14]"
         >
           <X className="h-4 w-4 text-[#37352F80]" />
         </button>

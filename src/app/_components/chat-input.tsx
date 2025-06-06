@@ -1,11 +1,22 @@
 import { ArrowUp, Square } from "lucide-react";
+import { nanoid } from "nanoid";
 import { type KeyboardEvent, useCallback, useEffect, useState } from "react";
 
 import { Button } from "~/components/ui/button";
 import { cn } from "~/core/utils";
+import { type ResponseFile } from "~/types/message";
 
 import { FilePreview } from "./file-preview";
 import { FileUpload } from "./file-upload";
+
+interface UploadFile extends Partial<File> {
+  id: string;
+  isUploadIng: boolean;
+  name: string;
+  size: number;
+  type: string;
+  lastModified: number;
+}
 
 export function ChatInput({
   message,
@@ -19,10 +30,10 @@ export function ChatInput({
   onUpload,
   fetchUpload,
   immediateUpload,
-  files,
   deleteFile,
 }: {
   message: string;
+  placeholder?: string;
   setMessage: (message: string) => void;
   className?: string;
   size?: "large" | "normal" | "small";
@@ -32,17 +43,15 @@ export function ChatInput({
     options: { deepThinkingMode: boolean; searchBeforePlanning: boolean },
   ) => void;
   onCancel?: () => void;
-  placeholder?: string;
   onUpload?: (file: File) => void;
   fetchUpload?: (file: File) => Promise<string>;
   immediateUpload?: boolean;
-  files?: File[];
-  deleteFile?: (file: File) => void;
+  deleteFile?: (file: ResponseFile) => void;
 }) {
   const [deepThinkingMode, setDeepThinkMode] = useState(false);
   const [searchBeforePlanning, setSearchBeforePlanning] = useState(false);
   const [imeStatus, setImeStatus] = useState<"active" | "inactive">("inactive");
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadFile[]>([]);
 
   const saveConfig = useCallback(() => {
     try {
@@ -111,29 +120,44 @@ export function ChatInput({
     [responding, imeStatus, handleSendMessage],
   );
 
-  const handleUploadClick = useCallback(
-    (file: File) => {
-      setUploadedFiles((prev) => [...prev, file]);
-      onUpload?.(file);
-    },
-    [onUpload],
-  );
+  const handleUploadClick = async (file: File) => {
+    const fileInfo = {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      lastModified: file.lastModified,
+    };
+    const reviewFile: UploadFile = {
+      ...fileInfo,
+      id: nanoid(),
+      isUploadIng: true,
+    };
+    setUploadedFiles((prev: UploadFile[]) => [...prev, reviewFile]);
+    const res = await onUpload?.(file);
+    if (res?.success === true) {
+      setUploadedFiles((prev: UploadFile[]) =>
+        prev.map((f) =>
+          f.name === reviewFile.name ? { ...f, isUploadIng: false } : f,
+        ),
+      );
+    } else {
+      setUploadedFiles((prev: UploadFile[]) =>
+        prev.filter((f) => f.name !== reviewFile.name),
+      );
+    }
+  };
 
-  const handleRemoveFile = useCallback((file: File) => {
-    setUploadedFiles((prev) =>
-      prev.filter(
-        (f) =>
-          f.name !== file.name ||
-          f.size !== file.size ||
-          f.lastModified !== file.lastModified,
-      ),
+  const handleDeleteFile = async (file: File) => {
+    setUploadedFiles((prev: UploadFile[]) =>
+      prev.filter((f) => f.name !== file.name),
     );
-  }, []);
+    deleteFile?.(file);
+  };
 
   return (
     <div className={cn(className)}>
       <div className="flex flex-col overflow-hidden rounded-[24px] border bg-white p-3 shadow-lg">
-        <FilePreview files={files ?? []} onRemove={deleteFile} />
+        <FilePreview files={uploadedFiles ?? []} onRemove={handleDeleteFile} />
         <div className="w-full">
           <textarea
             className={cn(
@@ -151,11 +175,7 @@ export function ChatInput({
           />
         </div>
         <div className="flex flex-shrink-0 justify-between gap-2">
-          <FileUpload
-            onUpload={handleUploadClick}
-            fetchUpload={fetchUpload}
-            immediateUpload={immediateUpload}
-          />
+          <FileUpload onUpload={handleUploadClick} disabled={responding} />
           <Button
             className={`h-8 w-8 rounded-full bg-[#37352F14] font-medium ${
               message.length > 0 || responding || uploadedFiles.length > 0

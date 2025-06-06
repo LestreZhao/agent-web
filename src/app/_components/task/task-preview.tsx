@@ -108,8 +108,8 @@ export default function TaskPreview({
                   </button>
                 )}
               </div>
-              <div className="flex items-center gap-4">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#f7f7f7]">
+              <div className="flex items-center gap-2">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#f7f7f7]">
                   {task ? getStepName(task).icon : <Atom size={20} />}
                 </div>
                 <div>
@@ -179,7 +179,7 @@ export default function TaskPreview({
             >
               <h3 className="flex items-center justify-between text-sm font-bold">
                 任务进度
-                <div className="flex items-center">
+                <div className="mt-4 flex items-center">
                   <div className="float-right cursor-pointer text-xs font-normal text-gray-400">
                     {stepInfo?.step_index} / {stepInfo?.total_steps}
                   </div>

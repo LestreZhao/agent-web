@@ -11,11 +11,13 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
+  Code,
   Database,
   DatabaseBackup,
   FileText,
   ListTodo,
   LoaderIcon,
+  Monitor,
   Search,
   TextSearch,
 } from "lucide-react";
@@ -27,6 +29,7 @@ import { useUIStore } from "~/core/store/ui";
 import { cn } from "~/core/utils";
 import { type ThinkingTask, type Workflow } from "~/core/workflow";
 
+import { ChatFilePreviewItem } from "../file-preview";
 import { TaskTag } from "../task/task-tag";
 
 // 消息任务视图
@@ -41,10 +44,22 @@ export function MessagesTaskView({
 }) {
   const { currentStepInfo, setSelectedTask, setIsSelectedTask } =
     useTaskStore();
-  const { setExpandTaskView } = useUIStore();
+  const { setExpandTaskView, setIsFilePreview } = useUIStore();
+
+  // const steps = useMemo(() => {
+  //   return workflow.steps;
+  // }, [workflow]);
 
   const steps = useMemo(() => {
-    return workflow.steps.filter((step) => step.agentName !== "reporter");
+    return workflow.steps.map((step) => {
+      if (step.agentName === "reporter") {
+        return {
+          ...step,
+          tasks: [],
+        };
+      }
+      return step;
+    });
   }, [workflow]);
   const reportStep = useMemo(() => {
     return workflow.steps.find((step) => step.agentName === "reporter");
@@ -55,6 +70,7 @@ export function MessagesTaskView({
     setSelectedTask?.(task);
     setExpandTaskView?.(true);
     setIsSelectedTask(true);
+    setIsFilePreview(false);
   };
 
   return (
@@ -86,12 +102,43 @@ export function MessagesTaskView({
         </main>
       </div>
       {reportStep && (
-        <div className="flex flex-col gap-4 p-4">
-          <Markdown>
-            {reportStep.tasks[0]?.type === "thinking"
-              ? reportStep.tasks[0].payload.text
-              : ""}
-          </Markdown>
+        <div className="flex flex-col gap-2 pt-[-10px]">
+          {reportStep.tasks &&
+            reportStep.tasks.length > 0 &&
+            reportStep.tasks.map((task) => {
+              if (task.type === "tool_call") {
+                if (
+                  task.payload.toolName === "get_task_files_json" &&
+                  task.state === "success"
+                ) {
+                  const files = JSON.parse(task.payload.output ?? "[]");
+                  return (
+                    <div>
+                      <div className="text-sm font-bold">创建的文件列表：</div>
+                      <div className="flex flex-wrap gap-2">
+                        {files.files.map((file) => {
+                          return (
+                            <ChatFilePreviewItem
+                              key={file.name}
+                              file={file}
+                              canRemove={false}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <Markdown key={task.id}>{task.payload.output}</Markdown>
+                  );
+                }
+              } else if (task.type === "thinking") {
+                return <Markdown key={task.id}>{task.payload.text}</Markdown>;
+              } else {
+                return null;
+              }
+            })}
         </div>
       )}
     </div>
@@ -194,10 +241,14 @@ function StepView({
             >
               {stepName}
             </motion.span>
-            {open ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
+            {currentStep?.total_steps !== step.index + 1 && (
+              <>
+                {open ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </>
             )}
           </div>
         </CollapsibleTrigger>
@@ -238,10 +289,24 @@ export function getStepName(task: any) {
           icon: <Search className="h-4 w-4 shrink-0 text-sm" />,
         };
       }
-      if (task.payload.toolName === "document_analysis_tool") {
+      if (task.payload.toolName === "python_repl_tool") {
         taskInfo = {
-          typeName: "分析文档",
-          title: `正在分析文档…`,
+          typeName: "正在编码",
+          title: `正在编码`,
+          icon: <Code className="h-4 w-4 shrink-0 text-sm" />,
+        };
+      }
+      if (task.payload.toolName === "bash_tool") {
+        taskInfo = {
+          typeName: "正在执行终端命令",
+          title: `正在执行终端命令`,
+          icon: <Monitor className="h-4 w-4 shrink-0 text-sm" />,
+        };
+      }
+      if (task.payload.toolName === "analyze_document_content") {
+        taskInfo = {
+          typeName: "解析文档",
+          title: `正在解析文档内容…`,
           icon: <FileText className="h-4 w-4 shrink-0 text-sm" />,
         };
       }
@@ -270,6 +335,13 @@ export function getStepName(task: any) {
         taskInfo = {
           typeName: "正在查询数据库",
           title: `正在查询数据库 ${task.payload.input.sql ?? ""}`,
+          icon: <DatabaseBackup className="h-4 w-4 shrink-0 text-sm" />,
+        };
+      }
+      if (task.payload.toolName === "get_task_files_json") {
+        taskInfo = {
+          typeName: "正在生成文件",
+          title: `正在生成文件 ${task.payload.input.sql ?? ""}`,
           icon: <DatabaseBackup className="h-4 w-4 shrink-0 text-sm" />,
         };
       }

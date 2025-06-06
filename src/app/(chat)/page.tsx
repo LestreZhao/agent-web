@@ -11,6 +11,7 @@ import { cn } from "~/core/utils";
 import { AppHeader } from "../../components/AppHeader";
 import { ChatInput } from "../_components/chat-input";
 import { ChatSuggestions } from "../_components/chat-suggestions";
+import { toast } from "sonner";
 
 export default function HomePage() {
   const router = useRouter();
@@ -29,19 +30,33 @@ export default function HomePage() {
     setMessage(action);
   }, []);
 
-  // 上传文件
   const { files } = useMessageStore();
+
+  // 上传文件
   const handleFileUpload = useCallback(
     (file: File) => {
-      return uploadFile(file).then((res) => {
-        if (res.success) {
-          setFiles([res, ...files]);
-        }
-        return res;
-      });
+      return uploadFile(file)
+        .then((res) => {
+          if (res.success) {
+            const reviewFile = {
+              id: res.file_id,
+              name: res.document_info.filename,
+              size: res.document_info.file_size,
+              type: res.document_info.file_type,
+              url: res.download_url,
+            };
+            setFiles([reviewFile, ...files]);
+          }
+          return res;
+        })
+        .catch((err) => {
+          toast.error("上传失败,请重新上传");
+          return null;
+        });
     },
     [files],
   );
+
   const handleDeleteFile = useCallback(
     (file: File) => {
       setFiles(files.filter((f) => f.name !== file.name));
@@ -75,10 +90,8 @@ export default function HomePage() {
               message={message}
               setMessage={setMessage}
               onSend={handleSendMessage}
-              fetchUpload={handleFileUpload}
-              files={files}
+              onUpload={handleFileUpload}
               deleteFile={handleDeleteFile}
-              immediateUpload={true}
               placeholder="给 Fusion AI 一个任务…"
             />
           </div>

@@ -201,7 +201,7 @@ function PythonReplToolCallView({
   task: ToolCallTask<{ code: string }>;
 }) {
   return (
-    <div>
+    <div className="h-full w-full">
       <div className="flex items-center gap-2">
         <div>
           <PythonOutlined className="h-4 w-4 text-sm" />
@@ -211,7 +211,7 @@ function PythonReplToolCallView({
         </div>
       </div>
       {task.payload.input.code && (
-        <div className="min-w[640px] mx-4 mt-2 max-h-[420px] max-w-[640px] overflow-auto rounded-lg border bg-gray-50 p-2">
+        <div className="min-w[640px] mx-4 mt-2 max-h-full max-w-full overflow-auto rounded-lg border bg-gray-50 p-2">
           <SyntaxHighlighter language="python" style={docco}>
             {task.payload.input.code}
           </SyntaxHighlighter>

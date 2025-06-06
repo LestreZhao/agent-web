@@ -1,3 +1,5 @@
+import { toast } from "sonner";
+
 import { env } from "~/env";
 
 /**
@@ -16,13 +18,12 @@ export async function uploadFile(file: File): Promise<any> {
         body: formData,
       },
     );
-
     if (!response.ok) {
       throw new Error(`上传失败: ${response.statusText}`);
     }
-
     return await response.json();
   } catch (error) {
+    toast.error("上传失败,请重新上传");
     console.error("文件上传出错:", error);
     throw error;
   }
