@@ -20,6 +20,7 @@ import {
   Monitor,
   Search,
   TextSearch,
+  X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -200,7 +201,7 @@ function StepView({
   loading: boolean;
   handleClick: (task: any) => void;
 }) {
-  const stepName = step.step_info?.title;
+  const stepName = step.step_info?.title || "执行失败，当前步骤已重置";
   const tasks = step.tasks.filter((task) => {
     if (task.type === "thinking") {
       return task.payload.text?.length > 0;
@@ -220,7 +221,7 @@ function StepView({
       ) : (
         <div className="relative flex justify-center">
           <div className="flex h-4 w-4 items-center justify-center rounded-full bg-[#b9b9b7] text-white">
-            <Check size={12} />
+            {!step.step_info?.title ? <X size={12} /> : <Check size={12} />}
           </div>
           {currentStep?.total_steps > step.index && (
             <div
