@@ -4,9 +4,18 @@ import { Ellipsis, FileSearch, Share, Star } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { TooltipButton } from "~/components/ui/tooltip-button";
 
-export default function ChatHeader({ header }: { header: string }) {
+export default function ChatHeader({
+  header,
+  asChild,
+  children,
+}: {
+  header: string;
+  asChild?: boolean;
+  children?: React.ReactNode;
+}) {
   return (
     <motion.div className="flex w-full items-center justify-between">
+      {asChild ? children : <></>}
       <motion.span className="line-clamp-1 w-[55%] text-[18px] font-bold text-[#34322D]">
         {header}
       </motion.span>

@@ -431,3 +431,20 @@ export const mockMessages = [
     },
   },
 ];
+
+export const messagesList = [
+  {
+    id: "UVCFBT1LDK19HzoPSl8XV",
+    title: "筛查血糖控制不佳的糖尿病患者",
+    description:
+      "筛查血糖控制不佳的糖尿病患者筛查血糖控制不佳的糖尿病患者筛查血糖控制不佳的糖尿病患者筛查血糖控制不佳的糖尿病患者",
+    messages: mockMessages,
+  },
+  {
+    id: "UVCFBT1LHzoPSl8XV",
+    title: "制定个性化管理方案",
+    description:
+      "筛查血糖控制不佳的糖尿病患者筛查血糖控制不佳的糖尿病患者筛查血糖控制不佳的糖尿病患者",
+    messages: mockMessages,
+  },
+];

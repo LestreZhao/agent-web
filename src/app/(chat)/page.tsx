@@ -10,6 +10,9 @@ import { cn } from "~/core/utils";
 import { AppHeader } from "../../components/AppHeader";
 import { ChatInput } from "../_components/chat-input";
 import { ChatSuggestions } from "../_components/chat-suggestions";
+import { Button } from "~/components/ui/button";
+import { useUIStore } from "~/core/store/ui";
+import { PanelLeft } from "lucide-react";
 
 export default function HomePage() {
   const router = useRouter();
@@ -28,9 +31,11 @@ export default function HomePage() {
     setMessage(action);
   }, []);
 
+  const { expandSidebar, setExpandSidebar, setIsFloatingSidebar } =
+    useUIStore();
   return (
     <div className="flex w-full flex-col">
-      <header className="flex h-16 w-full items-center">
+      <header className="ml-6 flex w-full items-center pt-4">
         <AppHeader />
       </header>
       <main className="flex w-full flex-col items-center justify-center">

@@ -152,7 +152,7 @@ function TravilySearchToolCallView({
     }
   }, [task.payload.output]);
   return (
-    <div>
+    <div className="w-full">
       {task.state !== "pending" && (
         <div className="flex flex-col gap-2 pt-1">
           <ul className="flex flex-col gap-2 text-sm">

@@ -12,12 +12,15 @@ import { WorkflowEngine } from "../workflow";
 
 export const useMessageStore = create<{
   messages: Message[];
+  chatId: string;
   initMessages: string;
   responding: boolean;
   state: {
     messages: { role: string; content: string }[];
   };
 }>(() => ({
+  // 当前对话 id
+  chatId: "",
   // 初始化消息
   initMessages: "",
   messages: [],
@@ -30,6 +33,10 @@ export const useMessageStore = create<{
 // 设置初始化消息
 export function setInitMessages(message: string) {
   useMessageStore.setState({ initMessages: message });
+}
+
+export function setMessages(messages: Message[]) {
+  useMessageStore.setState({ messages });
 }
 
 export function addMessage(message: Message) {
@@ -142,11 +149,15 @@ export async function sendMessage(
 }
 
 export function clearMessages() {
-  useMessageStore.setState({ messages: [] });
+  useMessageStore.setState({ messages: [], initMessages: "", chatId: "" });
 }
 
 export function setResponding(responding: boolean) {
   useMessageStore.setState({ responding });
+}
+
+export function setChatId(chatId: string) {
+  useMessageStore.setState({ chatId });
 }
 
 export function _setState(state: {

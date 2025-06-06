@@ -19,8 +19,8 @@ export default function ChatPage() {
   const initialMessageSentRef = useRef(false);
   // 断开请求的控制器
   const abortControllerRef = useRef<AbortController | null>(null);
-  // const messages = useMessageStore((state) => state.messages);
-  const messages = mockMessages;
+  const messages = useMessageStore((state) => state.messages);
+  // const messages = mockMessages;
   // 是否正在响应
   const responding = useMessageStore((state) => state.responding);
   // 初始消息
@@ -108,10 +108,10 @@ export default function ChatPage() {
         className="relative flex h-full w-full flex-col"
       >
         <div className="relative mx-auto flex h-full w-full min-w-0 max-w-full flex-1 flex-col px-5 sm:min-w-[390px] sm:max-w-[768px]">
-          <div className="sticky top-0 z-10 flex flex-shrink-0 flex-row items-center justify-between bg-[var(--background-gray-main)] pb-1 pt-3">
+          <div className="sticky top-0 flex flex-shrink-0 flex-row items-center justify-between bg-[var(--background-gray-main)] pb-1 pl-4 pt-3">
             <ChatHeader header={chatHeader} />
           </div>
-          <div className="flex w-full flex-1 flex-col gap-[12px] overflow-scroll pb-[20px] pt-[12px]">
+          <div className="flex w-full flex-1 flex-col gap-[12px] overflow-scroll pb-[40px] pt-[12px]">
             <MessagesView
               className="w-full"
               messages={messages}

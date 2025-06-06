@@ -93,12 +93,7 @@ export function ChatInput({
   );
   return (
     <div className={cn(className)}>
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        className="flex flex-col overflow-hidden rounded-[24px] border bg-white p-3 shadow-lg"
-      >
+      <motion.div className="flex flex-col overflow-hidden rounded-[24px] border bg-white p-3 shadow-lg">
         <div className="w-full">
           <textarea
             className={cn(

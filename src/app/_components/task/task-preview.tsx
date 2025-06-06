@@ -109,7 +109,7 @@ export default function TaskPreview({
                 )}
               </div>
               <div className="flex items-center gap-4">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f7f7f7]">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#f7f7f7]">
                   {task ? getStepName(task).icon : <Atom size={20} />}
                 </div>
                 <div>

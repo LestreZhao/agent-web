@@ -1,8 +1,13 @@
-import Image from "next/image";
-
-export function AppHeader() {
+export function AppHeader({
+  children,
+  asChild,
+}: {
+  children?: React.ReactNode;
+  asChild?: boolean;
+}) {
   return (
-    <div className="p-4">
+    <div className="flex items-center gap-2 px-4">
+      {asChild ? children : <></>}
       <img
         src="/images/fusion_ai.png"
         alt="Fusion AI"
