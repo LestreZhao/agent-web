@@ -199,10 +199,11 @@ export default function TaskPreview({
                 {tasks.map((task, index) => (
                   <div key={index} className="flex items-start">
                     <div className="mr-2.5 flex h-5 w-5 items-center justify-center">
-                      {stepInfo?.step_index > index + 1 && (
-                        <Check size={20} className="text-green-500" />
-                      )}
-                      {stepInfo?.step_index === index + 1 && (
+                      {stepInfo?.step_index > index + 1 ||
+                        (!responding && (
+                          <Check size={20} className="text-green-500" />
+                        ))}
+                      {stepInfo?.step_index === index + 1 && responding && (
                         <LoaderCircle
                           size={20}
                           className="animate-spin text-[#858481]"
