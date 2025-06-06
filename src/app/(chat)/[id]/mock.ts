@@ -4,12 +4,29 @@ export const mockMessages = [
     role: "user",
     type: "text",
     content: "筛查血糖控制不佳的糖尿病患者，制定个性化管理方案",
+    files: [
+      {
+        success: true,
+        message: "文档上传成功",
+        file_id: "a73a334c-8292-4f64-9068-9f0fd4da6de7",
+        download_url:
+          "http://localhost:8000/api/documents/a73a334c-8292-4f64-9068-9f0fd4da6de7/download",
+        document_info: {
+          filename: "预问诊接口调整.pdf",
+          file_type: ".pdf",
+          file_size: 171598,
+          content_length: 3197,
+          uploaded_at: "2025-06-06T10:04:43.834021",
+        },
+      },
+    ],
   },
   {
     id: "dce9d354-c0da-411c-a1a8-b9ce0d5b030e_coordinator_1",
     role: "assistant",
     type: "text",
-    content: "",
+    content:
+      "用户希望筛查出血糖控制不佳的糖尿病患者，并为这些患者制定个性化的管理方案。这需要通过数据收集、分析血糖控制指标、识别高风险患者，最终提出定制化的干预措施。",
   },
   {
     id: "dce9d354-c0da-411c-a1a8-b9ce0d5b030e",

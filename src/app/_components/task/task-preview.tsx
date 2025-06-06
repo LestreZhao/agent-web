@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { getStepName } from "~/app/_components/messages/messages-task-view";
+import { TaskToolResultView } from "~/app/_components/task/task-tool-result";
 import { Button } from "~/components/ui/button";
 import {
   ResizableHandle,
@@ -20,8 +22,6 @@ import {
 import { useTaskStore } from "~/core/store/task";
 import { cn } from "~/core/utils";
 
-import { getStepName } from "~/app/_components/messages/messages-task-view";
-import { TaskToolResultView } from "~/app/_components/task/task-tool-result";
 import { TaskTag } from "./task-tag";
 
 interface TaskItem {

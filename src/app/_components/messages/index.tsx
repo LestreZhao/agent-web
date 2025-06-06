@@ -1,13 +1,15 @@
-import Markdown from "react-markdown";
-
-import { type Message } from "~/core/messaging";
-import { cn } from "~/core/utils";
-import { MessagesTaskView } from "./messages-task-view";
-import { MessageLoading } from "~/app/_components/messages/message-loading";
-
-import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowDown } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+
+import { MessageLoading } from "~/app/_components/messages/message-loading";
+import { Markdown } from "~/components/comon/Markdown";
+import { type Message } from "~/core/messaging";
+import { cn } from "~/core/utils";
+
+import { ChatFilePreviewItem } from "../file-preview";
+
+import { MessagesTaskView } from "./messages-task-view";
 
 export function MessagesView({
   className,
@@ -19,8 +21,8 @@ export function MessagesView({
   loading: boolean;
 }) {
   const endRef = useRef<HTMLDivElement>(null);
-  const [showScrollButton, setShowScrollButton] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
   const scrollToBottom = () => {
     if (endRef.current) {
@@ -86,50 +88,65 @@ function MessageView({
   message,
   loading,
 }: {
-  message: Message;
+  message: UserMessage;
   loading: boolean;
 }) {
-  if (message.type === "text" && message.content) {
-    return (
-      <div className={cn("flex", message.role === "user" && "justify-end")}>
-        <div
-          className={cn(
-            "relative w-fit max-w-[90%] rounded-2xl px-4 py-3 shadow-sm",
-            message.role === "user" && "rounded-ee-none bg-white",
-            message.role === "assistant" && "rounded-es-none bg-white",
-          )}
-        >
-          <Markdown
-            components={{
-              a: ({ href, children }) => (
-                <a href={href} target="_blank" rel="noopener noreferrer">
-                  {children}
-                </a>
-              ),
-            }}
-          >
-            {message.content}
-          </Markdown>
-        </div>
-      </div>
-    );
-  } else if (message.type === "workflow") {
-    return (
-      <div className="flex flex-col gap-2">
-        <div className="mt-4 px-2">
+  const content =
+    message.role === "user" && message.files
+      ? message.content.toString().split("。用户上传了文件，文件ID为：")[0]
+      : message.content;
+  if (!content) return null;
+  return (
+    <div className={cn(message.role === "user" && "flex justify-end")}>
+      {message.role === "assistant" && message.content && (
+        <div className="px-2">
           <img
             src="/images/fusion_ai.png"
             alt="Fusion AI"
             className="h-5 w-auto"
           />
         </div>
-        <MessagesTaskView
-          loading={loading}
-          className="max-w-full pr-4"
-          workflow={message.content.workflow}
-        />
+      )}
+      <div
+        className={cn(
+          "relative w-fit max-w-[90%] rounded-2xl py-3",
+          message.role === "user" &&
+            "mb-4 rounded-ee-none bg-white px-4 shadow-sm",
+          message.role === "assistant" && "rounded-es-none",
+        )}
+      >
+        {message.type === "text" && message.content && (
+          <div className="flex flex-col">
+            <Markdown
+              components={{
+                a: ({ href, children }) => (
+                  <a href={href} target="_blank" rel="noopener noreferrer">
+                    {children}
+                  </a>
+                ),
+              }}
+            >
+              {content.toString()}
+            </Markdown>
+            {message.files && (
+              <div className="mt-2 flex flex-col gap-2">
+                {message.files.map((file) => (
+                  <ChatFilePreviewItem key={file.file_id} file={file} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
-    );
-  }
-  return null;
+      {message.type === "workflow" && message.content && (
+        <div className="flex flex-col gap-2">
+          <MessagesTaskView
+            loading={loading}
+            className="max-w-full pr-4"
+            workflow={message.content.workflow}
+          />
+        </div>
+      )}
+    </div>
+  );
 }

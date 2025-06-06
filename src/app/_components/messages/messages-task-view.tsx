@@ -13,6 +13,7 @@ import {
   ChevronUp,
   Database,
   DatabaseBackup,
+  FileText,
   ListTodo,
   LoaderIcon,
   Search,
@@ -25,6 +26,7 @@ import { useTaskStore } from "~/core/store/task";
 import { useUIStore } from "~/core/store/ui";
 import { cn } from "~/core/utils";
 import { type ThinkingTask, type Workflow } from "~/core/workflow";
+
 import { TaskTag } from "../task/task-tag";
 
 // 消息任务视图
@@ -116,7 +118,7 @@ function PlanTaskView({
     return {};
   }, [task]);
 
-  const thought = ` ${plan.thought ?? ""} `;
+  const thought = plan.thought ?? "";
   return (
     <div key={task.id} className="flex flex-col">
       {thought && (
@@ -201,12 +203,13 @@ function StepView({
         </CollapsibleTrigger>
         <CollapsibleContent>
           {tasks.map((task) => {
+            const { title, icon } = getStepName(task) ?? {};
             return (
               <TaskTag
                 key={task.id}
                 task={task}
-                title={getStepName(task).title}
-                icon={getStepName(task).icon}
+                title={title}
+                icon={icon}
                 handleClick={handleClick}
               />
             );
@@ -233,6 +236,13 @@ export function getStepName(task: any) {
           typeName: "检索数据",
           title: `正在检索 ${task.payload.input.query}`,
           icon: <Search className="h-4 w-4 shrink-0 text-sm" />,
+        };
+      }
+      if (task.payload.toolName === "document_analysis_tool") {
+        taskInfo = {
+          typeName: "分析文档",
+          title: `正在分析文档…`,
+          icon: <FileText className="h-4 w-4 shrink-0 text-sm" />,
         };
       }
       if (task.payload.toolName === "crawl_tool") {

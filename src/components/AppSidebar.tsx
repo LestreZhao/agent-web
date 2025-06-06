@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { PanelLeft, Plus, Search } from "lucide-react";
+import { ClipboardList, PanelLeft, Plus, Search } from "lucide-react";
 import { messagesList } from "~/app/(chat)/[id]/mock";
 import {
   clearMessages,
@@ -121,7 +121,7 @@ function SidebarItem({
   return (
     <motion.div
       className={cn(
-        "flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg p-2 text-sm font-medium",
+        "flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg p-2 text-sm font-medium hover:bg-[#e4e4e4]",
         isSelected ? "bg-white shadow-sm" : "",
       )}
       onClick={handleClickItem}
@@ -132,7 +132,7 @@ function SidebarItem({
           isSelected ? "bg-[#34322e] text-white" : "bg-[#dddddc]",
         )}
       >
-        {info.icon}
+        {info.icon ?? <ClipboardList className="h-5 w-5" />}
       </div>
       <div>
         <h3 className="line-clamp-1 text-sm font-medium">{info.title}</h3>

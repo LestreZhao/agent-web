@@ -4,15 +4,13 @@ import { nanoid } from "nanoid";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
-import { setInitMessages } from "~/core/store";
+import { uploadFile } from "~/core/api/file";
+import { setFiles, setInitMessages, useMessageStore } from "~/core/store";
 import { cn } from "~/core/utils";
 
 import { AppHeader } from "../../components/AppHeader";
 import { ChatInput } from "../_components/chat-input";
 import { ChatSuggestions } from "../_components/chat-suggestions";
-import { Button } from "~/components/ui/button";
-import { useUIStore } from "~/core/store/ui";
-import { PanelLeft } from "lucide-react";
 
 export default function HomePage() {
   const router = useRouter();
@@ -31,8 +29,26 @@ export default function HomePage() {
     setMessage(action);
   }, []);
 
-  const { expandSidebar, setExpandSidebar, setIsFloatingSidebar } =
-    useUIStore();
+  // 上传文件
+  const { files } = useMessageStore();
+  const handleFileUpload = useCallback(
+    (file: File) => {
+      return uploadFile(file).then((res) => {
+        if (res.success) {
+          setFiles([res, ...files]);
+        }
+        return res;
+      });
+    },
+    [files],
+  );
+  const handleDeleteFile = useCallback(
+    (file: File) => {
+      setFiles(files.filter((f) => f.name !== file.name));
+    },
+    [files],
+  );
+
   return (
     <div className="flex w-full flex-col">
       <header className="ml-6 flex w-full items-center pt-4">
@@ -59,6 +75,10 @@ export default function HomePage() {
               message={message}
               setMessage={setMessage}
               onSend={handleSendMessage}
+              fetchUpload={handleFileUpload}
+              files={files}
+              deleteFile={handleDeleteFile}
+              immediateUpload={true}
               placeholder="给 Fusion AI 一个任务…"
             />
           </div>

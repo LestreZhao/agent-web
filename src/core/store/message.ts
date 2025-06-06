@@ -18,6 +18,7 @@ export const useMessageStore = create<{
   state: {
     messages: { role: string; content: string }[];
   };
+  files: File[];
 }>(() => ({
   // 当前对话 id
   chatId: "",
@@ -28,7 +29,13 @@ export const useMessageStore = create<{
   state: {
     messages: [],
   },
+  files: [],
 }));
+
+// 设置文件
+export function setFiles(files: File[]) {
+  useMessageStore.setState({ files });
+}
 
 // 设置初始化消息
 export function setInitMessages(message: string) {

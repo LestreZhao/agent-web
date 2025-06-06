@@ -42,6 +42,7 @@ export function TaskToolResultView({ task }: { task: ToolCallTask }) {
   return <div>{task.payload.toolName}</div>;
 }
 
+// 执行浏览器
 function BrowserToolCallView({
   task,
 }: {
@@ -59,6 +60,7 @@ function BrowserToolCallView({
   );
 }
 
+// 执行计划
 function PlanTaskView({ task }: { task: any }) {
   const plan = useMemo<{
     title?: string;
@@ -81,6 +83,7 @@ function PlanTaskView({ task }: { task: any }) {
   );
 }
 
+// 爬取网页
 const pageCache = new LRUCache<string, string>({ max: 100 });
 function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
   // const results = useMemo(() => {
@@ -135,6 +138,7 @@ function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
   );
 }
 
+// 执行搜索
 function TravilySearchToolCallView({
   task,
 }: {
@@ -162,7 +166,7 @@ function TravilySearchToolCallView({
                 className="list-item list-inside border-b border-gray-200 pb-1"
               >
                 <a
-                  className="flex items-center gap-2 font-bold"
+                  className="line-clamp-1 flex items-center gap-2 font-bold"
                   target="_blank"
                   rel="noopener noreferrer"
                   href={result.url}
@@ -190,6 +194,7 @@ function TravilySearchToolCallView({
   );
 }
 
+// 执行python代码
 function PythonReplToolCallView({
   task,
 }: {
@@ -216,6 +221,7 @@ function PythonReplToolCallView({
   );
 }
 
+// 执行bash命令
 function BashToolCallView({ task }: { task: ToolCallTask<{ cmd: string }> }) {
   return (
     <div>

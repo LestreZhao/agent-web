@@ -2,16 +2,23 @@
 
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState, useMemo, useCallback } from "react";
 
 import ChatHeader from "~/app/_components/chat-header";
 import { ChatInput } from "~/app/_components/chat-input";
-import { sendMessage, setInitMessages, useMessageStore } from "~/core/store";
+import TaskPreview from "~/app/_components/task/task-preview";
+import { uploadFile } from "~/core/api/file";
+import {
+  sendMessage,
+  setFiles,
+  setInitMessages,
+  useMessageStore,
+} from "~/core/store";
 import { useTaskStore } from "~/core/store/task";
 import { useUIStore } from "~/core/store/ui";
 
 import { MessagesView } from "../../_components/messages";
-import TaskPreview from "~/app/_components/task/task-preview";
+
 import { mockMessages } from "./mock";
 
 export default function ChatPage() {
@@ -50,6 +57,7 @@ export default function ChatPage() {
 
   // 是否显示任务预览组件
   const showTaskPreview = useMemo(() => {
+    console.log(messages, "messages");
     return (
       messages[messages.length - 1]?.role === "assistant" &&
       messages[messages.length - 1]?.content.workflow &&
@@ -60,6 +68,8 @@ export default function ChatPage() {
 
   // 获取聊天id
   const { id } = useParams<{ id: string }>();
+  // 文件
+  const { files } = useMessageStore();
   // 发送消息
   const handleSendMessage = async (
     message: string,
@@ -67,18 +77,20 @@ export default function ChatPage() {
   ) => {
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
-    await sendMessage(
-      {
-        id,
-        role: "user",
-        type: "text",
-        content: message,
-      },
-      config,
-      {
-        abortSignal: abortController.signal,
-      },
-    );
+    const userMessage = {
+      id,
+      role: "user",
+      type: "text",
+      content: message,
+    };
+    if (files.length > 0) {
+      userMessage.content += `。用户上传了文件，文件ID为：${files.map((file) => file.file_id).join(",")}`;
+      userMessage.files = files;
+    }
+    await sendMessage(userMessage, config, {
+      abortSignal: abortController.signal,
+    });
+    setFiles([]);
     abortControllerRef.current = null;
   };
 
@@ -98,6 +110,25 @@ export default function ChatPage() {
     };
     void sendInitialMessage();
   }, [initMessage, id]);
+
+  // 上传文件
+  const handleFileUpload = useCallback(
+    (file: File) => {
+      return uploadFile(file).then((res) => {
+        if (res.success) {
+          setFiles([res, ...files]);
+        }
+        return res;
+      });
+    },
+    [files],
+  );
+  const handleDeleteFile = useCallback(
+    (file: File) => {
+      setFiles(files.filter((f) => f.name !== file.name));
+    },
+    [files],
+  );
 
   return (
     <div className="flex h-full w-full">
@@ -138,6 +169,10 @@ export default function ChatPage() {
                 abortControllerRef.current?.abort();
               }}
               placeholder="发送消息给Fusion AI"
+              fetchUpload={handleFileUpload}
+              files={files}
+              deleteFile={handleDeleteFile}
+              immediateUpload={true}
             />
           </div>
         </div>
