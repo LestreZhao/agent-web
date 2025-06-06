@@ -24,7 +24,6 @@ export default function SmartDocumentViewer({
   const [numPages, setNumPages] = React.useState<number>(1);
 
   const fileType = file.name.split(".").pop();
-  console.log(fileType, "fileType");
 
   useEffect(() => {
     const fetchContent = async () => {

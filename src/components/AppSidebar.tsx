@@ -28,6 +28,7 @@ export function AppSidebar({ className }: { className?: string }) {
   const chatId = useMessageStore((state) => state.chatId);
   const handleNewTask = () => {
     clearMessages();
+    setExpandTaskView(false);
     setChatId(nanoid());
     router.push(`/`);
   };
