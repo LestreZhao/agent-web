@@ -1,0 +1,155 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 测试指南
+
+## 测试策略
+
+### 测试金字塔
+- **单元测试**: 测试独立的函数和组件
+- **集成测试**: 测试组件间的交互
+- **端到端测试**: 测试完整的用户流程
+
+### 测试覆盖率目标
+- 核心业务逻辑: 90%+
+- UI组件: 80%+
+- 工具函数: 95%+
+- API集成: 85%+
+
+## 单元测试
+
+### 组件测试
+```typescript
+// 使用React Testing Library测试组件
+import { render, screen } from '@testing-library/react'
+import { UserProfile } from './UserProfile'
+
+test('renders user name', () => {
+  render(<UserProfile name="张三" />)
+  expect(screen.getByText('张三')).toBeInTheDocument()
+})
+```
+
+### Hook测试
+```typescript
+// 使用@testing-library/react-hooks测试自定义Hook
+import { renderHook } from '@testing-library/react'
+import { useUserData } from './useUserData'
+
+test('should fetch user data', async () => {
+  const { result } = renderHook(() => useUserData('123'))
+  await waitFor(() => {
+    expect(result.current.data).toBeDefined()
+  })
+})
+```
+
+### 工具函数测试
+```typescript
+// 测试纯函数
+import { formatDate } from '@/core/utils/date'
+
+test('formats date correctly', () => {
+  const date = new Date('2024-01-01')
+  expect(formatDate(date)).toBe('2024年1月1日')
+})
+```
+
+## 集成测试
+
+### API集成测试
+- 使用Mock Service Worker (MSW) 模拟API响应
+- 测试API错误处理和重试逻辑
+- 验证数据转换和类型安全
+
+### 状态管理测试
+- 测试Zustand store的状态变更
+- 验证状态持久化和恢复
+- 测试异步状态更新
+
+## 端到端测试
+
+### 用户流程测试
+- 使用Playwright或Cypress进行E2E测试
+- 测试关键用户路径和业务流程
+- 验证跨浏览器兼容性
+
+### 医疗AI功能测试
+- 对话流程完整性测试
+- 文档上传和处理测试
+- 诊断结果准确性验证
+
+## 测试工具配置
+
+### Jest配置
+```javascript
+// jest.config.js
+module.exports = {
+  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  moduleNameMapping: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+}
+```
+
+### Testing Library设置
+```javascript
+// jest.setup.js
+import '@testing-library/jest-dom'
+import { server } from './src/mocks/server'
+
+beforeAll(() => server.listen())
+afterEach(() => server.resetHandlers())
+afterAll(() => server.close())
+```
+
+## Mock策略
+
+### API Mock
+- 使用MSW创建API mock
+- 模拟不同的响应状态和错误情况
+- 支持动态响应和状态变更
+
+### 外部依赖Mock
+- Mock第三方库和服务
+- 模拟浏览器API和环境变量
+- 隔离测试环境
+
+## 性能测试
+
+### 组件性能
+- 使用React DevTools Profiler
+- 测试渲染性能和内存使用
+- 识别性能瓶颈和优化机会
+
+### 加载性能
+- 测试页面加载时间
+- 监控资源大小和网络请求
+- 验证代码分割效果
+
+## 可访问性测试
+
+### 自动化测试
+- 使用jest-axe进行可访问性检查
+- 验证ARIA属性和语义化标签
+- 测试键盘导航和屏幕阅读器支持
+
+### 手动测试
+- 使用键盘导航测试
+- 验证颜色对比度和字体大小
+- 测试不同设备和屏幕尺寸
+
+## 测试数据管理
+
+### 测试数据工厂
+- 创建可重用的测试数据生成器
+- 支持不同场景的数据变体
+- 保护敏感医疗数据
+
+### 数据库测试
+- 使用内存数据库进行测试
+- 每个测试用例独立的数据环境
+- 测试数据迁移和种子数据

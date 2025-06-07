@@ -1,0 +1,187 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 医疗AI特定功能指南
+
+## 医疗AI核心功能
+
+### 智能对话系统
+- 多轮对话上下文管理
+- 医疗专业术语理解和处理
+- 症状描述自然语言处理
+- 对话历史记录和分析
+
+### 文档处理能力
+- PDF医疗报告解析和提取
+- Word病历文档结构化处理
+- 医学影像报告文本识别
+- 多格式文档统一处理接口
+
+### 诊断辅助功能
+- 症状分析和疾病预测算法
+- 治疗方案智能推荐
+- 药物相互作用检查
+- 诊断置信度评估
+
+## 数据处理规范
+
+### 医疗数据脱敏
+```typescript
+// 敏感信息脱敏处理
+interface PatientData {
+  id: string // 使用哈希ID，不暴露真实身份
+  age: number // 年龄段而非精确年龄
+  gender: 'M' | 'F' | 'O'
+  symptoms: string[]
+  // 不包含姓名、身份证等敏感信息
+}
+```
+
+### 数据验证和清洗
+- 输入数据格式验证
+- 医疗术语标准化
+- 异常数据检测和处理
+- 数据完整性校验
+
+### 隐私保护措施
+- 端到端加密传输
+- 本地数据临时存储
+- 自动数据清理机制
+- 用户同意和授权管理
+
+## UI/UX设计原则
+
+### 医疗专业界面
+- 清晰的信息层次结构
+- 专业医疗色彩搭配
+- 易读的字体和间距
+- 直观的操作流程
+
+### 可访问性要求
+- 支持屏幕阅读器
+- 键盘导航友好
+- 高对比度模式
+- 多语言支持
+
+### 响应式设计
+- 移动端医生查房场景
+- 平板端病历录入
+- 桌面端详细分析
+- 跨设备数据同步
+
+## 安全和合规
+
+### 医疗数据保护法规
+- HIPAA合规性要求
+- 中国网络安全法遵循
+- 个人信息保护法实施
+- 医疗器械软件监管
+
+### 审计和日志
+```typescript
+// 医疗操作审计日志
+interface MedicalAuditLog {
+  timestamp: Date
+  userId: string
+  action: 'diagnosis' | 'prescription' | 'view_record'
+  patientId: string // 脱敏后的ID
+  details: Record<string, unknown>
+  ipAddress: string
+  userAgent: string
+}
+```
+
+### 数据备份和恢复
+- 加密数据备份策略
+- 灾难恢复计划
+- 数据完整性验证
+- 合规性审计准备
+
+## 性能优化
+
+### 大数据处理
+- 分页加载医疗记录
+- 虚拟滚动长列表
+- 数据缓存策略
+- 异步数据处理
+
+### 实时性要求
+- WebSocket实时通信
+- Server-Sent Events流式响应
+- 低延迟API设计
+- 离线功能支持
+
+### 资源管理
+- 医学图像优化加载
+- 大文件分块上传
+- 内存使用监控
+- 网络带宽优化
+
+## 错误处理
+
+### 医疗场景错误处理
+```typescript
+// 医疗AI错误类型定义
+enum MedicalErrorType {
+  DIAGNOSIS_UNCERTAIN = 'diagnosis_uncertain',
+  INSUFFICIENT_DATA = 'insufficient_data',
+  CONTRAINDICATION = 'contraindication',
+  EMERGENCY_ALERT = 'emergency_alert'
+}
+
+interface MedicalError {
+  type: MedicalErrorType
+  message: string
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  recommendations: string[]
+  requiresHumanReview: boolean
+}
+```
+
+### 用户友好的错误提示
+- 非技术性语言描述
+- 明确的下一步指导
+- 紧急情况处理流程
+- 专业医生咨询建议
+
+## 测试策略
+
+### 医疗AI功能测试
+- 诊断准确性验证
+- 边界条件测试
+- 异常输入处理
+- 多语言医疗术语测试
+
+### 安全性测试
+- 数据泄露防护测试
+- 权限控制验证
+- 加密传输测试
+- 审计日志完整性
+
+### 用户体验测试
+- 医生工作流程测试
+- 患者使用体验验证
+- 紧急情况响应测试
+- 跨设备兼容性测试
+
+## 集成指南
+
+### 医院信息系统集成
+- HIS系统数据接口
+- 电子病历系统对接
+- 医学影像系统集成
+- 实验室信息系统连接
+
+### 第三方医疗服务
+- 药品数据库API
+- 疾病知识库集成
+- 医疗设备数据接口
+- 远程医疗平台对接
+
+### 监管机构接口
+- 药监局数据上报
+- 卫健委统计接口
+- 医疗质量监控
+- 不良事件报告系统

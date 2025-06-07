@@ -1,0 +1,120 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# API集成指南
+
+## API架构设计
+
+### 环境配置
+- API端点配置在 [src/env.js](mdc:src/env.js) 中验证
+- 使用 `NEXT_PUBLIC_API_URL` 环境变量配置API基础URL
+- 开发环境和生产环境使用不同的API端点
+
+### API客户端设计
+- 所有API调用封装在 `src/core/api/` 目录
+- 使用TypeScript定义API请求和响应类型
+- 统一的错误处理和响应格式化
+
+## 数据获取模式
+
+### 服务端数据获取
+```typescript
+// 在服务端组件中直接获取数据
+async function getData() {
+  const res = await fetch(`${process.env.API_URL}/api/data`)
+  if (!res.ok) throw new Error('Failed to fetch data')
+  return res.json()
+}
+```
+
+### 客户端数据获取
+```typescript
+// 在客户端组件中使用useEffect获取数据
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const data = await apiClient.getData()
+      setData(data)
+    } catch (error) {
+      setError(error)
+    }
+  }
+  fetchData()
+}, [])
+```
+
+### 流式数据处理
+- SSE (Server-Sent Events) 处理逻辑在 `src/core/sse/` 目录
+- 实时数据流使用EventSource API
+- 支持断线重连和错误恢复
+
+## 类型安全
+
+### API类型定义
+- 请求参数类型定义在 `src/typings/api.ts`
+- 响应数据类型与后端API保持一致
+- 使用Zod进行运行时类型验证
+
+### 错误处理类型
+```typescript
+interface ApiError {
+  code: string
+  message: string
+  details?: unknown
+}
+
+interface ApiResponse<T> {
+  data?: T
+  error?: ApiError
+  success: boolean
+}
+```
+
+## 缓存策略
+
+### Next.js缓存
+- 使用Next.js内置的fetch缓存机制
+- 静态数据使用 `cache: 'force-cache'`
+- 动态数据使用 `cache: 'no-store'`
+- 重新验证使用 `revalidate` 选项
+
+### 客户端缓存
+- 使用LRU缓存库进行内存缓存
+- 缓存配置在 `src/core/utils/cache.ts`
+- 支持TTL和容量限制
+
+## 医疗AI特定API
+
+### 对话API
+- 支持流式响应的聊天接口
+- 消息历史管理和上下文保持
+- 多轮对话状态维护
+
+### 文档处理API
+- PDF文档解析和处理
+- Word文档内容提取
+- 医疗文档格式化和结构化
+
+### 诊断辅助API
+- 症状分析和疾病预测
+- 治疗方案推荐
+- 病历文书自动生成
+
+## 安全考虑
+
+### 认证授权
+- API请求包含必要的认证头
+- Token管理和自动刷新
+- 权限验证和角色控制
+
+### 数据保护
+- 敏感医疗数据加密传输
+- 个人信息脱敏处理
+- 符合医疗数据保护法规
+
+### 请求限制
+- API调用频率限制
+- 请求大小限制
+- 超时处理和重试机制

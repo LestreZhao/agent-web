@@ -18,6 +18,7 @@ export default function RootLayout({
     <html lang="en" className={`${GeistSans.variable}`}>
       <body className="min-w-screen flex h-[100vh] max-h-screen max-w-[100vw] flex-col overflow-hidden bg-[#f8f8f7]">
         <main className="h-full w-full">{children}</main>
+        <StagewiseDevToolbar />
       </body>
     </html>
   );

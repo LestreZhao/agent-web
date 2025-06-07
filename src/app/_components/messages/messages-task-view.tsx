@@ -8,6 +8,7 @@ import { parse } from "best-effort-json-parser";
 import { motion } from "framer-motion";
 import {
   Atom,
+  BarChart3,
   Check,
   ChevronDown,
   ChevronUp,
@@ -22,6 +23,7 @@ import {
   TextSearch,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 
 import { Markdown } from "~/components/comon/Markdown";
@@ -114,7 +116,7 @@ export function MessagesTaskView({
                 ) {
                   const files = JSON.parse(task.payload.output ?? "[]");
                   return (
-                    <div>
+                    <div key={task.id}>
                       <div className="text-sm font-bold">创建的文件列表：</div>
                       <div className="flex flex-wrap gap-2">
                         {files.files.map((file) => {
@@ -279,7 +281,7 @@ export function getStepName(task: any) {
       taskInfo = {
         typeName: "FusionAI 正在分析",
         title: "正在分析数据内容…",
-        icon: <Atom className="h-4 w-4" />,
+        icon: <Image src="/icon.png" alt="FusionAI" width={16} height={16} className="h-4 w-4" />,
       };
       return taskInfo;
     case "tool_call":
@@ -344,6 +346,13 @@ export function getStepName(task: any) {
           typeName: "正在生成文件",
           title: `正在生成文件 ${task.payload.input.sql ?? ""}`,
           icon: <DatabaseBackup className="h-4 w-4 shrink-0 text-sm" />,
+        };
+      }
+      if (task.payload.toolName === "generate_echarts_chart") {
+        taskInfo = {
+          typeName: "正在绘制图表",
+          title: "正在绘制图表",
+          icon: <BarChart3 className="h-4 w-4 shrink-0 text-sm" />,
         };
       }
       return taskInfo;

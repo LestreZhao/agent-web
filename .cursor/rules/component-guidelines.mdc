@@ -1,0 +1,74 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 组件开发指南
+
+## 组件架构原则
+
+### 组件分层
+- **页面组件**: 放在 `src/app/` 目录，使用 `page.tsx` 命名
+- **布局组件**: 放在 `src/app/` 目录，使用 `layout.tsx` 命名  
+- **通用UI组件**: 放在 `src/components/ui/` 目录
+- **业务组件**: 放在 `src/components/` 对应功能目录
+- **页面级组件**: 放在 `src/app/_components/` 目录
+
+### 组件命名规范
+- 组件文件使用PascalCase命名（如 `UserProfile.tsx`）
+- 组件导出名称与文件名保持一致
+- 自定义Hooks以 `use` 开头（如 `useUserData`）
+- 工具函数使用camelCase命名
+
+## UI组件开发
+
+### Shadcn/ui组件
+- 基础UI组件配置见 [components.json](mdc:components.json)
+- 使用 `npx shadcn@latest add [component]` 添加新组件
+- 自定义样式通过Tailwind CSS类实现
+- 组件变体使用class-variance-authority库
+
+### Ant Design集成
+- 主要使用 `@ant-design/icons` 图标库
+- 与Tailwind CSS样式保持一致
+- 避免样式冲突，优先使用Tailwind
+
+### 响应式设计
+- 移动端优先设计原则
+- 使用Tailwind响应式前缀：`sm:` `md:` `lg:` `xl:` `2xl:`
+- 关键断点：768px (md), 1024px (lg), 1280px (xl)
+
+## 状态管理
+
+### 组件状态
+- 简单状态使用 `useState`
+- 复杂状态逻辑使用 `useReducer`
+- 副作用处理使用 `useEffect`
+
+### 全局状态
+- 使用Zustand进行全局状态管理
+- Store文件放在 `src/core/store/` 目录
+- 每个功能模块独立的store
+- 状态持久化使用Zustand persist中间件
+
+### 服务端状态
+- API数据获取放在 `src/core/api/` 目录
+- 使用Next.js内置的fetch进行数据获取
+- 错误处理统一在API层处理
+
+## 性能优化
+
+### 代码分割
+- 使用动态导入 `import()` 进行代码分割
+- 大型组件使用 `React.lazy()` 懒加载
+- 路由级别的代码分割通过Next.js自动实现
+
+### 渲染优化
+- 使用 `React.memo()` 避免不必要的重渲染
+- 合理使用 `useMemo()` 和 `useCallback()`
+- 列表渲染使用稳定的key值
+
+### 图片优化
+- 使用Next.js的 `Image` 组件
+- 图片资源放在 `public/` 目录
+- 支持WebP格式和响应式图片

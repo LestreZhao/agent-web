@@ -109,13 +109,13 @@ export default function TaskPreview({
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#f7f7f7]">
+                {/* <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#f7f7f7]">
                   {task ? getStepName(task).icon : <Atom size={20} />}
-                </div>
+                </div> */}
                 <div>
-                  <span className="text-xs text-[#858481]">
+                  {/* <span className="text-xs text-[#858481]">
                     Fusion AI 正在执行任务
-                  </span>
+                  </span> */}
                   {expand && (
                     <TaskTag
                       task={task}

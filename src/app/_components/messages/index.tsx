@@ -7,6 +7,8 @@ import { Markdown } from "~/components/comon/Markdown";
 import { type Message } from "~/core/messaging";
 import { cn } from "~/core/utils";
 
+type UserMessage = Message;
+
 import { ChatFilePreviewItem } from "../file-preview";
 
 import { MessagesTaskView } from "./messages-task-view";
@@ -23,9 +25,13 @@ export function MessagesView({
   const endRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [autoScroll, setAutoScroll] = useState(true); // 控制是否自动滚动
+  const [isUserScrolling, setIsUserScrolling] = useState(false); // 跟踪用户是否正在滚动
+  const lastScrollTop = useRef(0); // 记录上次滚动位置
 
   const scrollToBottom = () => {
     if (endRef.current) {
+      setAutoScroll(true); // 点击向下箭头时恢复自动滚动
       endRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
@@ -34,6 +40,20 @@ export function MessagesView({
     if (containerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
       const isBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 10;
+      
+      // 检测用户是否向上滚动
+      if (scrollTop < lastScrollTop.current && !isUserScrolling) {
+        setIsUserScrolling(true);
+        setAutoScroll(false); // 用户向上滚动时停止自动滚动
+      }
+      
+      // 如果用户滚动到底部，恢复自动滚动
+      if (isBottom && !autoScroll) {
+        setAutoScroll(true);
+        setIsUserScrolling(false);
+      }
+      
+      lastScrollTop.current = scrollTop;
       setShowScrollButton(!isBottom);
     }
   };
@@ -44,13 +64,14 @@ export function MessagesView({
       container.addEventListener("scroll", handleScroll);
       return () => container.removeEventListener("scroll", handleScroll);
     }
-  }, []);
+  }, [autoScroll, isUserScrolling]);
 
   useEffect(() => {
-    if (endRef.current) {
+    // 只有在自动滚动模式下才自动滚动到底部
+    if (autoScroll && endRef.current) {
       endRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [messages, autoScroll]);
 
   return (
     <div
@@ -92,7 +113,7 @@ function MessageView({
   loading: boolean;
 }) {
   const content =
-    message.role === "user" && message.files
+    message.role === "user" && (message as any).files
       ? message.content.toString().split("。用户上传了文件，文件ID为：")[0]
       : message.content;
   if (!content) return null;
@@ -117,20 +138,12 @@ function MessageView({
       >
         {message.type === "text" && message.content && (
           <div className="flex flex-col">
-            <Markdown
-              components={{
-                a: ({ href, children }) => (
-                  <a href={href} target="_blank" rel="noopener noreferrer">
-                    {children}
-                  </a>
-                ),
-              }}
-            >
+            <Markdown>
               {content.toString()}
             </Markdown>
-            {message.files && (
+            {(message as any).files && (
               <div className="mt-2 flex flex-col gap-2">
-                {message.files.map((file) => (
+                {(message as any).files.map((file: any) => (
                   <ChatFilePreviewItem
                     key={file.name}
                     file={file}
