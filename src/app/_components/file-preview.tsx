@@ -1,11 +1,11 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, FileIcon, Loader2, X } from "lucide-react";
 import { useRef, useState } from "react";
+
 import { setCurrentFile } from "~/core/store";
 import { useUIStore } from "~/core/store/ui";
 import { cn } from "~/core/utils";
-
-import { ReviewFile, type ResponseFile } from "~/types/message";
+import { type ReviewFile, type ResponseFile } from "~/types/message";
 
 interface FilePreviewProps {
   files: ReviewFile[];

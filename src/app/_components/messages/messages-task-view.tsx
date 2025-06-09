@@ -7,7 +7,6 @@ import {
 import { parse } from "best-effort-json-parser";
 import { motion } from "framer-motion";
 import {
-  Atom,
   BarChart3,
   Check,
   ChevronDown,
@@ -45,14 +44,12 @@ export function MessagesTaskView({
   workflow: Workflow;
   loading: boolean;
 }) {
+  // 当前步骤信息
   const { currentStepInfo, setSelectedTask, setIsSelectedTask } =
     useTaskStore();
   const { setExpandTaskView, setIsFilePreview } = useUIStore();
 
-  // const steps = useMemo(() => {
-  //   return workflow.steps;
-  // }, [workflow]);
-
+  // 步骤
   const steps = useMemo(() => {
     return workflow.steps.map((step) => {
       if (step.agentName === "reporter") {
@@ -64,6 +61,7 @@ export function MessagesTaskView({
       return step;
     });
   }, [workflow]);
+  // 总结
   const reportStep = useMemo(() => {
     return workflow.steps.find((step) => step.agentName === "reporter");
   }, [workflow]);
@@ -281,8 +279,28 @@ export function getStepName(task: any) {
       taskInfo = {
         typeName: "FusionAI 正在分析",
         title: "正在分析数据内容…",
-        icon: <Image src="/icon.png" alt="FusionAI" width={16} height={16} className="h-4 w-4" />,
+        icon: (
+          <Image
+            src="/icon.png"
+            alt="FusionAI"
+            width={16}
+            height={16}
+            className="h-4 w-4 shrink-0 rounded-full"
+          />
+        ),
       };
+      if (task.agentName === "db_analyst") {
+        taskInfo.title = "正在分析数据库查询结果…";
+      }
+      if (task.agentName === "researcher") {
+        taskInfo.title = "正在分析网页信息…";
+      }
+      if (task.agentName === "chart_generator") {
+        taskInfo.title = "正在生成可视化图表…";
+      }
+      if (task.agentName === "reporter") {
+        taskInfo.title = "正在生成任务报告…";
+      }
       return taskInfo;
     case "tool_call":
       if (task.payload.toolName === "tavily_search") {
@@ -356,33 +374,7 @@ export function getStepName(task: any) {
         };
       }
       return taskInfo;
-    case "planner":
-      taskInfo = {
-        typeName: "规划任务",
-        title: "正在规划任务",
-        icon: <Search className="h-4 w-4 shrink-0 text-sm" />,
-      };
-      return taskInfo;
-    case "researcher":
-      taskInfo = {
-        typeName: "研究任务",
-        title: "正在研究任务",
-        icon: <Search className="h-4 w-4 shrink-0 text-sm" />,
-      };
-      return taskInfo;
-    case "supervisor":
-      taskInfo = {
-        typeName: "思考任务",
-        title: "正在思考任务",
-        icon: <Search className="h-4 w-4 shrink-0 text-sm" />,
-      };
-      return taskInfo;
-    case "reporter":
-      taskInfo = {
-        typeName: "总结任务",
-        title: "正在总结任务",
-        icon: <Search className="h-4 w-4 shrink-0 text-sm" />,
-      };
-      return taskInfo;
+    default:
+      return null;
   }
 }

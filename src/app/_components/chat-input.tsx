@@ -28,8 +28,6 @@ export function ChatInput({
   onCancel,
   placeholder,
   onUpload,
-  fetchUpload,
-  immediateUpload,
   deleteFile,
 }: {
   message: string;
@@ -44,8 +42,6 @@ export function ChatInput({
   ) => void;
   onCancel?: () => void;
   onUpload?: (file: File) => void;
-  fetchUpload?: (file: File) => Promise<string>;
-  immediateUpload?: boolean;
   deleteFile?: (file: ResponseFile) => void;
 }) {
   const [deepThinkingMode, setDeepThinkMode] = useState(false);

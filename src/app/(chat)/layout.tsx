@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { PanelLeft } from "lucide-react";
 
 import { AppSidebar } from "~/components/AppSidebar";
-import { Button } from "~/components/ui/button";
 import { useUIStore } from "~/core/store/ui";
 import { cn } from "~/core/utils";
 
@@ -12,6 +11,7 @@ import "~/styles/globals.css";
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  
   const {
     isFloatingSidebar,
     expandSidebar,

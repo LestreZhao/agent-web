@@ -3,6 +3,7 @@
 import { nanoid } from "nanoid";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
+import { toast } from "sonner";
 
 import { uploadFile } from "~/core/api/file";
 import { setFiles, setInitMessages, useMessageStore } from "~/core/store";
@@ -11,7 +12,6 @@ import { cn } from "~/core/utils";
 import { AppHeader } from "../../components/AppHeader";
 import { ChatInput } from "../_components/chat-input";
 import { ChatSuggestions } from "../_components/chat-suggestions";
-import { toast } from "sonner";
 
 export default function HomePage() {
   const router = useRouter();

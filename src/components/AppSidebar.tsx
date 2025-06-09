@@ -1,7 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ClipboardList, PanelLeft, Plus, Search } from "lucide-react";
+import { ClipboardList, PanelLeft, Plus } from "lucide-react";
+import { nanoid } from "nanoid";
+import { useRouter } from "next/navigation";
+
 import { messagesList } from "~/app/(chat)/[id]/mock";
 import {
   clearMessages,
@@ -9,12 +12,11 @@ import {
   setMessages,
   useMessageStore,
 } from "~/core/store/message";
-import { nanoid } from "nanoid";
-import { useRouter } from "next/navigation";
+import { useUIStore } from "~/core/store/ui";
 import { cn } from "~/core/utils";
 
-import { useUIStore } from "~/core/store/ui";
 import { TooltipButton } from "./ui/tooltip-button";
+import { useTaskStore } from "~/core/store/task";
 
 const SIDEBAR_WIDTH = "19rem";
 const SIDEBAR_BACKGROUND_COLOR = "#ebebeb";
@@ -23,6 +25,7 @@ export function AppSidebar({ className }: { className?: string }) {
   const router = useRouter();
   const { isFloatingSidebar, setIsFloatingSidebar, setExpandTaskView } =
     useUIStore();
+  const { setCurrentStepInfo, setIsSelectedTask } = useTaskStore();
   // const historyList = useMessageStore((state) => state.historyList);
   const historyList = messagesList;
   const chatId = useMessageStore((state) => state.chatId);
@@ -37,8 +40,17 @@ export function AppSidebar({ className }: { className?: string }) {
     setChatId(id);
     const task = messagesList.find((item) => item.id === id);
     if (task) {
+      const lastMessage = task.messages[task.messages.length - 1];
       setMessages(task.messages as Message[]);
+      setCurrentStepInfo(
+        lastMessage?.content?.workflow?.steps[
+          lastMessage.content.workflow.steps.length - 1
+        ],
+      );
+      // 关闭任务视图
       setExpandTaskView(false);
+      // 关闭任务选择
+      setIsSelectedTask(false);
       router.push(`/${id}`);
     }
   };

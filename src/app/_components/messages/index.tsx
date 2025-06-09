@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowDown } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 import { MessageLoading } from "~/app/_components/messages/message-loading";
 import { Markdown } from "~/components/comon/Markdown";
@@ -25,53 +25,72 @@ export function MessagesView({
   const endRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
-  const [autoScroll, setAutoScroll] = useState(true); // 控制是否自动滚动
-  const [isUserScrolling, setIsUserScrolling] = useState(false); // 跟踪用户是否正在滚动
-  const lastScrollTop = useRef(0); // 记录上次滚动位置
+  const [autoScroll, setAutoScroll] = useState(true);
+  const lastScrollTop = useRef(0);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout>();
+  const isScrollingRef = useRef(false);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback((instant = false) => {
     if (endRef.current) {
-      setAutoScroll(true); // 点击向下箭头时恢复自动滚动
-      endRef.current.scrollIntoView({ behavior: "smooth" });
+      endRef.current.scrollIntoView({
+        behavior: instant ? "instant" : "smooth",
+        block: "end",
+      });
     }
-  };
+  }, []);
 
-  const handleScroll = () => {
-    if (containerRef.current) {
+  const handleScroll = useCallback(() => {
+    if (containerRef.current && !isScrollingRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-      const isBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 10;
-      
+      const isBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 50;
+
       // 检测用户是否向上滚动
-      if (scrollTop < lastScrollTop.current && !isUserScrolling) {
-        setIsUserScrolling(true);
-        setAutoScroll(false); // 用户向上滚动时停止自动滚动
+      if (scrollTop < lastScrollTop.current) {
+        setAutoScroll(false);
       }
-      
+
       // 如果用户滚动到底部，恢复自动滚动
-      if (isBottom && !autoScroll) {
+      if (isBottom) {
         setAutoScroll(true);
-        setIsUserScrolling(false);
       }
-      
       lastScrollTop.current = scrollTop;
       setShowScrollButton(!isBottom);
     }
-  };
+  }, []);
+
+  // 使用防抖处理滚动事件
+  const debouncedHandleScroll = useCallback(() => {
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    scrollTimeoutRef.current = setTimeout(() => {
+      handleScroll();
+    }, 100);
+  }, [handleScroll]);
 
   useEffect(() => {
     const container = containerRef.current;
     if (container) {
-      container.addEventListener("scroll", handleScroll);
-      return () => container.removeEventListener("scroll", handleScroll);
+      container.addEventListener("scroll", debouncedHandleScroll);
+      return () => {
+        container.removeEventListener("scroll", debouncedHandleScroll);
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+      };
     }
-  }, [autoScroll, isUserScrolling]);
+  }, [debouncedHandleScroll]);
 
   useEffect(() => {
-    // 只有在自动滚动模式下才自动滚动到底部
-    if (autoScroll && endRef.current) {
-      endRef.current.scrollIntoView({ behavior: "smooth" });
+    if (autoScroll) {
+      isScrollingRef.current = true;
+      scrollToBottom();
+      // 给一个短暂的延迟，让滚动动画完成
+      setTimeout(() => {
+        isScrollingRef.current = false;
+      }, 100);
     }
-  }, [messages, autoScroll]);
+  }, [messages, autoScroll, scrollToBottom]);
 
   return (
     <div
@@ -80,7 +99,7 @@ export function MessagesView({
       <div
         className="flex-1 overflow-y-scroll"
         ref={containerRef}
-        onScroll={handleScroll}
+        onScroll={debouncedHandleScroll}
       >
         {messages.map((message) => (
           <MessageView key={message.id} message={message} loading={loading} />
@@ -95,7 +114,10 @@ export function MessagesView({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             className="rounded-full bg-white p-2 shadow-lg shadow-black/10"
-            onClick={scrollToBottom}
+            onClick={() => {
+              setAutoScroll(true);
+              scrollToBottom();
+            }}
           >
             <ArrowDown className="h-5 w-5" />
           </motion.button>
@@ -138,9 +160,7 @@ function MessageView({
       >
         {message.type === "text" && message.content && (
           <div className="flex flex-col">
-            <Markdown>
-              {content.toString()}
-            </Markdown>
+            <Markdown>{content.toString()}</Markdown>
             {(message as any).files && (
               <div className="mt-2 flex flex-col gap-2">
                 {(message as any).files.map((file: any) => (

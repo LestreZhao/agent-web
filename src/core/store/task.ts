@@ -13,6 +13,8 @@ export const useTaskStore = create<{
   // 当前正在执行的任务
   currentTask: any;
   setCurrentTask: (task: any) => void;
+  // 清除任务状态
+  clearTaskState: () => void;
 }>((set) => ({
   isSelectedTask: false,
   setIsSelectedTask: (isSelectedTask: boolean) => set({ isSelectedTask }),
@@ -31,4 +33,11 @@ export const useTaskStore = create<{
   setSelectedTask: (task: string) => set({ selectedTask: task }),
   currentTask: null,
   setCurrentTask: (task: any) => set({ currentTask: task }),
+  clearTaskState: () =>
+    set({
+      isSelectedTask: false,
+      currentStepInfo: null,
+      selectedTask: "",
+      currentTask: null,
+    }),
 }));

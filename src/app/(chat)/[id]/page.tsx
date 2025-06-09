@@ -3,9 +3,11 @@
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
 import { useRef, useEffect, useState, useMemo, useCallback } from "react";
+import { toast } from "sonner";
 
 import ChatHeader from "~/app/_components/chat-header";
 import { ChatInput } from "~/app/_components/chat-input";
+import FileContent from "~/app/_components/file-content";
 import TaskPreview from "~/app/_components/task/task-preview";
 import { uploadFile } from "~/core/api/file";
 import {
@@ -16,12 +18,10 @@ import {
 } from "~/core/store";
 import { useTaskStore } from "~/core/store/task";
 import { useUIStore } from "~/core/store/ui";
+import { type Message, type WorkflowMessage } from "~/types/message";
+import { type Workflow } from "~/types/workflow";
 
 import { MessagesView } from "../../_components/messages";
-
-import { mockMessages } from "./mock";
-import { toast } from "sonner";
-import FileContent from "~/app/_components/file-content";
 
 export default function ChatPage() {
   // 添加ref来跟踪初始消息是否已发送
@@ -29,47 +29,21 @@ export default function ChatPage() {
   // 断开请求的控制器
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const { currentFile } = useMessageStore();
-  const messages = useMessageStore((state) => state.messages);
-  // const messages = mockMessages;
-  // 是否正在响应
-  const responding = useMessageStore((state) => state.responding);
-  // 初始消息
-  const initMessage = useMessageStore((state) => state.initMessages);
   // 用户输入
   const [message, setMessage] = useState("");
+
+  const {
+    messages, // 消息列表
+    responding, // 是否正在响应
+    initMessages: initMessage, // 初始消息
+    currentFile, // 用户选择查看的文件
+  } = useMessageStore();
 
   // 设置当前模型正在执行的任务
   const { setCurrentTask } = useTaskStore();
   // 是否展开任务视图
   const { expandTaskView, setExpandTaskView, isFilePreview, setIsFilePreview } =
     useUIStore();
-
-  // 获取最新step的最新task
-  useEffect(() => {
-    const latestTask = getLatestStepTask(messages);
-    if (latestTask) {
-      setCurrentTask(latestTask);
-    }
-  }, [messages, setCurrentTask]);
-
-  // 获取聊天标题
-  const chatHeader = useMemo(() => {
-    return messages[0]?.role === "user"
-      ? messages[0]?.content.toString()
-      : "Fusion";
-  }, [messages]);
-
-  // 是否显示任务预览组件
-  const showTaskPreview = useMemo(() => {
-    console.log(messages, "messages");
-    return (
-      messages[messages.length - 1]?.role === "assistant" &&
-      messages[messages.length - 1]?.content.workflow &&
-      messages[messages.length - 1]?.content.workflow.plans &&
-      messages[messages.length - 1]?.content.workflow.plans.length > 0
-    );
-  }, [messages]);
 
   // 获取聊天id
   const { id } = useParams<{ id: string }>();
@@ -98,6 +72,43 @@ export default function ChatPage() {
     setFiles([]);
     abortControllerRef.current = null;
   };
+  // // 记忆化responding状态
+  // const memoizedResponding = useMemo(() => responding, [responding]);
+
+  // // 记忆化expandTaskView状态
+  // const memoizedExpandTaskView = useMemo(
+  //   () => expandTaskView,
+  //   [expandTaskView],
+  // );
+  // // 记忆化setExpandTaskView函数
+  // const memoizedSetExpandTaskView = useCallback(
+  //   (value: boolean) => {
+  //     setExpandTaskView(value);
+  //   },
+  //   [setExpandTaskView],
+  // );
+  
+  // 获取聊天标题
+  const chatHeader = useMemo(() => {
+    return messages[0]?.role === "user"
+      ? messages[0]?.content.toString()
+      : "Fusion AI";
+  }, [messages]);
+
+  // 获取任务计划
+  const plans = useMemo(() => {
+    const lastMessage = messages[messages.length - 1] as WorkflowMessage;
+    if (!lastMessage?.content?.workflow?.plans) return [];
+    return lastMessage.content.workflow.plans;
+  }, [messages]);
+
+  // 是否显示任务预览组件
+  const showTaskPreview = useMemo(() => {
+    console.log(messages, "messages");
+    return (
+      messages[messages.length - 1]?.role === "assistant" && plans.length > 0
+    );
+  }, [messages, plans]);
 
   useEffect(() => {
     const sendInitialMessage = async () => {
@@ -115,6 +126,14 @@ export default function ChatPage() {
     };
     void sendInitialMessage();
   }, [initMessage, id]);
+
+  // 获取最新step的最新task
+  useEffect(() => {
+    const latestTask = getLatestStepTask(messages);
+    if (latestTask) {
+      setCurrentTask(latestTask);
+    }
+  }, [messages, setCurrentTask]);
 
   // 上传文件
   const handleFileUpload = useCallback(
@@ -167,13 +186,13 @@ export default function ChatPage() {
               loading={responding}
             />
           </div>
-          <div className="sticky bottom-4 flex flex-col">
+          <div className="sticky bottom-8 flex flex-col">
             {!expandTaskView && showTaskPreview && (
               <TaskPreview
                 responding={responding}
                 expand={expandTaskView}
                 setExpand={setExpandTaskView}
-                tasks={messages[messages.length - 1]?.content.workflow?.plans}
+                plans={plans}
               />
             )}
             <ChatInput
@@ -197,7 +216,7 @@ export default function ChatPage() {
         initial={{ width: "0%" }}
         animate={{ width: expandTaskView ? "50%" : "0%" }}
         transition={{ duration: 0.3 }}
-        className="h-full w-full overflow-hidden"
+        className="h-full w-full overflow-hidden pb-8"
       >
         {isFilePreview ? (
           <FileContent
@@ -213,7 +232,7 @@ export default function ChatPage() {
             className="h-full"
             expand={expandTaskView}
             setExpand={setExpandTaskView}
-            tasks={messages[messages.length - 1]?.content.workflow?.plans}
+            plans={plans}
           />
         )}
       </motion.div>

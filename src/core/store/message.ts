@@ -12,6 +12,8 @@ import {
 import { clone } from "../utils";
 import { WorkflowEngine } from "../workflow";
 
+import { useTaskStore } from "./task";
+
 export const useMessageStore = create<{
   messages: Message[];
   chatId: string;
@@ -195,6 +197,7 @@ export function clearMessages() {
     chatId: "",
     files: [],
   });
+  useTaskStore.getState().clearTaskState();
 }
 
 export function setResponding(responding: boolean) {
