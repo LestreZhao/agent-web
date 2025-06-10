@@ -308,7 +308,6 @@ const TravilySearchToolCallView = memo(function TravilySearchToolCallView({
     </div>
   );
 });
-
 // 执行python代码
 const PythonReplToolCallView = memo(function PythonReplToolCallView({
   task,
@@ -366,7 +365,6 @@ const BashToolCallView = memo(function BashToolCallView({
     </div>
   );
 });
-
 // ECharts图表生成工具视图
 const GenerateEchartsChartView = memo(function GenerateEchartsChartView({
   task,
@@ -441,7 +439,6 @@ const GenerateEchartsChartView = memo(function GenerateEchartsChartView({
     </div>
   );
 });
-
 // 单个图表卡片组件
 const ChartCard = memo(function ChartCard({ chart }: { chart: any }) {
   const chartRef = useRef<HTMLDivElement>(null);
@@ -704,7 +701,7 @@ const ChartCard = memo(function ChartCard({ chart }: { chart: any }) {
           ref={chartRef}
           style={{
             width: "100%",
-            height: "600px",
+            height: "450px",
           }}
         />
         {description && (
@@ -716,7 +713,6 @@ const ChartCard = memo(function ChartCard({ chart }: { chart: any }) {
     </div>
   );
 });
-
 // 分析文档内容
 const AnalyzeDocumentContentToolCallView = memo(
   function AnalyzeDocumentContentToolCallView({

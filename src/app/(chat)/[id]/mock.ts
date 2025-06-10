@@ -601,9 +601,8 @@ export const messagesList = [
   },
   {
     id: "UVCFBT1LHzoPSl8XV",
-    title: "制定个性化管理方案",
-    description:
-      "筛查血糖控制不佳的糖尿病患者筛查血糖控制不佳的糖尿病患者筛查血糖控制不佳的糖尿病患者",
+    title: "根据门诊患者检验检查数据，找出门诊患者中需",
+    description: "根据门诊患者检验检查数据，找出门诊患者中需",
     messages: [
       {
         id: "yBMUeBhNzpQPP4ZYBBqyO",
@@ -1058,9 +1057,8 @@ export const messagesList = [
   },
   {
     id: "UVCFBT1LoPSl8XV",
-    title: "生成可视化图表",
-    description:
-      "筛查血糖控制不佳的糖尿病患者筛查血糖控制不佳的糖尿病患者筛查血糖控制不佳的糖尿病患者",
+    title: "分析各科室收入、患者量、药品使用等关键运营指标",
+    description: "分析各科室收入、患者量、药品使用等关键运营指标",
     messages: [
       {
         id: "ANK2DBI0PQZZV__uGpzCF",

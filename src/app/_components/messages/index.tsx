@@ -27,101 +27,144 @@ export function MessagesView({
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
   const lastScrollTop = useRef(0);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout>();
-  const isScrollingRef = useRef(false);
+  const lastMessageLength = useRef(messages.length);
+  const userScrolling = useRef(false);
 
-  const scrollToBottom = useCallback((instant = false) => {
-    if (endRef.current) {
-      endRef.current.scrollIntoView({
-        behavior: instant ? "instant" : "smooth",
-        block: "end",
-      });
+  // 缓动函数
+  const easeOutCubic = (t: number): number => {
+    return 1 - Math.pow(1 - t, 3);
+  };
+
+  // 优化后的平滑滚动
+  const smoothScrollToBottom = useCallback(() => {
+    if (!containerRef.current || userScrolling.current) return;
+
+    const container = containerRef.current;
+    const targetScroll = container.scrollHeight - container.clientHeight;
+    const startScroll = container.scrollTop;
+    const distance = targetScroll - startScroll;
+
+    if (Math.abs(distance) < 10) {
+      container.scrollTop = targetScroll;
+      return;
     }
+
+    let start: number | null = null;
+    const duration = 300;
+
+    const animate = (timestamp: number) => {
+      if (!start) start = timestamp;
+      const progress = (timestamp - start) / duration;
+
+      if (progress < 1) {
+        container.scrollTop = startScroll + distance * easeOutCubic(progress);
+        requestAnimationFrame(animate);
+      } else {
+        container.scrollTop = targetScroll;
+      }
+    };
+
+    requestAnimationFrame(animate);
   }, []);
 
+  // 优化后的滚动处理
   const handleScroll = useCallback(() => {
-    if (containerRef.current && !isScrollingRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-      const isBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 50;
+    if (!containerRef.current) return;
 
-      // 检测用户是否向上滚动
-      if (scrollTop < lastScrollTop.current) {
-        setAutoScroll(false);
-      }
+    const container = containerRef.current;
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 50;
 
-      // 如果用户滚动到底部，恢复自动滚动
-      if (isBottom) {
-        setAutoScroll(true);
-      }
-      lastScrollTop.current = scrollTop;
-      setShowScrollButton(!isBottom);
+    // 检测用户滚动
+    if (
+      !userScrolling.current &&
+      Math.abs(scrollTop - lastScrollTop.current) > 50
+    ) {
+      userScrolling.current = true;
     }
+
+    if (isAtBottom) {
+      setAutoScroll(true);
+      userScrolling.current = false;
+    } else {
+      setAutoScroll(false);
+    }
+
+    setShowScrollButton(!isAtBottom);
+    lastScrollTop.current = scrollTop;
   }, []);
 
   // 使用防抖处理滚动事件
   const debouncedHandleScroll = useCallback(() => {
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-    }
-    scrollTimeoutRef.current = setTimeout(() => {
-      handleScroll();
-    }, 100);
+    requestAnimationFrame(handleScroll);
   }, [handleScroll]);
 
+  // 监听容器大小变化
   useEffect(() => {
     const container = containerRef.current;
-    if (container) {
-      container.addEventListener("scroll", debouncedHandleScroll);
-      return () => {
-        container.removeEventListener("scroll", debouncedHandleScroll);
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current);
-        }
-      };
-    }
-  }, [debouncedHandleScroll]);
+    if (!container) return;
 
+    const resizeObserver = new ResizeObserver(() => {
+      if (autoScroll) {
+        smoothScrollToBottom();
+      }
+    });
+
+    resizeObserver.observe(container);
+    return () => resizeObserver.disconnect();
+  }, [autoScroll, smoothScrollToBottom]);
+
+  // 消息更新时的滚动处理
   useEffect(() => {
-    if (autoScroll) {
-      isScrollingRef.current = true;
-      scrollToBottom();
-      // 给一个短暂的延迟，让滚动动画完成
-      setTimeout(() => {
-        isScrollingRef.current = false;
-      }, 100);
+    const messageCountChanged = messages.length !== lastMessageLength.current;
+    lastMessageLength.current = messages.length;
+
+    if (messageCountChanged && autoScroll && !userScrolling.current) {
+      requestAnimationFrame(smoothScrollToBottom);
     }
-  }, [messages, autoScroll, scrollToBottom]);
+  }, [messages, autoScroll, smoothScrollToBottom]);
 
   return (
     <div
       className={cn(className, "relative flex h-full flex-col overflow-hidden")}
     >
       <div
-        className="flex-1 overflow-y-scroll"
+        className="flex-1 overflow-y-scroll scroll-smooth"
         ref={containerRef}
         onScroll={debouncedHandleScroll}
+        style={{
+          scrollBehavior: "smooth",
+          willChange: "scroll-position",
+        }}
       >
         {messages.map((message) => (
-          <MessageView key={message.id} message={message} loading={loading} />
+          <motion.div
+            key={message.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <MessageView message={message} loading={loading} />
+          </motion.div>
         ))}
         {loading && <MessageLoading className="mt-2" />}
         <div className="h-1" ref={endRef} />
       </div>
+
       {showScrollButton && (
-        <div className="absolute bottom-1 flex w-full justify-center">
-          <motion.button
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            className="rounded-full bg-white p-2 shadow-lg shadow-black/10"
-            onClick={() => {
-              setAutoScroll(true);
-              scrollToBottom();
-            }}
-          >
-            <ArrowDown className="h-5 w-5" />
-          </motion.button>
-        </div>
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          className="absolute bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-white p-2 shadow-lg shadow-black/10 transition-transform hover:scale-110"
+          onClick={() => {
+            setAutoScroll(true);
+            userScrolling.current = false;
+            smoothScrollToBottom();
+          }}
+        >
+          <ArrowDown className="h-5 w-5" />
+        </motion.button>
       )}
     </div>
   );

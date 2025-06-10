@@ -269,6 +269,13 @@ const TaskContentView = memo(function TaskContentView({
   if (!task) {
     return null;
   }
+  if (task.state === "pending" || task.state === "running") {
+    return (
+      <div className="flex h-full items-center justify-center text-sm font-bold text-[#858481]">
+        <LoaderCircle size={20} className="animate-spin" />
+      </div>
+    );
+  }
   return (
     <ResizablePanelGroup
       direction="vertical"

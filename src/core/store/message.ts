@@ -37,13 +37,7 @@ export const useMessageStore = create<{
   responding: false,
   // 对话中上传的文件
   files: [],
-  currentFile: {
-    id: "cf2270e0-61fb-4d0b-a551-1be8a84b6f2b",
-    name: "模块划在油气领域国内外的应用以及相关的难点、未来方向调研报告-AIGC检测报告-20250407.pdf",
-    size: 48513,
-    type: ".pdf",
-    url: "http://192.168.120.251:8000/api/documents/cf2270e0-61fb-4d0b-a551-1be8a84b6f2b/download",
-  },
+  currentFile: null,
   state: {
     messages: [],
   },

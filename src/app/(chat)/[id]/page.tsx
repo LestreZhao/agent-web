@@ -87,7 +87,7 @@ export default function ChatPage() {
   //   },
   //   [setExpandTaskView],
   // );
-  
+
   // 获取聊天标题
   const chatHeader = useMemo(() => {
     return messages[0]?.role === "user"

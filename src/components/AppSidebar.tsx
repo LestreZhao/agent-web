@@ -17,6 +17,7 @@ import { cn } from "~/core/utils";
 
 import { TooltipButton } from "./ui/tooltip-button";
 import { useTaskStore } from "~/core/store/task";
+import { UserPanel } from "./UserPanel";
 
 const SIDEBAR_WIDTH = "19rem";
 const SIDEBAR_BACKGROUND_COLOR = "#ebebeb";
@@ -69,7 +70,7 @@ export function AppSidebar({ className }: { className?: string }) {
     >
       <div
         className={cn(
-          "flex h-full flex-col overflow-hidden p-2",
+          "flex h-full flex-col overflow-hidden",
           isFloatingSidebar
             ? "rounded-lg border bg-white/80 shadow-lg backdrop-blur-sm"
             : "",
@@ -81,7 +82,7 @@ export function AppSidebar({ className }: { className?: string }) {
         }}
       >
         {/* 顶部 */}
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 p-2">
           <TooltipButton
             tooltip={isFloatingSidebar ? "停靠" : "取消停靠"}
             tooltipSide="top"
@@ -93,7 +94,7 @@ export function AppSidebar({ className }: { className?: string }) {
             <PanelLeft className="h-5 w-5" />
           </TooltipButton>
         </div>
-        <div className="flex h-14 items-center gap-2">
+        <div className="flex h-14 items-center gap-2 p-2">
           <motion.button
             className="mx-2 flex h-8 w-full items-center justify-center gap-2 rounded-lg bg-background/80 px-4 text-sm font-medium shadow-sm hover:bg-accent"
             onClick={handleNewTask}
@@ -102,7 +103,7 @@ export function AppSidebar({ className }: { className?: string }) {
             <span>新建任务</span>
           </motion.button>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-1 flex-col gap-2 p-2">
           {historyList.map((item) => (
             <SidebarItem
               key={item.id}
@@ -111,6 +112,9 @@ export function AppSidebar({ className }: { className?: string }) {
               handleClickItem={() => handleTaskClick(item.id)}
             />
           ))}
+        </div>
+        <div className="flex flex-col gap-2 rounded-lg border p-4">
+          <UserPanel />
         </div>
       </div>
     </div>

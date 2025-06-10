@@ -170,44 +170,43 @@ export function Markdown({ children, className }: MarkdownProps) {
         remarkPlugins={[remarkGfm]}
         components={{
           p: ({ children }) => {
-            const content = String(children);
+            // const content = String(children);
+            // // 检测是否包含网页URL
+            // const urlRegex = /https?:\/\/[^\s"']+/g;
+            // const urls = content.match(urlRegex);
 
-            // 检测是否包含网页URL
-            const urlRegex = /https?:\/\/[^\s"']+/g;
-            const urls = content.match(urlRegex);
-
-            if (urls && urls.length > 0) {
-              return (
-                <div className="mb-2 space-y-2">
-                  <p className="text-base leading-relaxed text-gray-700 dark:text-gray-300">
-                    {children}
-                  </p>
-                  {urls.map((url, index) => (
-                    <div
-                      key={index}
-                      className="overflow-hidden rounded-lg dark:border-gray-700"
-                    >
-                      <div className="border-b border-gray-200 bg-gray-50 px-4 py-2 dark:border-gray-700 dark:bg-gray-800">
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-                        >
-                          {url}
-                        </a>
-                      </div>
-                      <iframe
-                        src={url}
-                        className="h-96 w-full border-0"
-                        title={`网页内容 ${index + 1}`}
-                        sandbox="allow-scripts allow-same-origin"
-                      />
-                    </div>
-                  ))}
-                </div>
-              );
-            }
+            // if (urls && urls.length > 0) {
+            //   return (
+            //     <div className="mb-2 space-y-2">
+            //       <p className="text-base leading-relaxed text-gray-700 dark:text-gray-300">
+            //         {children}
+            //       </p>
+            //       {urls.map((url, index) => (
+            //         <div
+            //           key={index}
+            //           className="overflow-hidden rounded-lg dark:border-gray-700"
+            //         >
+            //           <div className="border-b border-gray-200 bg-gray-50 px-4 py-2 dark:border-gray-700 dark:bg-gray-800">
+            //             <a
+            //               href={url}
+            //               target="_blank"
+            //               rel="noopener noreferrer"
+            //               className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+            //             >
+            //               {url}
+            //             </a>
+            //           </div>
+            //           <iframe
+            //             src={url}
+            //             className="h-96 w-full border-0"
+            //             title={`网页内容 ${index + 1}`}
+            //             sandbox="allow-scripts allow-same-origin"
+            //           />
+            //         </div>
+            //       ))}
+            //     </div>
+            //   );
+            // }
 
             return (
               <p className="mb-2 text-base leading-relaxed text-gray-700 last:mb-0 dark:text-gray-300">
