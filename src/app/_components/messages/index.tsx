@@ -73,12 +73,12 @@ export function MessagesView({
 
     const container = containerRef.current;
     const { scrollTop, scrollHeight, clientHeight } = container;
-    const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 50;
+    const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 15;
 
     // 检测用户滚动
     if (
       !userScrolling.current &&
-      Math.abs(scrollTop - lastScrollTop.current) > 50
+      Math.abs(scrollTop - lastScrollTop.current) > 15
     ) {
       userScrolling.current = true;
     }
@@ -177,7 +177,6 @@ function MessageView({
   message: UserMessage;
   loading: boolean;
 }) {
-  console.log(message, "message");
   const content =
     message.role === "user" && (message as any).files
       ? message.content.toString().split("。用户上传了文件，文件ID为：")[0]

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { nanoid } from "nanoid";
 import { useParams } from "next/navigation";
 import { useRef, useEffect, useState, useMemo, useCallback } from "react";
 import { toast } from "sonner";
@@ -10,7 +11,7 @@ import { ChatInput } from "~/app/_components/chat-input";
 import FileContent from "~/app/_components/file-content";
 import TaskPreview from "~/app/_components/task/task-preview";
 import { uploadFile } from "~/core/api/file";
-import { useMessageStore } from "~/core/store";
+import { useMessageStore } from "~/core/store/message";
 import { useTaskStore } from "~/core/store/task";
 import { useUIStore } from "~/core/store/ui";
 import { useMessageHook } from "~/hooks/use-message";
@@ -53,7 +54,7 @@ export default function ChatPage() {
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
     const userMessage = {
-      id,
+      id: nanoid(),
       role: "user",
       type: "text",
       content: message,
@@ -68,22 +69,6 @@ export default function ChatPage() {
     setFiles([]);
     abortControllerRef.current = null;
   };
-  // // 记忆化responding状态
-  // const memoizedResponding = useMemo(() => responding, [responding]);
-
-  // // 记忆化expandTaskView状态
-  // const memoizedExpandTaskView = useMemo(
-  //   () => expandTaskView,
-  //   [expandTaskView],
-  // );
-  // // 记忆化setExpandTaskView函数
-  // const memoizedSetExpandTaskView = useCallback(
-  //   (value: boolean) => {
-  //     setExpandTaskView(value);
-  //   },
-  //   [setExpandTaskView],
-  // );
-
   // 获取聊天标题
   const chatHeader = useMemo(() => {
     return messages[0]?.role === "user"

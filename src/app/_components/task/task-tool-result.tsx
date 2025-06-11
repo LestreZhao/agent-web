@@ -1,7 +1,7 @@
 import { GlobalOutlined, PythonOutlined } from "@ant-design/icons";
 import * as echarts from "echarts";
 import { LRUCache } from "lru-cache";
-import { Loader2 } from "lucide-react";
+import { Loader2, LoaderCircle } from "lucide-react";
 import { memo, useEffect, useMemo, useRef } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
@@ -566,7 +566,7 @@ const BashToolCallView = memo(function BashToolCallView({
   );
 });
 // ECharts图表生成工具视图
-const GenerateEchartsChartView = memo(function GenerateEchartsChartView({
+export const GenerateEchartsChartView = memo(function GenerateEchartsChartView({
   task,
 }: {
   task: ToolCallTask<any>;
@@ -977,7 +977,16 @@ const AnalyzeDocumentContentToolCallView = memo(
 );
 
 export function TaskToolResultView({ task }: { task: ToolCallTask }) {
+  console.log("Task Tool Result View:", task);
   if (task.type === "thinking") {
+    // 加载中
+    if (task.state === "pending" && task.payload?.text?.length === 0) {
+      return (
+        <div className="flex h-full items-center justify-center text-sm font-bold text-[#858481]">
+          <LoaderCircle size={20} className="animate-spin" />
+        </div>
+      );
+    }
     if (task.agentName === "planner") {
       return <PlanTaskView task={task} />;
     } else if (task.agentName === "chart_generator") {
@@ -1025,13 +1034,19 @@ export function TaskToolResultView({ task }: { task: ToolCallTask }) {
         ) {
           const search =
             task.payload.toolName === "execute_oracle_query"
-              ? (task.payload.input as any).sql
-              : "查询的表名：\n" + (task.payload.input as any).table_name;
+              ? "执行的sql语句：\n```sql\n" +
+                (task.payload.input as any).sql +
+                "\n```\n"
+              : "查询的表名：\n" +
+                (task.payload.input as any).table_name +
+                "\n```\n";
           const content =
-            "执行的sql语句：\n```sql\n" +
             search +
             "\n```\n" +
-            `执行结果：\n \`\`\`json\n${task.payload.output ?? ""}\n\`\`\``;
+            (task.payload.output
+              ? `执行结果：\n \`\`\`json\n${task.payload.output ?? ""}\n\`\`\``
+              : "");
+
           return <Markdown>{content}</Markdown>;
         }
         return <div>{task.payload.toolName}</div>;

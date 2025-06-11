@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 import { type Message, type ReviewFile } from "~/types/message";
+import { clone } from "../utils";
 
 interface MessageState {
   chatId: string;
@@ -47,10 +48,20 @@ export const useMessageStore = create<MessageStore>((set) => ({
   updateMessage: (message) =>
     set((state) => {
       const index = state.messages.findIndex((m) => m.id === message.id);
-      if (index === -1) return state;
-      const newMessages = [...state.messages];
-      newMessages[index] = { ...newMessages[index], ...message };
-      return { messages: newMessages };
+      if (index === -1) {
+        return state;
+      }
+      const newMessage = clone({
+        ...state.messages[index],
+        ...message,
+      } as Message);
+      return {
+        messages: [
+          ...state.messages.slice(0, index),
+          newMessage,
+          ...state.messages.slice(index + 1),
+        ],
+      };
     }),
   setResponding: (responding) => set({ responding }),
   setChatId: (chatId) => set({ chatId }),

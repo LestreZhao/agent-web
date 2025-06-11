@@ -132,8 +132,10 @@ function SidebarItem({
     description: string;
   };
 }) {
+  const time = info.createdAt.split(" ")[1];
+
   return (
-    <motion.div
+    <div
       className={cn(
         "flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg p-2 text-sm font-medium hover:bg-[#e4e4e4]",
         isSelected ? "bg-white shadow-sm" : "",
@@ -155,8 +157,8 @@ function SidebarItem({
         </p>
       </div>
       <div className="flex h-full flex-col items-end justify-start text-xs text-[#858481]">
-        12:30
+        {time}
       </div>
-    </motion.div>
+    </div>
   );
 }

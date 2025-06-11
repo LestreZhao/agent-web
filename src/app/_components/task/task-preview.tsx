@@ -54,9 +54,8 @@ const TaskPreview = memo(function TaskPreview({
   } = useTaskStore();
 
   // isSelectedTask 根据是否选中任务获取当前展示的任务
-  const task = useMemo(() => {
-    return isSelectedTask ? selectedTask : currentTask;
-  }, [selectedTask, currentTask, isSelectedTask]);
+  const task = isSelectedTask ? selectedTask : currentTask;
+  // const stepInfo = currentStepInfo;
   // 当前模型正在执行的任务
   const stepInfo = useMemo(() => {
     return currentStepInfo;
@@ -90,7 +89,7 @@ const TaskPreview = memo(function TaskPreview({
               )}
             >
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-bold">Fusion AI 的计算机</h2>
+                <h2 className="text-base font-bold">Fusion AI 正在执行任务</h2>
                 {expand ? (
                   <button
                     onClick={() => setExpand?.(!expand)}
@@ -222,8 +221,7 @@ const TaskPreview = memo(function TaskPreview({
                 className={cn("flex items-start", !expand ? "ml-[120px]" : "")}
               >
                 <div className="mr-3 text-green-500">
-                  {stepInfo?.step_index === stepInfo?.total_steps &&
-                  responding ? (
+                  {responding ? (
                     <LoaderCircle
                       size={20}
                       className="animate-spin text-[#858481]"
@@ -244,7 +242,9 @@ const TaskPreview = memo(function TaskPreview({
                 >
                   {stepInfo?.step_index} / {stepInfo?.total_steps}
                 </motion.span>
-                {!expand && <ChevronDown size={20} className="ml-2" />}
+                {((expand && !collapsed) || !expand) && (
+                  <ChevronDown size={20} className="ml-2" />
+                )}
               </div>
             </div>
           )}
@@ -257,7 +257,7 @@ const TaskPreview = memo(function TaskPreview({
 export default TaskPreview;
 
 // 任务内容视图
-const TaskContentView = memo(function TaskContentView({
+const TaskContentView = function TaskContentView({
   task,
   isSelectedTask,
   setIsSelectedTask,
@@ -268,13 +268,6 @@ const TaskContentView = memo(function TaskContentView({
 }) {
   if (!task) {
     return null;
-  }
-  if (task.state === "pending" || task.state === "running") {
-    return (
-      <div className="flex h-full items-center justify-center text-sm font-bold text-[#858481]">
-        <LoaderCircle size={20} className="animate-spin" />
-      </div>
-    );
   }
   return (
     <ResizablePanelGroup
@@ -311,4 +304,4 @@ const TaskContentView = memo(function TaskContentView({
       </ResizablePanel>
     </ResizablePanelGroup>
   );
-});
+};

@@ -6,7 +6,7 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import { uploadFile } from "~/core/api/file";
-import { useMessageStore } from "~/core/store";
+import { useMessageStore } from "~/core/store/message";
 import { cn } from "~/core/utils";
 
 import { AppHeader } from "../../components/AppHeader";

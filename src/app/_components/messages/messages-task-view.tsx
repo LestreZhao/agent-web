@@ -107,38 +107,43 @@ export function MessagesTaskView({
           {reportStep.tasks &&
             reportStep.tasks.length > 0 &&
             reportStep.tasks.map((task) => {
-              if (task.type === "tool_call") {
-                if (
-                  task.payload.toolName === "get_task_files_json" &&
-                  task.state === "success"
-                ) {
-                  const files = JSON.parse(task.payload.output ?? "[]");
-                  return (
-                    <div key={task.id}>
-                      <div className="text-sm font-bold">创建的文件列表：</div>
-                      <div className="flex flex-wrap gap-2">
-                        {files.files.map((file) => {
-                          return (
-                            <ChatFilePreviewItem
-                              key={file.name}
-                              file={file}
-                              canRemove={false}
-                            />
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                } else {
-                  return (
-                    <Markdown key={task.id}>{task.payload.output}</Markdown>
-                  );
-                }
-              } else if (task.type === "thinking") {
+              if (task.type === "thinking") {
                 return <Markdown key={task.id}>{task.payload.text}</Markdown>;
               } else {
                 return null;
               }
+              // if (task.type === "tool_call") {
+              //   if (
+              //     task.payload.toolName === "get_task_files_json" &&
+              //     task.state === "success"
+              //   ) {
+              //     const files = JSON.parse(task.payload.output ?? "[]");
+              //     return (
+              //       <div key={task.id}>
+              //         <div className="text-sm font-bold">创建的文件列表：</div>
+              //         <div className="flex flex-wrap gap-2">
+              //           {files.files.map((file) => {
+              //             return (
+              //               <ChatFilePreviewItem
+              //                 key={file.name}
+              //                 file={file}
+              //                 canRemove={false}
+              //               />
+              //             );
+              //           })}
+              //         </div>
+              //       </div>
+              //     );
+              //   } else {
+              //     return (
+              //       <Markdown key={task.id}>{task.payload.output}</Markdown>
+              //     );
+              //   }
+              // } else if (task.type === "thinking") {
+              //   return <Markdown key={task.id}>{task.payload.text}</Markdown>;
+              // } else {
+              //   return null;
+              // }
             })}
         </div>
       )}

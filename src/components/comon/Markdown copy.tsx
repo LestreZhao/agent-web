@@ -1,26 +1,12 @@
+import { useRef } from "react";
 import ReactMarkdown from "react-markdown";
-import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
+
 import { cn } from "~/core/utils";
 
 interface MarkdownProps {
   children: string;
   className?: string;
-}
-
-const isChartJson = (text: string) => {
-  const jsonData = JSON.parse(text);
-  return (
-    jsonData.chart_type || (jsonData.charts && Array.isArray(jsonData.charts))
-  );
-};
-
-function parseChartJson(text: string) {
-  const lines = text.split("\n").filter((line) => line.trim());
-  const chartJson = lines.find((line) => line.startsWith("```json"));
-  if (!chartJson) return null;
-  const chartJsonContent = chartJson.replace("```json", "").replace("```", "");
-  return JSON.parse(chartJsonContent);
 }
 
 // 解析表格格式文本的函数
@@ -183,7 +169,6 @@ export function Markdown({ children, className }: MarkdownProps) {
     >
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeHighlight]}
         components={{
           p: ({ children }) => {
             const content = String(children);
@@ -265,6 +250,15 @@ export function Markdown({ children, className }: MarkdownProps) {
             </h4>
           ),
           pre: ({ children, ...props }) => {
+            const textContent = String(children);
+
+            // 检查是否是表格格式的文本
+            const { isTable, tableData } = parseTableText(textContent);
+
+            if (isTable && tableData) {
+              return <TableRenderer data={tableData} />;
+            }
+
             return (
               <pre
                 className="overflow-x-auto whitespace-pre-wrap break-words rounded-xl bg-gray-50 text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
@@ -274,45 +268,33 @@ export function Markdown({ children, className }: MarkdownProps) {
               </pre>
             );
           },
-          code: ({ children, node, ...props }) => {
+          code: ({ children, ...props }) => {
+            const match = /language-(\w+)/.exec(props.className || "");
             const textContent = String(children);
+
             // 检查是否是表格格式的文本
             const { isTable, tableData } = parseTableText(textContent);
 
             if (isTable && tableData) {
               return <TableRenderer data={tableData} />;
             }
-            return (
+
+            return !match ? (
               <code
-                className="text-sm text-gray-800 dark:text-gray-200"
+                className="mx-2 whitespace-pre-wrap break-words rounded-md bg-gray-100 px-2 py-1.5 font-mono text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                 {...props}
               >
                 {children}
               </code>
-            );
-          },
-          table: ({ children }) => {
-            return (
-              <table className="w-full rounded rounded-xl border border-gray-100 text-sm">
-                {children}
-              </table>
-            );
-          },
-          tr: ({ children }) => {
-            return <tr className="border border-gray-300 p-4">{children}</tr>;
-          },
-          td: ({ children }) => {
-            return (
-              <td className="border border-gray-300 bg-white px-4 py-2">
-                {children}
-              </td>
-            );
-          },
-          th: ({ children }) => {
-            return (
-              <th className="border border-gray-300 bg-gray-100 px-4 py-2">
-                {children}
-              </th>
+            ) : (
+              <pre className="overflow-x-auto whitespace-pre-wrap break-words rounded-xl bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
+                <code
+                  className="font-mono text-sm text-gray-800 dark:text-gray-200"
+                  {...props}
+                >
+                  {children}
+                </code>
+              </pre>
             );
           },
         }}

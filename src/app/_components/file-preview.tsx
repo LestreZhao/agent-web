@@ -113,7 +113,7 @@ export function ChatFilePreviewItem({
       )}
     >
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#37352F14]">
-        {file.isUploading ? (
+        {file.isUploadIng ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
           <FileIcon className="h-4 w-4 text-[#37352F]" />
@@ -129,7 +129,10 @@ export function ChatFilePreviewItem({
       </div>
       {canRemove && (
         <button
-          onClick={() => onRemove?.(file)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove?.(file);
+          }}
           className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full hover:bg-[#37352F14]"
         >
           <X className="h-4 w-4 text-[#37352F80]" />
