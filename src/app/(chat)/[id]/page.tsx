@@ -10,16 +10,11 @@ import { ChatInput } from "~/app/_components/chat-input";
 import FileContent from "~/app/_components/file-content";
 import TaskPreview from "~/app/_components/task/task-preview";
 import { uploadFile } from "~/core/api/file";
-import {
-  sendMessage,
-  setFiles,
-  setInitMessages,
-  useMessageStore,
-} from "~/core/store";
+import { useMessageStore } from "~/core/store";
 import { useTaskStore } from "~/core/store/task";
 import { useUIStore } from "~/core/store/ui";
+import { useMessageHook } from "~/hooks/use-message";
 import { type Message, type WorkflowMessage } from "~/types/message";
-import { type Workflow } from "~/types/workflow";
 
 import { MessagesView } from "../../_components/messages";
 
@@ -38,6 +33,7 @@ export default function ChatPage() {
     initMessages: initMessage, // 初始消息
     currentFile, // 用户选择查看的文件
   } = useMessageStore();
+  const { sendMessage } = useMessageHook();
 
   // 设置当前模型正在执行的任务
   const { setCurrentTask } = useTaskStore();
@@ -48,7 +44,7 @@ export default function ChatPage() {
   // 获取聊天id
   const { id } = useParams<{ id: string }>();
   // 文件
-  const { files } = useMessageStore();
+  const { files, setFiles, setInitMessages } = useMessageStore();
   // 发送消息
   const handleSendMessage = async (
     message: string,
@@ -104,7 +100,7 @@ export default function ChatPage() {
 
   // 是否显示任务预览组件
   const showTaskPreview = useMemo(() => {
-    console.log(messages, "messages");
+    // console.log(messages, "messages");
     return (
       messages[messages.length - 1]?.role === "assistant" && plans.length > 0
     );

@@ -6,17 +6,12 @@ import { nanoid } from "nanoid";
 import { useRouter } from "next/navigation";
 
 import { messagesList } from "~/app/(chat)/[id]/mock";
-import {
-  clearMessages,
-  setChatId,
-  setMessages,
-  useMessageStore,
-} from "~/core/store/message";
+import { useMessageStore } from "~/core/store/message";
+import { useTaskStore } from "~/core/store/task";
 import { useUIStore } from "~/core/store/ui";
 import { cn } from "~/core/utils";
 
 import { TooltipButton } from "./ui/tooltip-button";
-import { useTaskStore } from "~/core/store/task";
 import { UserPanel } from "./UserPanel";
 
 const SIDEBAR_WIDTH = "19rem";
@@ -24,6 +19,7 @@ const SIDEBAR_BACKGROUND_COLOR = "#ebebeb";
 
 export function AppSidebar({ className }: { className?: string }) {
   const router = useRouter();
+  const { clearMessages, setChatId, setMessages } = useMessageStore();
   const { isFloatingSidebar, setIsFloatingSidebar, setExpandTaskView } =
     useUIStore();
   const { setCurrentStepInfo, setIsSelectedTask } = useTaskStore();
@@ -32,6 +28,7 @@ export function AppSidebar({ className }: { className?: string }) {
   const chatId = useMessageStore((state) => state.chatId);
   const handleNewTask = () => {
     clearMessages();
+
     setExpandTaskView(false);
     setChatId(nanoid());
     router.push(`/`);

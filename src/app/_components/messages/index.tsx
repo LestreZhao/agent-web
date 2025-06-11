@@ -4,8 +4,8 @@ import { useEffect, useRef, useState, useCallback } from "react";
 
 import { MessageLoading } from "~/app/_components/messages/message-loading";
 import { Markdown } from "~/components/comon/Markdown";
-import { type Message } from "~/core/messaging";
 import { cn } from "~/core/utils";
+import { type Message } from "~/types/message";
 
 type UserMessage = Message;
 
@@ -177,6 +177,7 @@ function MessageView({
   message: UserMessage;
   loading: boolean;
 }) {
+  console.log(message, "message");
   const content =
     message.role === "user" && (message as any).files
       ? message.content.toString().split("。用户上传了文件，文件ID为：")[0]

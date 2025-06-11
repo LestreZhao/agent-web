@@ -50,21 +50,21 @@ export function MessagesTaskView({
   const { setExpandTaskView, setIsFilePreview } = useUIStore();
 
   // 步骤
-  const steps = useMemo(() => {
-    return workflow.steps.map((step) => {
-      if (step.agentName === "reporter") {
-        return {
-          ...step,
-          tasks: [],
-        };
-      }
-      return step;
-    });
-  }, [workflow]);
+  const steps = workflow?.steps
+    ? workflow.steps.map((step) => {
+        if (step.agentName === "reporter") {
+          return {
+            ...step,
+            tasks: [],
+          };
+        }
+        return step;
+      })
+    : [];
   // 总结
-  const reportStep = useMemo(() => {
-    return workflow.steps.find((step) => step.agentName === "reporter");
-  }, [workflow]);
+  const reportStep = workflow?.steps
+    ? workflow.steps.find((step) => step.agentName === "reporter")
+    : null;
 
   // 点击任务标签
   const handleTaskTagClick = (task: any) => {
@@ -154,17 +154,10 @@ function PlanTaskView({
   task: ThinkingTask;
   handleClick: (task: any) => void;
 }) {
-  const plan = useMemo<{
-    title?: string;
-    steps?: { title?: string; description?: string }[];
-  }>(() => {
-    if (task.payload.text && task.state === "success") {
-      return parse(
-        task.payload.text.replace(/```json/g, "").replace(/```/g, ""),
-      );
-    }
-    return {};
-  }, [task]);
+  const plan =
+    task.payload.text && task.state === "success"
+      ? parse(task.payload.text.replace(/```json/g, "").replace(/```/g, ""))
+      : {};
 
   const thought = plan.thought ?? "";
   return (

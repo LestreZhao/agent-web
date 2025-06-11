@@ -6,7 +6,7 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import { uploadFile } from "~/core/api/file";
-import { setFiles, setInitMessages, useMessageStore } from "~/core/store";
+import { useMessageStore } from "~/core/store";
 import { cn } from "~/core/utils";
 
 import { AppHeader } from "../../components/AppHeader";
@@ -17,6 +17,8 @@ export default function HomePage() {
   const router = useRouter();
   // 用户输入
   const [message, setMessage] = useState("");
+
+  const { setInitMessages, setFiles } = useMessageStore();
   // 发送消息
   const handleSendMessage = async (
     content: string,

@@ -1,10 +1,12 @@
 import { env } from "~/env";
+import { service } from "~/lib/axios";
+import { type Message } from "~/types/message";
 
-import { type Message } from "../messaging";
 import { fetchStream } from "../sse";
 
 import { type ChatEvent } from "./types";
 
+// 聊天流
 export function chatStream(
   userMessage: Message,
   state: { messages: { role: string; content: string }[] },
@@ -23,3 +25,10 @@ export function chatStream(
     signal: options.abortSignal,
   });
 }
+
+// 获取聊天历史
+export const getChatHistory = async () => {
+  const response = await service.get("/chat/history");
+  console.log("response", response);
+  return response.data;
+};

@@ -182,7 +182,7 @@ export default function LoginPage() {
             <div className="flex flex-col space-y-4">
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-orange-400 hover:bg-orange-500"
                 disabled={isLoading}
                 variant="default"
                 onClick={() => {

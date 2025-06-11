@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, FileIcon, Loader2, X } from "lucide-react";
 import { useRef, useState } from "react";
 
-import { setCurrentFile } from "~/core/store";
+import { useMessageStore } from "~/core/store/message";
 import { useUIStore } from "~/core/store/ui";
 import { cn } from "~/core/utils";
 import { type ReviewFile, type ResponseFile } from "~/types/message";
@@ -92,6 +92,7 @@ export function ChatFilePreviewItem({
   canRemove?: boolean;
   className?: string;
 }) {
+  const { setCurrentFile } = useMessageStore();
   const { setIsFilePreview, setExpandTaskView } = useUIStore();
   return (
     <motion.div

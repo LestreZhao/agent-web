@@ -20,13 +20,14 @@ export function UserPanel() {
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-start gap-2">
             <Avatar name={userInfo?.name} email={userInfo?.email} />
-            <h3 className="cursor-pointer text-sm font-medium">
+            <h3 className="cursor-pointer text-sm font-medium hover:text-gray-500">
               {userInfo?.name}
             </h3>
           </div>
         </div>
       </HoverCardTrigger>
-      <HoverCardContent className="w-[280px] rounded-lg border bg-white p-4">
+      <HoverCardContent className="w-[280px] rounded-lg
+       border bg-white p-4">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <Avatar name={userInfo?.name} email={userInfo?.email} />

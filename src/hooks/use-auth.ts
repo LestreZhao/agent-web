@@ -31,7 +31,7 @@ export function useAuth() {
         };
         const token = nanoid();
         login(user, token);
-        router.push("/chat"); // 登录成功后跳转
+        router.push("/"); // 登录成功后跳转
         return { success: true };
       } catch (error) {
         return {
@@ -54,7 +54,7 @@ export function useAuth() {
         };
         const token = nanoid();
         login(user, token);
-        router.push("/chat");
+        router.push("/");
         return { success: true };
       } catch (error) {
         return {
