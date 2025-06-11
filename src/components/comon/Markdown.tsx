@@ -3,24 +3,11 @@ import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 import { cn } from "~/core/utils";
 
+// import "highlight.js/styles/atom-one-dark.css";
+
 interface MarkdownProps {
   children: string;
   className?: string;
-}
-
-const isChartJson = (text: string) => {
-  const jsonData = JSON.parse(text);
-  return (
-    jsonData.chart_type || (jsonData.charts && Array.isArray(jsonData.charts))
-  );
-};
-
-function parseChartJson(text: string) {
-  const lines = text.split("\n").filter((line) => line.trim());
-  const chartJson = lines.find((line) => line.startsWith("```json"));
-  if (!chartJson) return null;
-  const chartJsonContent = chartJson.replace("```json", "").replace("```", "");
-  return JSON.parse(chartJsonContent);
 }
 
 // 解析表格格式文本的函数
@@ -229,45 +216,10 @@ export function Markdown({ children, className }: MarkdownProps) {
               </p>
             );
           },
-          ul: ({ children }) => (
-            <ul className="mb-6 list-disc space-y-3 pl-8 last:mb-0">
-              {children}
-            </ul>
-          ),
-          ol: ({ children }) => (
-            <ol className="mb-6 list-decimal space-y-3 pl-8 last:mb-0">
-              {children}
-            </ol>
-          ),
-          li: ({ children }) => (
-            <li className="leading-relaxed text-gray-700 dark:text-gray-300">
-              {children}
-            </li>
-          ),
-          h1: ({ children }) => (
-            <h1 className="mb-4 border-b border-gray-200 pb-3 text-3xl font-bold text-gray-900 first:mt-0 dark:border-gray-700 dark:text-gray-100">
-              {children}
-            </h1>
-          ),
-          h2: ({ children }) => (
-            <h2 className="mb-5 mt-8 border-b border-gray-100 pb-2 text-2xl font-bold text-gray-900 first:mt-0 dark:border-gray-800 dark:text-gray-100">
-              {children}
-            </h2>
-          ),
-          h3: ({ children }) => (
-            <h3 className="mb-4 mt-6 text-xl font-bold text-gray-900 first:mt-0 dark:text-gray-100">
-              {children}
-            </h3>
-          ),
-          h4: ({ children }) => (
-            <h4 className="mb-3 mt-5 text-lg font-bold text-gray-900 first:mt-0 dark:text-gray-100">
-              {children}
-            </h4>
-          ),
           pre: ({ children, ...props }) => {
             return (
               <pre
-                className="overflow-x-auto whitespace-pre-wrap break-words rounded-xl bg-gray-50 text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                className="overflow-x-auto whitespace-pre-wrap break-words rounded-xl bg-gray-50 p-2 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                 {...props}
               >
                 {children}

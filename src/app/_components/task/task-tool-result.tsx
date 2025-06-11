@@ -977,7 +977,7 @@ const AnalyzeDocumentContentToolCallView = memo(
 );
 
 export function TaskToolResultView({ task }: { task: ToolCallTask }) {
-  console.log("Task Tool Result View:", task);
+  // console.log("Task Tool Result View:", task);
   if (task.type === "thinking") {
     // 加载中
     if (task.state === "pending" && task.payload?.text?.length === 0) {

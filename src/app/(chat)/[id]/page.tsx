@@ -46,11 +46,16 @@ export default function ChatPage() {
   const { id } = useParams<{ id: string }>();
   // 文件
   const { files, setFiles, setInitMessages } = useMessageStore();
+  const isUploading = useRef(false);
   // 发送消息
   const handleSendMessage = async (
     message: string,
     config: { deepThinkingMode: boolean; searchBeforePlanning: boolean },
   ) => {
+    if (isUploading.current) {
+      toast.warning("请等待文件上传完成");
+      return;
+    }
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
     const userMessage = {
@@ -119,6 +124,7 @@ export default function ChatPage() {
   // 上传文件
   const handleFileUpload = useCallback(
     (file: File) => {
+      isUploading.current = true;
       return uploadFile(file)
         .then((res) => {
           if (res.success) {
@@ -132,6 +138,9 @@ export default function ChatPage() {
             setFiles([reviewFile, ...files]);
           }
           return res;
+        })
+        .finally(() => {
+          isUploading.current = false;
         })
         .catch((err) => {
           toast.error("上传失败,请重新上传");

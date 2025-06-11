@@ -130,7 +130,6 @@ export function ChatInput({
     };
     setUploadedFiles((prev: UploadFile[]) => [...prev, reviewFile]);
     const res = await onUpload?.(file);
-    console.log(res, "res");
     if (res?.success === true) {
       setUploadedFiles((prev: UploadFile[]) =>
         prev.map((f) =>
