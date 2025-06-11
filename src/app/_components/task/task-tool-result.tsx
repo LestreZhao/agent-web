@@ -249,6 +249,206 @@ const CrawlToolCallView = memo(function CrawlToolCallView({
     </div>
   );
 });
+// const CrawlToolCallView = memo(function CrawlToolCallView({
+//   task,
+// }: {
+//   task: ToolCallTask<{ url: string }>;
+// }) {
+//   const title = useMemo(() => {
+//     return pageCache.get(task.payload.input.url);
+//   }, [task.payload.input.url]);
+
+//   // 检测文件类型
+//   const fileType = useMemo(() => {
+//     const url = task.payload.input.url.toLowerCase();
+//     if (url.includes(".pdf")) return "pdf";
+//     if (url.includes(".md") || url.includes(".markdown")) return "markdown";
+//     if (url.includes(".txt")) return "text";
+//     if (url.includes(".doc") || url.includes(".docx")) return "document";
+//     if (url.includes(".xls") || url.includes(".xlsx")) return "spreadsheet";
+//     if (url.includes(".ppt") || url.includes(".pptx")) return "presentation";
+//     if (
+//       url.includes(".jpg") ||
+//       url.includes(".jpeg") ||
+//       url.includes(".png") ||
+//       url.includes(".gif") ||
+//       url.includes(".webp")
+//     )
+//       return "image";
+//     if (
+//       url.includes(".mp4") ||
+//       url.includes(".avi") ||
+//       url.includes(".mov") ||
+//       url.includes(".webm")
+//     )
+//       return "video";
+//     return "webpage";
+//   }, [task.payload.input.url]);
+
+//   return (
+//     <div>
+//       {task.payload.output && task.state === "success" && (
+//         <div className="space-y-4">
+//           {/* 网页预览 */}
+//           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
+//             <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 dark:border-gray-600 dark:from-gray-800 dark:to-gray-700">
+//               <div className="flex items-center gap-2">
+//                 <div className="flex gap-1">
+//                   <div className="h-3 w-3 rounded-full bg-red-500"></div>
+//                   <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
+//                   <div className="h-3 w-3 rounded-full bg-green-500"></div>
+//                 </div>
+//                 <div className="flex flex-1 items-center justify-center gap-2">
+//                   {fileType === "pdf" && (
+//                     <span className="text-red-500">📄</span>
+//                   )}
+//                   {fileType === "markdown" && (
+//                     <span className="text-blue-600">📝</span>
+//                   )}
+//                   {fileType === "text" && (
+//                     <span className="text-gray-600">📄</span>
+//                   )}
+//                   {fileType === "image" && (
+//                     <span className="text-green-500">🖼️</span>
+//                   )}
+//                   {fileType === "video" && (
+//                     <span className="text-purple-500">🎥</span>
+//                   )}
+//                   {fileType === "document" && (
+//                     <span className="text-blue-500">📄</span>
+//                   )}
+//                   {fileType === "spreadsheet" && (
+//                     <span className="text-green-600">📊</span>
+//                   )}
+//                   {fileType === "presentation" && (
+//                     <span className="text-orange-500">📋</span>
+//                   )}
+//                   {fileType === "webpage" && (
+//                     <GlobalOutlined className="h-4 w-4 text-gray-500" />
+//                   )}
+//                   <span className="truncate font-mono text-sm text-gray-600 dark:text-gray-300">
+//                     {task.payload.input.url}
+//                   </span>
+//                 </div>
+//               </div>
+//             </div>
+
+//             {/* 内容显示区域 */}
+//             <div className="w-full">
+//               {fileType === "pdf" && (
+//                 <iframe
+//                   src={task.payload.input.url}
+//                   className="h-[600px] w-full border-0"
+//                   title="PDF预览"
+//                 />
+//               )}
+
+//               {(fileType === "markdown" || fileType === "text") && (
+//                 <iframe
+//                   src={task.payload.input.url}
+//                   className="h-[80vh] max-h-[800px] min-h-[400px] w-full border-0 bg-white"
+//                   title={fileType === "markdown" ? "Markdown预览" : "文本预览"}
+//                 />
+//               )}
+
+//               {fileType === "image" && (
+//                 <div className="flex justify-center p-4">
+//                   <img
+//                     src={task.payload.input.url}
+//                     alt="图片预览"
+//                     className="max-h-[600px] max-w-full rounded-lg object-contain shadow-sm"
+//                   />
+//                 </div>
+//               )}
+
+//               {fileType === "video" && (
+//                 <video
+//                   src={task.payload.input.url}
+//                   className="h-[600px] w-full object-contain"
+//                   controls
+//                   preload="metadata"
+//                 >
+//                   您的浏览器不支持视频播放
+//                 </video>
+//               )}
+
+//               {(fileType === "document" ||
+//                 fileType === "spreadsheet" ||
+//                 fileType === "presentation") && (
+//                 <div className="flex h-[600px] flex-col items-center justify-center bg-gray-50 dark:bg-gray-800">
+//                   <div className="p-8 text-center">
+//                     <div className="mb-4 text-6xl">
+//                       {fileType === "document" && "📄"}
+//                       {fileType === "spreadsheet" && "📊"}
+//                       {fileType === "presentation" && "📋"}
+//                     </div>
+//                     <h3 className="mb-2 text-lg font-medium text-gray-900 dark:text-gray-100">
+//                       {fileType === "document" && "Word文档"}
+//                       {fileType === "spreadsheet" && "Excel表格"}
+//                       {fileType === "presentation" && "PowerPoint演示文稿"}
+//                     </h3>
+//                     <p className="mb-4 text-gray-600 dark:text-gray-400">
+//                       浏览器无法直接预览此文件类型
+//                     </p>
+//                     <a
+//                       href={task.payload.input.url}
+//                       target="_blank"
+//                       rel="noopener noreferrer"
+//                       className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
+//                     >
+//                       下载文件
+//                     </a>
+//                   </div>
+//                 </div>
+//               )}
+
+//               {fileType === "webpage" && (
+//                 <iframe
+//                   src={task.payload.input.url}
+//                   className="h-[80vh] max-h-[800px] min-h-[400px] w-full border-0"
+//                   title="网页预览"
+//                   sandbox="allow-scripts allow-same-origin allow-popups"
+//                 />
+//               )}
+//             </div>
+
+//             {/* 底部操作栏 */}
+//             <div className="border-t border-gray-200 bg-gray-50 px-4 py-2 dark:border-gray-600 dark:bg-gray-800">
+//               <div className="flex items-center justify-between text-sm">
+//                 <div className="text-gray-600 dark:text-gray-400">
+//                   {fileType === "pdf" && "PDF文档"}
+//                   {fileType === "markdown" && "Markdown文档"}
+//                   {fileType === "text" && "文本文件"}
+//                   {fileType === "image" && "图片文件"}
+//                   {fileType === "video" && "视频文件"}
+//                   {fileType === "document" && "Word文档"}
+//                   {fileType === "spreadsheet" && "Excel表格"}
+//                   {fileType === "presentation" && "PowerPoint演示文稿"}
+//                   {fileType === "webpage" && "网页"}
+//                 </div>
+//                 <a
+//                   href={task.payload.input.url}
+//                   target="_blank"
+//                   rel="noopener noreferrer"
+//                   className="font-medium text-blue-600 hover:underline dark:text-blue-400"
+//                 >
+//                   {fileType === "webpage"
+//                     ? "在新窗口打开"
+//                     : fileType === "image" ||
+//                         fileType === "video" ||
+//                         fileType === "pdf"
+//                       ? "在新窗口查看"
+//                       : "下载文件"}{" "}
+//                   →
+//                 </a>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// });
 // 执行搜索
 const TravilySearchToolCallView = memo(function TravilySearchToolCallView({
   task,
@@ -705,9 +905,9 @@ const ChartCard = memo(function ChartCard({ chart }: { chart: any }) {
           }}
         />
         {description && (
-          <div className="mt-2 rounded-lg border bg-gray-50 p-4 text-sm text-gray-500">
+          <Markdown className="mt-2 rounded-lg border bg-gray-50 p-4 text-sm text-gray-500">
             {description}
-          </div>
+          </Markdown>
         )}
       </div>
     </div>
