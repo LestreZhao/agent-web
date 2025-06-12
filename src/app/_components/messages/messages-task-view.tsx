@@ -23,19 +23,37 @@ import {
   X,
 } from "lucide-react";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, memo } from "react";
 
 import { Markdown } from "~/components/comon/Markdown";
 import { useTaskStore } from "~/core/store/task";
 import { useUIStore } from "~/core/store/ui";
 import { cn } from "~/core/utils";
-import { type ThinkingTask, type Workflow } from "~/core/workflow";
+import {
+  type ThinkingTask,
+  type Workflow,
+  type WorkflowTask,
+} from "~/core/workflow";
 
 import { ChatFilePreviewItem } from "../file-preview";
 import { TaskTag } from "../task/task-tag";
+import { ChartCard } from "../task/task-tool-result";
+
+interface TaskPayload {
+  text?: string;
+  output?: string;
+  toolName?: string;
+}
+
+interface Task {
+  id: string;
+  type: "thinking" | "tool_call";
+  payload: TaskPayload;
+  state?: string;
+}
 
 // 消息任务视图
-export function MessagesTaskView({
+export const MessagesTaskView = memo(function MessagesTaskView({
   className,
   workflow,
   loading,
@@ -50,21 +68,29 @@ export function MessagesTaskView({
   const { setExpandTaskView, setIsFilePreview } = useUIStore();
 
   // 步骤
-  const steps = workflow?.steps
-    ? workflow.steps.map((step) => {
-        if (step.agentName === "reporter") {
-          return {
-            ...step,
-            tasks: [],
-          };
-        }
-        return step;
-      })
-    : [];
+  const steps = useMemo(
+    () =>
+      workflow?.steps
+        ? workflow.steps.map((step) => {
+            if (step.agentName === "reporter") {
+              return {
+                ...step,
+                tasks: [],
+              };
+            }
+            return step;
+          })
+        : [],
+    [workflow],
+  );
   // 总结
-  const reportStep = workflow?.steps
-    ? workflow.steps.find((step) => step.agentName === "reporter")
-    : null;
+  const reportStep = useMemo(
+    () =>
+      workflow?.steps
+        ? workflow.steps.find((step) => step.agentName === "reporter")
+        : null,
+    [workflow],
+  );
 
   // 点击任务标签
   const handleTaskTagClick = (task: any) => {
@@ -73,7 +99,6 @@ export function MessagesTaskView({
     setIsSelectedTask(true);
     setIsFilePreview(false);
   };
-
   return (
     <div className="flex w-full flex-col gap-2">
       <div className={cn("flex rounded-2xl", className)}>
@@ -104,52 +129,61 @@ export function MessagesTaskView({
       </div>
       {reportStep && (
         <div className="flex flex-col gap-2 pt-[-10px]">
-          {reportStep.tasks &&
-            reportStep.tasks.length > 0 &&
-            reportStep.tasks.map((task) => {
-              if (task.type === "thinking") {
-                return <Markdown key={task.id}>{task.payload.text}</Markdown>;
-              } else {
-                return null;
-              }
-              // if (task.type === "tool_call") {
-              //   if (
-              //     task.payload.toolName === "get_task_files_json" &&
-              //     task.state === "success"
-              //   ) {
-              //     const files = JSON.parse(task.payload.output ?? "[]");
-              //     return (
-              //       <div key={task.id}>
-              //         <div className="text-sm font-bold">创建的文件列表：</div>
-              //         <div className="flex flex-wrap gap-2">
-              //           {files.files.map((file) => {
-              //             return (
-              //               <ChatFilePreviewItem
-              //                 key={file.name}
-              //                 file={file}
-              //                 canRemove={false}
-              //               />
-              //             );
-              //           })}
-              //         </div>
-              //       </div>
-              //     );
-              //   } else {
-              //     return (
-              //       <Markdown key={task.id}>{task.payload.output}</Markdown>
-              //     );
-              //   }
-              // } else if (task.type === "thinking") {
-              //   return <Markdown key={task.id}>{task.payload.text}</Markdown>;
-              // } else {
-              //   return null;
-              // }
-            })}
+          {reportStep.tasks && reportStep.tasks.length > 0 && (
+            <ReportTaskView tasks={reportStep.tasks} key={reportStep.id} />
+          )}
         </div>
       )}
     </div>
   );
-}
+});
+
+export const ReportTaskView = memo(function ReportTaskView({
+  tasks,
+}: {
+  tasks: WorkflowTask[];
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      {tasks.map((task) => {
+        if (
+          task.type === "thinking" &&
+          task.payload.text &&
+          task.state === "success"
+        ) {
+          const chart = task.payload.text.match(/```json\n(.*)\n```/s);
+          if (chart) {
+            try {
+              const chartData = JSON.parse(chart[1]);
+              if ("chart_data" in chartData) {
+                // 将原始文本中的 JSON 部分替换为占位符
+                const textBeforeChart = task.payload.text.split(/```json\n/)[0];
+                const textAfterChart = task.payload.text
+                  .split(/```json\n/)[1]
+                  .split(/\n```/)[1];
+                return (
+                  <div key={task.id}>
+                    {textBeforeChart && <Markdown>{textBeforeChart}</Markdown>}
+                    <ChartCard
+                      chart={chartData}
+                      className="my-2"
+                      resize={false}
+                    />
+                    {textAfterChart && <Markdown>{textAfterChart}</Markdown>}
+                  </div>
+                );
+              }
+            } catch (error) {
+              console.error("解析图表数据失败:", error);
+            }
+          }
+          return <Markdown key={task.id}>{task.payload.text}</Markdown>;
+        }
+        return null;
+      })}
+    </div>
+  );
+});
 
 // 计划任务视图
 function PlanTaskView({

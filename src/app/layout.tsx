@@ -5,7 +5,7 @@ import "~/styles/globals.css";
 import { StagewiseDevToolbar } from "./_components/StagewiseDevToolbar";
 
 export const metadata: Metadata = {
-  title: "Fusion AI",
+  title: "FusionAI",
   description:
     "A community-driven AI automation framework that builds upon the incredible work of the open source community.",
   icons: [{ rel: "icon", url: "/images/fusion-circle.png" }],

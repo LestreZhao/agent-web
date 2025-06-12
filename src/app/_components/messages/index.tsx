@@ -138,14 +138,14 @@ export function MessagesView({
         }}
       >
         {messages.map((message) => (
-          <motion.div
-            key={message.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <MessageView message={message} loading={loading} />
-          </motion.div>
+          // <motion.div
+          //   key={message.id}
+          //   initial={{ opacity: 0, y: 20 }}
+          //   animate={{ opacity: 1, y: 0 }}
+          //   transition={{ duration: 0.3 }}
+          // >
+          <MessageView key={message.id} message={message} loading={loading} />
+          // </motion.div>
         ))}
         {loading && <MessageLoading className="mt-2" />}
         <div className="h-1" ref={endRef} />
@@ -188,7 +188,7 @@ function MessageView({
         <div className="px-2">
           <img
             src="/images/fusion_ai.png"
-            alt="Fusion AI"
+            alt="FusionAI"
             className="h-5 w-auto"
           />
         </div>

@@ -94,7 +94,7 @@ export default function HomePage() {
               onSend={handleSendMessage}
               onUpload={handleFileUpload}
               deleteFile={handleDeleteFile}
-              placeholder="给 Fusion AI 一个任务…"
+              placeholder="给 FusionAI 一个任务…"
             />
           </div>
           <div className="my-4 w-full">

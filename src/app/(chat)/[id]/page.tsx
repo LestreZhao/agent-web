@@ -78,7 +78,7 @@ export default function ChatPage() {
   const chatHeader = useMemo(() => {
     return messages[0]?.role === "user"
       ? messages[0]?.content.toString()
-      : "Fusion AI";
+      : "FusionAI";
   }, [messages]);
 
   // 获取任务计划
@@ -195,7 +195,7 @@ export default function ChatPage() {
               onCancel={() => {
                 abortControllerRef.current?.abort();
               }}
-              placeholder="发送消息给Fusion AI"
+              placeholder="发送消息给FusionAI"
               onUpload={handleFileUpload}
               deleteFile={handleDeleteFile}
             />

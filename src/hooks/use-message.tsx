@@ -119,12 +119,11 @@ export function useMessageHook() {
     }
 
     if (textMessage) {
-      textMessage.content = "\n\n任务意外终止，请重新尝试";
       addMessage({
         id: textMessage.id,
         role: "assistant",
         type: "text",
-        content: textMessage.content,
+        content: "\n\n任务意外终止，请重新尝试",
       });
     }
     throw error;

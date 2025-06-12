@@ -93,7 +93,7 @@ export default function LoginPage() {
         >
           <motion.div className="mb-4 flex flex-col space-y-4 pb-4">
             <motion.span className="text-xl font-bold">
-              登录 Fusion AI
+              登录 FusionAI
             </motion.span>
           </motion.div>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

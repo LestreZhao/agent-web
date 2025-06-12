@@ -10,7 +10,7 @@ export function AppHeader({
       {asChild ? children : <></>}
       <img
         src="/images/fusion_ai.png"
-        alt="Fusion AI"
+        alt="FusionAI"
         className="h-[28px] w-auto"
       />
     </div>

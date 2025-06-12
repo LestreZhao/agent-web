@@ -89,7 +89,7 @@ const TaskPreview = memo(function TaskPreview({
               )}
             >
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-bold">Fusion AI 正在执行任务</h2>
+                <h2 className="text-base font-bold">FusionAI 正在执行任务</h2>
                 {expand ? (
                   <button
                     onClick={() => setExpand?.(!expand)}
@@ -112,7 +112,7 @@ const TaskPreview = memo(function TaskPreview({
                 </div> */}
                 <div>
                   {/* <span className="text-xs text-[#858481]">
-                    Fusion AI 正在执行任务
+                    FusionAI 正在执行任务
                   </span> */}
                   {expand && (
                     <TaskTag
@@ -257,7 +257,7 @@ const TaskPreview = memo(function TaskPreview({
 export default TaskPreview;
 
 // 任务内容视图
-const TaskContentView = function TaskContentView({
+const TaskContentView = memo(function TaskContentView({
   task,
   isSelectedTask,
   setIsSelectedTask,
@@ -304,4 +304,4 @@ const TaskContentView = function TaskContentView({
       </ResizablePanel>
     </ResizablePanelGroup>
   );
-};
+});
