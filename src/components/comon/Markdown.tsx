@@ -23,50 +23,6 @@ export const Markdown = memo(function Markdown({
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeHighlight]}
         components={{
-          // p: ({ children }) => {
-          //   // const content = String(children);
-          //   // // 检测是否包含网页URL
-          //   // const urlRegex = /https?:\/\/[^\s"']+/g;
-          //   // const urls = content.match(urlRegex);
-
-          //   // if (urls && urls.length > 0) {
-          //   //   return (
-          //   //     <div className="mb-2 space-y-2">
-          //   //       <p className="text-base leading-relaxed text-gray-700 dark:text-gray-300">
-          //   //         {children}
-          //   //       </p>
-          //   //       {urls.map((url, index) => (
-          //   //         <div
-          //   //           key={index}
-          //   //           className="overflow-hidden rounded-lg dark:border-gray-700"
-          //   //         >
-          //   //           <div className="border-b border-gray-200 bg-gray-50 px-4 py-2 dark:border-gray-700 dark:bg-gray-800">
-          //   //             <a
-          //   //               href={url}
-          //   //               target="_blank"
-          //   //               rel="noopener noreferrer"
-          //   //               className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-          //   //             >
-          //   //               {url}
-          //   //             </a>
-          //   //           </div>
-          //   //           <iframe
-          //   //             src={url}
-          //   //             className="h-96 w-full border-0"
-          //   //             title={`网页内容 ${index + 1}`}
-          //   //             sandbox="allow-scripts allow-same-origin"
-          //   //           />
-          //   //         </div>
-          //   //       ))}
-          //   //     </div>
-          //   //   );
-          //   // }
-          //   return (
-          //     <p className="mb-2 text-base leading-relaxed text-gray-700 last:mb-0 dark:text-gray-300">
-          //       {children}
-          //     </p>
-          //   );
-          // },
           pre: ({ children, ...props }) => {
             return (
               <pre
@@ -108,24 +64,28 @@ export const Markdown = memo(function Markdown({
           },
           table: ({ children }) => {
             return (
-              <table className="w-full rounded rounded-xl border border-gray-100 text-center">
+              <table className="mt-4 w-full overflow-hidden rounded-lg border border-[#eef2f9] text-center">
                 {children}
               </table>
             );
           },
           tr: ({ children }) => {
-            return <tr className="border border-gray-300">{children}</tr>;
+            return (
+              <tr className="whitespace-pre-wrap border border-[#eef2f9]">
+                {children}
+              </tr>
+            );
           },
           td: ({ children }) => {
             return (
-              <td className="border border-gray-300 bg-white px-2 py-2">
+              <td className="whitespace-pre-wrap border border-[#eef2f9] bg-white px-2 py-2">
                 {children}
               </td>
             );
           },
           th: ({ children }) => {
             return (
-              <th className="border border-gray-300 bg-gray-100 p-2">
+              <th className="whitespace-pre-wrap border border-[#eef2f9] bg-gray-100 p-2">
                 {children}
               </th>
             );

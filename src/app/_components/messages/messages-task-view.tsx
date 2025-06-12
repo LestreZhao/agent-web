@@ -40,19 +40,6 @@ import { ChatFilePreviewItem } from "../file-preview";
 import { TaskTag } from "../task/task-tag";
 import { ChartCard } from "../task/task-tool-result";
 
-interface TaskPayload {
-  text?: string;
-  output?: string;
-  toolName?: string;
-}
-
-interface Task {
-  id: string;
-  type: "thinking" | "tool_call";
-  payload: TaskPayload;
-  state?: string;
-}
-
 // 消息任务视图
 export const MessagesTaskView = function MessagesTaskView({
   className,
@@ -104,48 +91,43 @@ export const MessagesTaskView = function MessagesTaskView({
     <div className="flex w-full flex-col gap-2">
       <div className={cn("flex rounded-2xl", className)}>
         <main className="flex-grow">
-          <ul className="">
-            {steps.map((step, index) =>
-              step.agentName === "planner" ? (
-                step.tasks &&
-                step.tasks.length > 0 && (
-                  <PlanTaskView
-                    key={step.agentId}
-                    task={step.tasks[0]!}
-                    handleClick={handleTaskTagClick}
-                  />
-                )
-              ) : (
-                <StepView
-                  key={step.id}
-                  loading={loading}
-                  step={{ ...step, index }}
-                  currentStep={currentStepInfo}
+          {steps.map((step, index) =>
+            step.agentName === "planner" ? (
+              step.tasks &&
+              step.tasks.length > 0 && (
+                <PlanTaskView
+                  key={step.agentId}
+                  task={step.tasks[0]!}
                   handleClick={handleTaskTagClick}
                 />
-              ),
-            )}
-          </ul>
-        </main>
-      </div>
-      {reportStep && (
-        <div className="flex flex-col gap-2 pt-[-10px]">
-          {reportStep.tasks && reportStep.tasks.length > 0 && (
+              )
+            ) : (
+              <StepView
+                key={step.id}
+                loading={loading}
+                step={{ ...step, index }}
+                currentStep={currentStepInfo}
+                handleClick={handleTaskTagClick}
+              />
+            ),
+          )}
+          {reportStep && reportStep?.tasks && reportStep.tasks.length > 0 && (
             <ReportTaskView tasks={reportStep.tasks} key={reportStep.id} />
           )}
-        </div>
-      )}
+        </main>
+      </div>
     </div>
   );
 };
 
+// 总结任务视图
 export const ReportTaskView = function ReportTaskView({
   tasks,
 }: {
   tasks: WorkflowTask[];
 }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div>
       {tasks.map((task) => {
         if (
           task.type === "thinking" &&
@@ -244,6 +226,7 @@ function StepView({
   handleClick: (task: any) => void;
 }) {
   const stepName = step.step_info?.title || "执行失败，当前步骤已重置";
+  // 过滤掉没有文本的思考任务
   const tasks = step.tasks.filter((task) => {
     if (task.type === "thinking") {
       return task.payload.text?.length > 0;
@@ -284,7 +267,7 @@ function StepView({
             >
               {stepName}
             </motion.span>
-            {currentStep?.total_steps !== step.index + 1 && (
+            {tasks.length > 0 && (
               <>
                 {open ? (
                   <ChevronUp className="h-4 w-4" />
@@ -314,6 +297,7 @@ function StepView({
   );
 }
 
+// 获取步骤名称
 export function getStepName(task: any) {
   let taskInfo = {};
   switch (task.type) {

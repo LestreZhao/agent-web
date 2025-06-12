@@ -51,7 +51,6 @@ export function MessagesView({
   const userScrolling = useRef(false);
   const scrollTimeoutRef = useRef<number>();
   const resizeTimeoutRef = useRef<number>();
-
   // 缓动函数
   const easeOutCubic = useCallback((t: number): number => {
     return 1 - Math.pow(1 - t, 3);
@@ -66,8 +65,9 @@ export function MessagesView({
     const startScroll = container.scrollTop;
     const distance = targetScroll - startScroll;
 
-    if (Math.abs(distance) < 10) {
+    if (Math.abs(distance) < 30) {
       container.scrollTop = targetScroll;
+      setShowScrollButton(false);
       return;
     }
 
@@ -92,18 +92,18 @@ export function MessagesView({
     scrollTimeoutRef.current = requestAnimationFrame(animate);
   }, [easeOutCubic]);
 
-  // 优化后的滚动处理
+  // 滚动处理
   const handleScroll = useCallback(() => {
     if (!containerRef.current) return;
 
     const container = containerRef.current;
     const { scrollTop, scrollHeight, clientHeight } = container;
-    const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 15;
+    const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 30;
 
     // 检测用户滚动
     if (
       !userScrolling.current &&
-      Math.abs(scrollTop - lastScrollTop.current) > 15
+      Math.abs(scrollTop - lastScrollTop.current) > 30
     ) {
       userScrolling.current = true;
     }
@@ -167,21 +167,26 @@ export function MessagesView({
     }
   }, [messages, autoScroll, smoothScrollToBottom]);
 
-  // 优化消息渲染
-  const messageElements = useMemo(
-    () =>
-      messages.map((message) => (
-        <MessageView key={message.id} message={message} loading={loading} />
-      )),
-    [messages, loading],
-  );
+  // useMemo 缓存消息渲染
+  const messageElements = useMemo(() => {
+    return (
+      <div className="flex flex-col space-y-4">
+        {messages.map((message, index) => (
+          <MessageView key={message.id} message={message} loading={loading} />
+        ))}
+      </div>
+    );
+  }, [messages, loading]);
 
   return (
     <div
       className={cn(className, "relative flex h-full flex-col overflow-hidden")}
     >
       <div
-        className="flex-1 overflow-y-scroll scroll-smooth"
+        className={cn(
+          "overflow-y-scroll scroll-smooth",
+          messages.length > 0 && "pb-[80px]",
+        )}
         ref={containerRef}
         onScroll={throttledHandleScroll}
         style={{
@@ -199,7 +204,10 @@ export function MessagesView({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
-          className="absolute bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-white p-2 shadow-lg shadow-black/10 transition-transform hover:scale-110"
+          transition={{
+            duration: 0.2,
+          }}
+          className="absolute bottom-[50px] left-1/2 -translate-x-1/2 rounded-full bg-white p-2 shadow-lg shadow-black/10 transition-transform"
           onClick={() => {
             setAutoScroll(true);
             userScrolling.current = false;
@@ -213,15 +221,18 @@ export function MessagesView({
   );
 }
 
-// 优化 MessageView 组件
+// 消息视图
 const MessageView = memo(function MessageView({
   message,
   loading,
+  className,
 }: {
   message: UserMessage;
   loading: boolean;
+  className?: string;
 }) {
   const content = useMemo(() => {
+    // 过滤掉上传文件的文本内容，只保留用户输入的文本
     if (message.role === "user" && (message as any).files) {
       const rawContent = message.content;
       if (typeof rawContent === "string") {
@@ -240,7 +251,9 @@ const MessageView = memo(function MessageView({
     typeof content === "object" ? JSON.stringify(content) : String(content);
 
   return (
-    <div className={cn(message.role === "user" && "flex justify-end")}>
+    <div
+      className={cn(message.role === "user" && "flex justify-end", className)}
+    >
       {message.role === "assistant" && message.content && (
         <div className="px-2">
           <img
@@ -279,7 +292,7 @@ const MessageView = memo(function MessageView({
         <div className="flex flex-col gap-2">
           <MessagesTaskView
             loading={loading}
-            className="max-w-full pr-4"
+            className="max-w-full"
             workflow={message.content.workflow}
           />
         </div>

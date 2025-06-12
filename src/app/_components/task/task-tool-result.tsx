@@ -2,17 +2,19 @@ import { GlobalOutlined, PythonOutlined } from "@ant-design/icons";
 import * as echarts from "echarts";
 import { LRUCache } from "lru-cache";
 import { Loader2, LoaderCircle } from "lucide-react";
-import { memo, useEffect, useMemo, useRef, useCallback } from "react";
+import { memo, useEffect, useMemo, useRef, useCallback, useState } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 import { Markdown } from "~/components/comon/Markdown";
+import WavyText from "~/components/ui/wavy-text";
 import { cn } from "~/core/utils";
 import {
   convertToMarkdownTable,
   parseTableText,
 } from "~/core/utils/oracleTable";
 import { type ToolCallTask } from "~/core/workflow";
+import { useIframeCheck } from "~/hooks/use-iframe-check";
 
 import { ReportTaskView } from "../messages/messages-task-view";
 // 执行浏览器
@@ -46,6 +48,14 @@ function PlanTaskView({ task }: { task: any }) {
     return {};
   }, [task]);
   const markdown = `## ${plan.title ?? ""}\n\n${plan.steps?.map((step) => `- **${step.title ?? ""}**\n\n${step.description ?? ""}`).join("\n\n") ?? ""}`;
+  if (task.state === "pending") {
+    return (
+      <div className="flex h-full items-center justify-center gap-2 text-sm">
+        <LoaderCircle size={20} className="animate-spin" />
+        {/* <WavyText text="正在任务生成计划..." /> */}
+      </div>
+    );
+  }
   return (
     <li key={task.id} className="flex flex-col">
       <div>
@@ -56,11 +66,209 @@ function PlanTaskView({ task }: { task: any }) {
 }
 // 爬取网页
 const pageCache = new LRUCache<string, string>({ max: 100 });
-function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
-  const title = useMemo(() => {
-    return pageCache.get(task.payload.input.url);
-  }, [task.payload.input.url]);
+// function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
+//   const title = useMemo(() => {
+//     return pageCache.get(task.payload.input.url);
+//   }, [task.payload.input.url]);
 
+//   // 检测文件类型
+//   const fileType = useMemo(() => {
+//     const url = task.payload.input.url.toLowerCase();
+//     if (url.includes(".pdf")) return "pdf";
+//     if (url.includes(".md") || url.includes(".markdown")) return "markdown";
+//     if (url.includes(".txt")) return "text";
+//     if (url.includes(".doc") || url.includes(".docx")) return "document";
+//     if (url.includes(".xls") || url.includes(".xlsx")) return "spreadsheet";
+//     if (url.includes(".ppt") || url.includes(".pptx")) return "presentation";
+//     if (
+//       url.includes(".jpg") ||
+//       url.includes(".jpeg") ||
+//       url.includes(".png") ||
+//       url.includes(".gif") ||
+//       url.includes(".webp")
+//     )
+//       return "image";
+//     if (
+//       url.includes(".mp4") ||
+//       url.includes(".avi") ||
+//       url.includes(".mov") ||
+//       url.includes(".webm")
+//     )
+//       return "video";
+//     return "webpage";
+//   }, [task.payload.input.url]);
+
+//   return (
+//     <div>
+//       {task.payload.output && task.state === "success" && (
+//         <div className="space-y-4">
+//           {/* 网页预览 */}
+//           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
+//             <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 dark:border-gray-600 dark:from-gray-800 dark:to-gray-700">
+//               <div className="flex items-center gap-2">
+//                 <div className="flex gap-1">
+//                   <div className="h-3 w-3 rounded-full bg-red-500"></div>
+//                   <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
+//                   <div className="h-3 w-3 rounded-full bg-green-500"></div>
+//                 </div>
+//                 <div className="flex flex-1 items-center justify-center gap-2">
+//                   {fileType === "pdf" && (
+//                     <span className="text-red-500">📄</span>
+//                   )}
+//                   {fileType === "markdown" && (
+//                     <span className="text-blue-600">📝</span>
+//                   )}
+//                   {fileType === "text" && (
+//                     <span className="text-gray-600">📄</span>
+//                   )}
+//                   {fileType === "image" && (
+//                     <span className="text-green-500">🖼️</span>
+//                   )}
+//                   {fileType === "video" && (
+//                     <span className="text-purple-500">🎥</span>
+//                   )}
+//                   {fileType === "document" && (
+//                     <span className="text-blue-500">📄</span>
+//                   )}
+//                   {fileType === "spreadsheet" && (
+//                     <span className="text-green-600">📊</span>
+//                   )}
+//                   {fileType === "presentation" && (
+//                     <span className="text-orange-500">📋</span>
+//                   )}
+//                   {fileType === "webpage" && (
+//                     <GlobalOutlined className="h-4 w-4 text-gray-500" />
+//                   )}
+//                   <span className="truncate font-mono text-sm text-gray-600 dark:text-gray-300">
+//                     {task.payload.input.url}
+//                   </span>
+//                 </div>
+//               </div>
+//             </div>
+
+//             {/* 内容显示区域 */}
+//             <div className="w-full">
+//               {fileType === "pdf" && (
+//                 <iframe
+//                   src={task.payload.input.url}
+//                   className="h-[600px] w-full border-0"
+//                   title="PDF预览"
+//                 />
+//               )}
+
+//               {(fileType === "markdown" || fileType === "text") && (
+//                 <iframe
+//                   src={task.payload.input.url}
+//                   className="h-[80vh] max-h-[800px] min-h-[400px] w-full border-0 bg-white"
+//                   title={fileType === "markdown" ? "Markdown预览" : "文本预览"}
+//                 />
+//               )}
+
+//               {fileType === "image" && (
+//                 <div className="flex justify-center p-4">
+//                   <img
+//                     src={task.payload.input.url}
+//                     alt="图片预览"
+//                     className="max-h-[600px] max-w-full rounded-lg object-contain shadow-sm"
+//                   />
+//                 </div>
+//               )}
+
+//               {fileType === "video" && (
+//                 <video
+//                   src={task.payload.input.url}
+//                   className="h-[600px] w-full object-contain"
+//                   controls
+//                   preload="metadata"
+//                 >
+//                   您的浏览器不支持视频播放
+//                 </video>
+//               )}
+
+//               {(fileType === "document" ||
+//                 fileType === "spreadsheet" ||
+//                 fileType === "presentation") && (
+//                 <div className="flex h-[600px] flex-col items-center justify-center bg-gray-50 dark:bg-gray-800">
+//                   <div className="p-8 text-center">
+//                     <div className="mb-4 text-6xl">
+//                       {fileType === "document" && "📄"}
+//                       {fileType === "spreadsheet" && "📊"}
+//                       {fileType === "presentation" && "📋"}
+//                     </div>
+//                     <h3 className="mb-2 text-lg font-medium text-gray-900 dark:text-gray-100">
+//                       {fileType === "document" && "Word文档"}
+//                       {fileType === "spreadsheet" && "Excel表格"}
+//                       {fileType === "presentation" && "PowerPoint演示文稿"}
+//                     </h3>
+//                     <p className="mb-4 text-gray-600 dark:text-gray-400">
+//                       浏览器无法直接预览此文件类型
+//                     </p>
+//                     <a
+//                       href={task.payload.input.url}
+//                       target="_blank"
+//                       rel="noopener noreferrer"
+//                       className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
+//                     >
+//                       下载文件
+//                     </a>
+//                   </div>
+//                 </div>
+//               )}
+
+//               {fileType === "webpage" && (
+//                 <iframe
+//                   src={task.payload.input.url}
+//                   className="h-[80vh] max-h-[800px] min-h-[400px] w-full border-0"
+//                   title="网页预览"
+//                   sandbox="allow-scripts allow-same-origin allow-popups"
+//                 />
+//               )}
+//             </div>
+
+//             {/* 底部操作栏 */}
+//             <div className="border-t border-gray-200 bg-gray-50 px-4 py-2 dark:border-gray-600 dark:bg-gray-800">
+//               <div className="flex items-center justify-between text-sm">
+//                 <div className="text-gray-600 dark:text-gray-400">
+//                   {fileType === "pdf" && "PDF文档"}
+//                   {fileType === "markdown" && "Markdown文档"}
+//                   {fileType === "text" && "文本文件"}
+//                   {fileType === "image" && "图片文件"}
+//                   {fileType === "video" && "视频文件"}
+//                   {fileType === "document" && "Word文档"}
+//                   {fileType === "spreadsheet" && "Excel表格"}
+//                   {fileType === "presentation" && "PowerPoint演示文稿"}
+//                   {fileType === "webpage" && "网页"}
+//                 </div>
+//                 <a
+//                   href={task.payload.input.url}
+//                   target="_blank"
+//                   rel="noopener noreferrer"
+//                   className="font-medium text-blue-600 hover:underline dark:text-blue-400"
+//                 >
+//                   {fileType === "webpage"
+//                     ? "在新窗口打开"
+//                     : fileType === "image" ||
+//                         fileType === "video" ||
+//                         fileType === "pdf"
+//                       ? "在新窗口查看"
+//                       : "下载文件"}{" "}
+//                   →
+//                 </a>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+// 执行搜索
+// ... existing code ...
+
+function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
+  // iframe 加载状态
+  const { canEmbed, loading, error } = useIframeCheck(task.payload.input.url);
   // 检测文件类型
   const fileType = useMemo(() => {
     const url = task.payload.input.url.toLowerCase();
@@ -88,12 +296,19 @@ function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
     return "webpage";
   }, [task.payload.input.url]);
 
+  if (task.state === "pending") {
+    return (
+      <div className="flex h-full items-center justify-center gap-2 text-sm">
+        <LoaderCircle size={20} className="animate-spin" />
+      </div>
+    );
+  }
   return (
-    <div>
+    <div className="h-full w-full">
       {task.payload.output && task.state === "success" && (
-        <div className="space-y-4">
+        <div className="h-full w-full space-y-4">
           {/* 网页预览 */}
-          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
+          <div className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
             <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 dark:border-gray-600 dark:from-gray-800 dark:to-gray-700">
               <div className="flex items-center gap-2">
                 <div className="flex gap-1">
@@ -102,46 +317,18 @@ function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
                   <div className="h-3 w-3 rounded-full bg-green-500"></div>
                 </div>
                 <div className="flex flex-1 items-center justify-center gap-2">
-                  {fileType === "pdf" && (
-                    <span className="text-red-500">📄</span>
-                  )}
-                  {fileType === "markdown" && (
-                    <span className="text-blue-600">📝</span>
-                  )}
-                  {fileType === "text" && (
-                    <span className="text-gray-600">📄</span>
-                  )}
-                  {fileType === "image" && (
-                    <span className="text-green-500">🖼️</span>
-                  )}
-                  {fileType === "video" && (
-                    <span className="text-purple-500">🎥</span>
-                  )}
-                  {fileType === "document" && (
-                    <span className="text-blue-500">📄</span>
-                  )}
-                  {fileType === "spreadsheet" && (
-                    <span className="text-green-600">📊</span>
-                  )}
-                  {fileType === "presentation" && (
-                    <span className="text-orange-500">📋</span>
-                  )}
-                  {fileType === "webpage" && (
-                    <GlobalOutlined className="h-4 w-4 text-gray-500" />
-                  )}
                   <span className="truncate font-mono text-sm text-gray-600 dark:text-gray-300">
                     {task.payload.input.url}
                   </span>
                 </div>
               </div>
             </div>
-
             {/* 内容显示区域 */}
-            <div className="w-full">
+            <div className="w-full flex-1">
               {fileType === "pdf" && (
                 <iframe
                   src={task.payload.input.url}
-                  className="h-[600px] w-full border-0"
+                  className="h-full w-full border-0"
                   title="PDF预览"
                 />
               )}
@@ -149,7 +336,7 @@ function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
               {(fileType === "markdown" || fileType === "text") && (
                 <iframe
                   src={task.payload.input.url}
-                  className="h-[80vh] max-h-[800px] min-h-[400px] w-full border-0 bg-white"
+                  className="h-full w-full border-0 bg-white"
                   title={fileType === "markdown" ? "Markdown预览" : "文本预览"}
                 />
               )}
@@ -159,7 +346,7 @@ function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
                   <img
                     src={task.payload.input.url}
                     alt="图片预览"
-                    className="max-h-[600px] max-w-full rounded-lg object-contain shadow-sm"
+                    className="h-full w-full rounded-lg object-contain shadow-sm"
                   />
                 </div>
               )}
@@ -167,7 +354,7 @@ function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
               {fileType === "video" && (
                 <video
                   src={task.payload.input.url}
-                  className="h-[600px] w-full object-contain"
+                  className="h-full w-full object-contain"
                   controls
                   preload="metadata"
                 >
@@ -178,7 +365,7 @@ function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
               {(fileType === "document" ||
                 fileType === "spreadsheet" ||
                 fileType === "presentation") && (
-                <div className="flex h-[600px] flex-col items-center justify-center bg-gray-50 dark:bg-gray-800">
+                <div className="flex h-full flex-col items-center justify-center bg-gray-50 dark:bg-gray-800">
                   <div className="p-8 text-center">
                     <div className="mb-4 text-6xl">
                       {fileType === "document" && "📄"}
@@ -204,14 +391,42 @@ function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
                   </div>
                 </div>
               )}
-
               {fileType === "webpage" && (
-                <iframe
-                  src={task.payload.input.url}
-                  className="h-[80vh] max-h-[800px] min-h-[400px] w-full border-0"
-                  title="网页预览"
-                  sandbox="allow-scripts allow-same-origin allow-popups"
-                />
+                <>
+                  {loading ? (
+                    <div className="flex h-full flex-col items-center justify-center bg-gray-50 dark:bg-gray-800">
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <h3 className="mb-2 text-lg font-medium text-gray-900 dark:text-gray-100">
+                          正在加载网页...
+                        </h3>{" "}
+                      </div>
+                    </div>
+                  ) : canEmbed === true ? (
+                    <iframe
+                      src={task.payload.input.url}
+                      className="h-full w-full border-0"
+                      title="网页预览"
+                      sandbox="allow-scripts allow-same-origin allow-popups"
+                    />
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center bg-gray-50 dark:bg-gray-800">
+                      <div className="p-8 text-center">
+                        <p className="mb-4 text-gray-600 dark:text-gray-400">
+                          由于安全策略限制，请在新的窗口打开此网页
+                        </p>
+                        <a
+                          href={task.payload.input.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
+                        >
+                          在新窗口打开 →
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
@@ -252,7 +467,7 @@ function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
     </div>
   );
 }
-// 执行搜索
+
 function TravilySearchToolCallView({
   task,
 }: {
@@ -271,7 +486,7 @@ function TravilySearchToolCallView({
   }, [task.payload.output]);
   return (
     <div className="w-full">
-      {task.state !== "pending" && (
+      {task.state !== "pending" ? (
         <div className="flex flex-col gap-2">
           <ul className="flex flex-col gap-2">
             {results.map((result: { url: string; title: string }) => (
@@ -306,6 +521,10 @@ function TravilySearchToolCallView({
               </li>
             ))}
           </ul>
+        </div>
+      ) : (
+        <div className="flex h-full items-center justify-center gap-2 text-sm">
+          <LoaderCircle size={20} className="animate-spin" />
         </div>
       )}
     </div>
@@ -370,15 +589,10 @@ export function GenerateEchartsChartView({
 }: {
   task: ToolCallTask<any>;
 }) {
-  if (task.state !== "success") {
+  if (task.state === "pending") {
     return (
-      <div className="flex items-center justify-center gap-2 text-sm">
-        <div>
-          <Loader2 className="h-4 w-4 animate-spin" />
-        </div>
-        <div>
-          <span>正在生成图表...</span>
-        </div>
+      <div className="flex h-full items-center justify-center gap-2 text-sm">
+        <LoaderCircle size={20} className="animate-spin" />
       </div>
     );
   }
@@ -453,7 +667,6 @@ export const ChartCard = memo(function ChartCard({
     if (!chartData) return null;
     const baseOption = {
       ...chartData,
-      animation: false, // 禁用动画以提高性能
       legend: {
         ...chartData?.legend,
         top: "95%",
@@ -506,7 +719,6 @@ export const ChartCard = memo(function ChartCard({
         }
       }
     });
-
     if (chartRef.current) {
       if (resize) {
         resizeObserverRef.current.observe(chartRef.current);
@@ -559,6 +771,7 @@ export const ChartCard = memo(function ChartCard({
   );
 });
 
+// 分析文档内容工具结果视图
 function AnalyzeDocumentContentToolCallView({
   task,
 }: {
@@ -579,6 +792,13 @@ function AnalyzeDocumentContentToolCallView({
 
   if (!documentData) {
     return <div>无法解析文档数据</div>;
+  }
+  if (task.state === "pending") {
+    return (
+      <div className="flex h-full items-center justify-center gap-2 text-sm">
+        <LoaderCircle size={20} className="animate-spin" />
+      </div>
+    );
   }
   return (
     <div className="space-y-4">
@@ -636,6 +856,7 @@ function DatabaseQueryToolCallView({
   );
 }
 
+// 工具调用结果视图
 export const TaskToolResultView = function TaskToolResultView({
   task,
 }: {
@@ -647,6 +868,7 @@ export const TaskToolResultView = function TaskToolResultView({
       return (
         <div className="flex h-full items-center justify-center text-sm font-bold text-[#858481]">
           <LoaderCircle size={20} className="animate-spin" />
+          {/* <WavyText text="FusionAI正在思考..." /> */}
         </div>
       );
     }

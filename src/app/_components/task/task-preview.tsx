@@ -29,7 +29,7 @@ interface TaskItem {
 }
 
 // 任务预览 （左侧及消息底部）
-const TaskPreview = function TaskPreview({
+export const TaskPreview = function TaskPreview({
   plans,
   className,
   expand,
@@ -190,8 +190,6 @@ const TaskPreview = function TaskPreview({
   );
 };
 
-export default TaskPreview;
-
 // 任务步骤列表
 const StepList = memo(function StepList({
   plans,
@@ -231,14 +229,15 @@ const StepList = memo(function StepList({
                 {stepInfo?.step_index} / {stepInfo?.total_steps}
               </div>
               {!expand ? null : (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-full p-1"
+                <motion.button
+                  whileHover={{ scale: 1.01 }}
+                  transition={{ duration: 0.2 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={toggleExpanded}
+                  className="ml-2 flex items-center justify-center rounded-full p-1 hover:bg-gray-100"
                 >
                   <ChevronDown size={20} />
-                </Button>
+                </motion.button>
               )}
             </div>
           </h3>
@@ -292,7 +291,13 @@ const StepList = memo(function StepList({
               {stepInfo?.step_index} / {stepInfo?.total_steps}
             </motion.span>
             {((expand && !collapsed) || !expand) && (
-              <ChevronDown size={20} className="ml-2" />
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                transition={{ duration: 0.2 }}
+                className="ml-2 flex items-center justify-center rounded-full p-1 hover:bg-gray-100"
+              >
+                <ChevronDown size={20} />
+              </motion.button>
             )}
           </div>
         </div>

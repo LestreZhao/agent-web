@@ -46,14 +46,18 @@ export function ChatSuggestions({
       className="flex w-full flex-wrap justify-center gap-2"
     >
       {suggestions.map((suggestion, index) => (
-        <Button
+        <motion.button
           key={index}
-          className="rounded-full bg-[#37352f0a] text-xs text-[#535350] shadow-none hover:bg-[#37352f0a]"
+          whileHover={{
+            scale: 1.02,
+            color: "#37352F",
+          }}
+          className="flex items-center gap-1 rounded-full bg-[#37352f0a] px-4 py-2 text-xs text-[#535350] shadow-none hover:bg-[#e9e9e8]"
           onClick={() => handleSuggestionClick(suggestion.action)}
         >
           {suggestion.title}
           <ArrowUp className="h-2 w-2" />
-        </Button>
+        </motion.button>
       ))}
     </motion.div>
   );

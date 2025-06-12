@@ -9,11 +9,12 @@ import { toast } from "sonner";
 import ChatHeader from "~/app/_components/chat-header";
 import { ChatInput } from "~/app/_components/chat-input";
 import FileContent from "~/app/_components/file-content";
-import TaskPreview from "~/app/_components/task/task-preview";
+import { TaskPreview } from "~/app/_components/task/task-preview";
 import { uploadFile } from "~/core/api/file";
 import { useMessageStore } from "~/core/store/message";
 import { useTaskStore } from "~/core/store/task";
 import { useUIStore } from "~/core/store/ui";
+import { cn } from "~/core/utils";
 import { useMessageHook } from "~/hooks/use-message";
 import { type Message, type WorkflowMessage } from "~/types/message";
 
@@ -123,7 +124,7 @@ export default function ChatPage() {
       }
       setCurrentTask(latestTask);
     }
-  }, [messages, setCurrentTask, setExpandTaskView]);
+  }, [messages, setCurrentTask, setExpandTaskView, isSelectedTask]);
 
   // 上传文件
   const handleFileUpload = useCallback(
@@ -172,14 +173,14 @@ export default function ChatPage() {
           <div className="sticky top-0 flex flex-shrink-0 flex-row items-center justify-between bg-[var(--background-gray-main)] pb-1 pl-4 pt-3">
             <ChatHeader header={chatHeader} />
           </div>
-          <div className="flex w-full flex-1 flex-col gap-[12px] overflow-scroll pb-[40px] pt-[12px]">
+          <div className="flex w-full flex-1 flex-col gap-[12px] overflow-scroll pt-[12px]">
             <MessagesView
               className="w-full"
               messages={messages}
               loading={responding}
             />
           </div>
-          <div className="sticky bottom-8 flex flex-col">
+          <div className={cn("sticky bottom-8 flex flex-col")}>
             {!expandTaskView && showTaskPreview && (
               <TaskPreview
                 responding={responding}

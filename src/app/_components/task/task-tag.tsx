@@ -20,12 +20,11 @@ export function TaskTag({
         onClick={() => {
           handleClick?.(task);
         }}
-        className="my-2 flex cursor-pointer items-center overflow-hidden rounded-full border bg-[#37352f0a] px-2.5 py-1.5"
+        className="my-2 flex cursor-pointer items-center overflow-hidden rounded-full border bg-[#37352f0a] px-2.5 py-1.5 hover:border-[#e0e0df] hover:bg-[#e9e9e8]"
       >
         {icon}
         <motion.span className="ml-2 line-clamp-1 text-xs">{title}</motion.span>
       </motion.div>
-      <div></div>
     </motion.div>
   );
 }

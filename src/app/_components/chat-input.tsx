@@ -8,6 +8,7 @@ import { type ResponseFile } from "~/types/message";
 
 import { FilePreview } from "./file-preview";
 import { FileUpload } from "./file-upload";
+import { motion } from "framer-motion";
 
 interface UploadFile extends Partial<File> {
   id: string;
@@ -152,7 +153,12 @@ export function ChatInput({
 
   return (
     <div className={cn(className)}>
-      <div className="flex flex-col overflow-hidden rounded-[24px] border bg-white p-3 shadow-lg">
+      <motion.div
+        transition={{
+          duration: 0.3,
+        }}
+        className="flex flex-col overflow-hidden rounded-[24px] border bg-white p-3 shadow-lg"
+      >
         <FilePreview files={uploadedFiles ?? []} onRemove={handleDeleteFile} />
         <div className="w-full">
           <textarea
@@ -172,8 +178,14 @@ export function ChatInput({
         </div>
         <div className="flex flex-shrink-0 justify-between gap-2">
           <FileUpload onUpload={handleUploadClick} disabled={responding} />
-          <Button
-            className={`h-8 w-8 rounded-full bg-[#37352F14] font-medium ${
+          <motion.button
+            whileHover={{
+              scale: 1.03,
+            }}
+            transition={{
+              duration: 0.2,
+            }}
+            className={`flex h-8 w-8 items-center justify-center rounded-full bg-[#37352F14] font-medium ${
               message.length > 0 || responding || uploadedFiles.length > 0
                 ? "bg-black text-white"
                 : "bg-[#37352F14] text-[#b9b9b7] hover:bg-[#37352F14]"
@@ -185,9 +197,9 @@ export function ChatInput({
             ) : (
               <ArrowUp className="h-4 w-4" />
             )}
-          </Button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
