@@ -10,6 +10,7 @@ import { type Message } from "~/types/message";
 type UserMessage = Message;
 
 import { ChatFilePreviewItem } from "../file-preview";
+
 import { MessagesTaskView } from "./messages-task-view";
 
 // 节流函数
@@ -51,6 +52,18 @@ export function MessagesView({
   const userScrolling = useRef(false);
   const scrollTimeoutRef = useRef<number>();
   const resizeTimeoutRef = useRef<number>();
+  const lastMessageId = useRef<string>();
+  // 检查是否有新消息
+  const hasNewMessage = useCallback(() => {
+    if (messages.length === 0) return false;
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && lastMessageId.current !== lastMessage.id) {
+      lastMessageId.current = lastMessage.id;
+      return true;
+    }
+    return false;
+  }, [messages]);
+
   // 缓动函数
   const easeOutCubic = useCallback((t: number): number => {
     return 1 - Math.pow(1 - t, 3);
@@ -58,38 +71,33 @@ export function MessagesView({
 
   // 优化后的平滑滚动
   const smoothScrollToBottom = useCallback(() => {
-    if (!containerRef.current || userScrolling.current) return;
+    if (!containerRef.current) return;
 
     const container = containerRef.current;
     const targetScroll = container.scrollHeight - container.clientHeight;
-    const startScroll = container.scrollTop;
-    const distance = targetScroll - startScroll;
 
-    if (Math.abs(distance) < 30) {
-      container.scrollTop = targetScroll;
-      setShowScrollButton(false);
-      return;
-    }
+    // 直接滚动到底部
+    container.scrollTo({
+      top: targetScroll,
+      behavior: "smooth",
+    });
 
-    let start: number | null = null;
-    const duration = 300;
-
-    const animate = (timestamp: number) => {
-      start ??= timestamp;
-      const progress = (timestamp - start) / duration;
-
-      if (progress < 1) {
-        container.scrollTop = startScroll + distance * easeOutCubic(progress);
-        scrollTimeoutRef.current = requestAnimationFrame(animate);
-      } else {
-        container.scrollTop = targetScroll;
+    // 确保滚动完成后更新状态
+    setTimeout(() => {
+      if (containerRef.current) {
+        const finalCheck =
+          Math.abs(
+            containerRef.current.scrollHeight -
+              containerRef.current.clientHeight -
+              containerRef.current.scrollTop,
+          ) < 30;
+        setShowScrollButton(!finalCheck);
+        if (finalCheck) {
+          setAutoScroll(true);
+          userScrolling.current = false;
+        }
       }
-    };
-
-    if (scrollTimeoutRef.current) {
-      cancelAnimationFrame(scrollTimeoutRef.current);
-    }
-    scrollTimeoutRef.current = requestAnimationFrame(animate);
+    }, 300);
   }, [easeOutCubic]);
 
   // 滚动处理
@@ -101,21 +109,23 @@ export function MessagesView({
     const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 30;
 
     // 检测用户滚动
-    if (
-      !userScrolling.current &&
-      Math.abs(scrollTop - lastScrollTop.current) > 30
-    ) {
+    const scrollDiff = Math.abs(scrollTop - lastScrollTop.current);
+    if (scrollDiff > 30) {
       userScrolling.current = true;
+      if (!isAtBottom) {
+        setAutoScroll(false);
+      }
     }
 
+    // 如果滚动到底部，重置状态
     if (isAtBottom) {
       setAutoScroll(true);
       userScrolling.current = false;
+      setShowScrollButton(false);
     } else {
-      setAutoScroll(false);
+      setShowScrollButton(true);
     }
 
-    setShowScrollButton(!isAtBottom);
     lastScrollTop.current = scrollTop;
   }, []);
 
@@ -157,15 +167,20 @@ export function MessagesView({
   // 消息更新时的滚动处理
   useEffect(() => {
     const messageCountChanged = messages.length !== lastMessageLength.current;
+    const newMessage = hasNewMessage();
     lastMessageLength.current = messages.length;
 
-    if (messageCountChanged && autoScroll && !userScrolling.current) {
+    if (
+      (messageCountChanged || newMessage) &&
+      (autoScroll || loading) &&
+      !userScrolling.current
+    ) {
       if (scrollTimeoutRef.current) {
         cancelAnimationFrame(scrollTimeoutRef.current);
       }
       requestAnimationFrame(smoothScrollToBottom);
     }
-  }, [messages, autoScroll, smoothScrollToBottom]);
+  }, [messages, autoScroll, smoothScrollToBottom, loading, hasNewMessage]);
 
   // useMemo 缓存消息渲染
   const messageElements = useMemo(() => {
@@ -209,9 +224,15 @@ export function MessagesView({
           }}
           className="absolute bottom-[50px] left-1/2 -translate-x-1/2 rounded-full bg-white p-2 shadow-lg shadow-black/10 transition-transform"
           onClick={() => {
-            setAutoScroll(true);
+            if (!containerRef.current) return;
             userScrolling.current = false;
-            smoothScrollToBottom();
+            setAutoScroll(true);
+            containerRef.current.scrollTo({
+              top:
+                containerRef.current.scrollHeight -
+                containerRef.current.clientHeight,
+              behavior: "smooth",
+            });
           }}
         >
           <ArrowDown className="h-5 w-5" />

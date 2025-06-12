@@ -127,7 +127,7 @@ export const ReportTaskView = function ReportTaskView({
   tasks: WorkflowTask[];
 }) {
   return (
-    <div>
+    <div className="w-full">
       {tasks.map((task) => {
         if (
           task.type === "thinking" &&
@@ -145,7 +145,7 @@ export const ReportTaskView = function ReportTaskView({
                   .split(/```json\n/)[1]
                   .split(/\n```/)[1];
                 return (
-                  <div key={task.id}>
+                  <div key={task.id} className="w-full max-w-full">
                     {textBeforeChart && <Markdown>{textBeforeChart}</Markdown>}
                     <ChartCard
                       chart={chartData}

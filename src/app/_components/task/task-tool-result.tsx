@@ -396,10 +396,7 @@ function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
                   {loading ? (
                     <div className="flex h-full flex-col items-center justify-center bg-gray-50 dark:bg-gray-800">
                       <div className="flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <h3 className="mb-2 text-lg font-medium text-gray-900 dark:text-gray-100">
-                          正在加载网页...
-                        </h3>{" "}
+                        <WavyText text="正在加载网页..." />
                       </div>
                     </div>
                   ) : canEmbed === true ? (
@@ -485,7 +482,7 @@ function TravilySearchToolCallView({
     }
   }, [task.payload.output]);
   return (
-    <div className="w-full">
+    <div className="h-full w-full">
       {task.state !== "pending" ? (
         <div className="flex flex-col gap-2">
           <ul className="flex flex-col gap-2">

@@ -13,7 +13,7 @@ export function TaskTag({
   handleClick?: (task: any) => void;
 }) {
   return (
-    <motion.div className="flex items-center justify-between">
+    <motion.div className="flex max-w-full items-center justify-between">
       <motion.div
         whileHover={{ scale: 1.01 }}
         transition={{ duration: 0.2 }}

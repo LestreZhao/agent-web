@@ -26,7 +26,7 @@ export const Markdown = memo(function Markdown({
           pre: ({ children, ...props }) => {
             return (
               <pre
-                className="my-2 overflow-x-auto whitespace-pre-wrap break-words rounded-lg bg-gray-100 p-2 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                className="my-2 max-w-full whitespace-pre-wrap break-words rounded-lg bg-gray-100 p-2 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                 {...props}
               >
                 {children}
