@@ -8,7 +8,7 @@ import {
   Maximize2,
   Play,
 } from "lucide-react";
-import { useMemo, useState, memo } from "react";
+import { useMemo, useState, memo, useEffect } from "react";
 
 import { getStepName } from "~/app/_components/messages/messages-task-view";
 import { TaskToolResultView } from "~/app/_components/task/task-tool-result";
@@ -29,7 +29,7 @@ interface TaskItem {
 }
 
 // 任务预览 （左侧及消息底部）
-const TaskPreview = memo(function TaskPreview({
+const TaskPreview = function TaskPreview({
   plans,
   className,
   expand,
@@ -55,11 +55,32 @@ const TaskPreview = memo(function TaskPreview({
 
   // isSelectedTask 根据是否选中任务获取当前展示的任务
   const task = isSelectedTask ? selectedTask : currentTask;
-  // const stepInfo = currentStepInfo;
   // 当前模型正在执行的任务
   const stepInfo = useMemo(() => {
     return currentStepInfo;
   }, [currentStepInfo]);
+
+  useEffect(() => {
+    if (
+      !isSelectedTask &&
+      currentTask?.agentName === "reporter" &&
+      responding
+    ) {
+      if (expand) {
+        if (collapsed) setCollapsed(false);
+        setExpand?.(false);
+        setIsSelectedTask(true);
+      }
+    }
+  }, [
+    isSelectedTask,
+    currentTask,
+    setExpand,
+    expand,
+    collapsed,
+    responding,
+    setIsSelectedTask,
+  ]);
 
   return (
     <div className={expand ? "h-full p-3 pb-0" : "h-full"}>
@@ -156,105 +177,129 @@ const TaskPreview = memo(function TaskPreview({
             </div>
           </div>
         }
-        <motion.div
-          className={
-            expand
-              ? "absolute bottom-4 left-0 right-0 z-50 mx-4 rounded-lg"
-              : ""
-          }
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.2 }}
+        <StepList
+          plans={plans}
+          collapsed={collapsed}
+          expand={expand}
+          stepInfo={stepInfo}
+          responding={responding}
+          toggleExpanded={toggleExpanded}
+        />
+      </motion.div>
+    </div>
+  );
+};
+
+export default TaskPreview;
+
+// 任务步骤列表
+const StepList = memo(function StepList({
+  plans,
+  collapsed,
+  expand,
+  stepInfo,
+  responding,
+  toggleExpanded,
+}: {
+  plans: TaskItem[];
+  collapsed: boolean;
+  expand?: boolean;
+  stepInfo: any;
+  responding: boolean;
+  toggleExpanded: () => void;
+}) {
+  return (
+    <motion.div
+      className={
+        expand ? "absolute bottom-4 left-0 right-0 z-50 mx-4 rounded-lg" : ""
+      }
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+    >
+      {collapsed ? (
+        <div
+          className={cn(
+            "mt-2 w-full rounded-lg p-4 pt-0",
+            expand ? "border border-[#E5E5E5] bg-white" : "bg-[#F8F8F7]",
+          )}
         >
-          {collapsed ? (
-            <div
-              className={cn(
-                "mt-2 w-full rounded-lg p-4 pt-0",
-                expand ? "border border-[#E5E5E5] bg-white" : "bg-[#F8F8F7]",
-              )}
-            >
-              <h3 className="flex items-center justify-between text-sm font-bold">
-                任务进度
-                <div className="mt-4 flex items-center">
-                  <div className="float-right cursor-pointer text-xs font-normal text-gray-400">
-                    {stepInfo?.step_index} / {stepInfo?.total_steps}
-                  </div>
-                  {!expand ? null : (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="rounded-full p-1"
-                      onClick={toggleExpanded}
-                    >
-                      <ChevronDown size={20} />
-                    </Button>
-                  )}
-                </div>
-              </h3>
-              <div className="space-y-4">
-                {plans.map((task, index) => (
-                  <div key={index} className="flex items-start">
-                    <div className="mr-2.5 flex h-5 w-5 items-center justify-center">
-                      {stepInfo?.step_index === index + 1 && responding ? (
-                        <LoaderCircle
-                          size={20}
-                          className="animate-spin text-[#858481]"
-                        />
-                      ) : stepInfo?.step_index >= index + 1 ? (
-                        <Check size={20} className="text-green-500" />
-                      ) : null}
-                    </div>
-                    <p className="flex-1 text-sm">{task.title}</p>
-                  </div>
-                ))}
+          <h3 className="flex items-center justify-between text-sm font-bold">
+            任务进度
+            <div className="mt-4 flex items-center">
+              <div className="float-right cursor-pointer text-xs font-normal text-gray-400">
+                {stepInfo?.step_index} / {stepInfo?.total_steps}
               </div>
-            </div>
-          ) : (
-            <div
-              className={cn(
-                "flex items-center justify-between rounded-lg",
-                expand ? "border border-[#E5E5E5] p-2" : "",
+              {!expand ? null : (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full p-1"
+                  onClick={toggleExpanded}
+                >
+                  <ChevronDown size={20} />
+                </Button>
               )}
-              onClick={toggleExpanded}
-            >
-              <div
-                className={cn("flex items-start", !expand ? "ml-[120px]" : "")}
-              >
-                <div className="mr-3 text-green-500">
-                  {responding ? (
+            </div>
+          </h3>
+          <div className="space-y-4">
+            {plans.map((task, index) => (
+              <div key={index} className="flex items-start">
+                <div className="mr-2.5 flex h-5 w-5 items-center justify-center">
+                  {stepInfo?.step_index === index + 1 && responding ? (
                     <LoaderCircle
                       size={20}
                       className="animate-spin text-[#858481]"
                     />
-                  ) : stepInfo?.step_index >= stepInfo?.total_steps ? (
+                  ) : stepInfo?.step_index >= index + 1 ? (
                     <Check size={20} className="text-green-500" />
                   ) : null}
                 </div>
-                <h3 className="text-sm font-medium">
-                  {stepInfo?.step_info?.title}
-                </h3>
+                <p className="flex-1 text-sm">{task.title}</p>
               </div>
-              <div className="flex items-center text-gray-400">
-                <motion.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="float-right cursor-pointer text-xs font-normal text-gray-400"
-                >
-                  {stepInfo?.step_index} / {stepInfo?.total_steps}
-                </motion.span>
-                {((expand && !collapsed) || !expand) && (
-                  <ChevronDown size={20} className="ml-2" />
-                )}
-              </div>
-            </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div
+          className={cn(
+            "flex items-center justify-between rounded-lg",
+            expand ? "border border-[#E5E5E5] p-2" : "",
           )}
-        </motion.div>
-      </motion.div>
-    </div>
+          onClick={toggleExpanded}
+        >
+          <div className={cn("flex items-start", !expand ? "ml-[120px]" : "")}>
+            <div className="mr-3 text-green-500">
+              {responding ? (
+                <LoaderCircle
+                  size={20}
+                  className="animate-spin text-[#858481]"
+                />
+              ) : stepInfo?.step_index >= stepInfo?.total_steps ? (
+                <Check size={20} className="text-green-500" />
+              ) : null}
+            </div>
+            <h3 className="text-sm font-medium">
+              {stepInfo?.step_info?.title}
+            </h3>
+          </div>
+          <div className="flex items-center text-gray-400">
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="float-right cursor-pointer text-xs font-normal text-gray-400"
+            >
+              {stepInfo?.step_index} / {stepInfo?.total_steps}
+            </motion.span>
+            {((expand && !collapsed) || !expand) && (
+              <ChevronDown size={20} className="ml-2" />
+            )}
+          </div>
+        </div>
+      )}
+    </motion.div>
   );
 });
-
-export default TaskPreview;
 
 // 任务内容视图
 const TaskContentView = memo(function TaskContentView({
@@ -263,7 +308,7 @@ const TaskContentView = memo(function TaskContentView({
   setIsSelectedTask,
 }: {
   task: TaskItem;
-  isSelectedTask: boolean;
+  isSelectedTask: boolean | undefined;
   setIsSelectedTask: (isSelectedTask: boolean) => void;
 }) {
   if (!task) {

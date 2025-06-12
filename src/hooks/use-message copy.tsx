@@ -44,9 +44,6 @@ export function useMessageHook() {
       let textMessage: TextMessage | null = null;
 
       try {
-        let buffer = "";
-        let flushTimer: ReturnType<typeof setTimeout> | null = null;
-
         for await (const event of stream) {
           switch (event.type) {
             case "start_of_agent":
@@ -61,34 +58,15 @@ export function useMessageHook() {
 
             case "message":
               if (textMessage) {
-                buffer += event.data.delta.content;
-                flushTimer = setTimeout(() => {
-                  if (textMessage) {
-                    textMessage.content += buffer;
-                    updateMessage({
-                      id: textMessage.id,
-                      content: textMessage.content,
-                    });
-                    buffer = "";
-                    flushTimer = null;
-                  }
-                }, 200); // 每 200ms 刷新一次，防止 UI 卡顿
-              }
-              break;
-
-            case "end_of_agent":
-              if (flushTimer) {
-                clearTimeout(flushTimer);
-                flushTimer = null;
-              }
-              if (buffer && textMessage) {
-                textMessage.content += buffer;
+                textMessage.content += event.data.delta.content;
                 updateMessage({
                   id: textMessage.id,
                   content: textMessage.content,
                 });
-                buffer = "";
               }
+              break;
+
+            case "end_of_agent":
               textMessage = null;
               break;
 

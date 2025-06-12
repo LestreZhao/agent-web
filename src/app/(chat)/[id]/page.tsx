@@ -37,7 +37,7 @@ export default function ChatPage() {
   const { sendMessage } = useMessageHook();
 
   // 设置当前模型正在执行的任务
-  const { setCurrentTask } = useTaskStore();
+  const { setCurrentTask, isSelectedTask } = useTaskStore();
   // 是否展开任务视图
   const { expandTaskView, setExpandTaskView, isFilePreview, setIsFilePreview } =
     useUIStore();
@@ -117,9 +117,13 @@ export default function ChatPage() {
   useEffect(() => {
     const latestTask = getLatestStepTask(messages);
     if (latestTask) {
+      // 如果最新任务是reporter，则不展开任务视图
+      if (latestTask.agentName === "reporter" && !isSelectedTask) {
+        setExpandTaskView(false);
+      }
       setCurrentTask(latestTask);
     }
-  }, [messages, setCurrentTask]);
+  }, [messages, setCurrentTask, setExpandTaskView]);
 
   // 上传文件
   const handleFileUpload = useCallback(
@@ -147,16 +151,15 @@ export default function ChatPage() {
           return null;
         });
     },
-    [files],
+    [files, setFiles],
   );
 
   const handleDeleteFile = useCallback(
     (file: File) => {
       setFiles(files.filter((f) => f.name !== file.name));
     },
-    [files],
+    [files, setFiles],
   );
-
   return (
     <div className="flex h-full w-full">
       <motion.div

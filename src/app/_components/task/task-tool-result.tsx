@@ -2,7 +2,7 @@ import { GlobalOutlined, PythonOutlined } from "@ant-design/icons";
 import * as echarts from "echarts";
 import { LRUCache } from "lru-cache";
 import { Loader2, LoaderCircle } from "lucide-react";
-import { memo, useEffect, useMemo, useRef } from "react";
+import { memo, useEffect, useMemo, useRef, useCallback } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
@@ -13,9 +13,10 @@ import {
   parseTableText,
 } from "~/core/utils/oracleTable";
 import { type ToolCallTask } from "~/core/workflow";
+
 import { ReportTaskView } from "../messages/messages-task-view";
 // 执行浏览器
-const BrowserToolCallView = memo(function BrowserToolCallView({
+function BrowserToolCallView({
   task,
 }: {
   task: ToolCallTask<{ instruction: string }>;
@@ -30,9 +31,9 @@ const BrowserToolCallView = memo(function BrowserToolCallView({
       </div>
     </div>
   );
-});
+}
 // 执行计划
-const PlanTaskView = memo(function PlanTaskView({ task }: { task: any }) {
+function PlanTaskView({ task }: { task: any }) {
   const plan = useMemo<{
     title?: string;
     steps?: { title?: string; description?: string }[];
@@ -52,14 +53,10 @@ const PlanTaskView = memo(function PlanTaskView({ task }: { task: any }) {
       </div>
     </li>
   );
-});
+}
 // 爬取网页
 const pageCache = new LRUCache<string, string>({ max: 100 });
-const CrawlToolCallView = memo(function CrawlToolCallView({
-  task,
-}: {
-  task: ToolCallTask<{ url: string }>;
-}) {
+function CrawlToolCallView({ task }: { task: ToolCallTask<{ url: string }> }) {
   const title = useMemo(() => {
     return pageCache.get(task.payload.input.url);
   }, [task.payload.input.url]);
@@ -254,9 +251,9 @@ const CrawlToolCallView = memo(function CrawlToolCallView({
       )}
     </div>
   );
-});
+}
 // 执行搜索
-const TravilySearchToolCallView = memo(function TravilySearchToolCallView({
+function TravilySearchToolCallView({
   task,
 }: {
   task: ToolCallTask<{ query: string }>;
@@ -313,9 +310,9 @@ const TravilySearchToolCallView = memo(function TravilySearchToolCallView({
       )}
     </div>
   );
-});
+}
 // 执行python代码
-const PythonReplToolCallView = memo(function PythonReplToolCallView({
+function PythonReplToolCallView({
   task,
 }: {
   task: ToolCallTask<{ code: string }>;
@@ -339,13 +336,9 @@ const PythonReplToolCallView = memo(function PythonReplToolCallView({
       )}
     </div>
   );
-});
+}
 // 执行bash命令
-const BashToolCallView = memo(function BashToolCallView({
-  task,
-}: {
-  task: ToolCallTask<{ cmd: string }>;
-}) {
+function BashToolCallView({ task }: { task: ToolCallTask<{ cmd: string }> }) {
   return (
     <div>
       <div className="flex items-center gap-2">
@@ -370,9 +363,9 @@ const BashToolCallView = memo(function BashToolCallView({
       )}
     </div>
   );
-});
+}
 // ECharts图表生成工具视图
-export const GenerateEchartsChartView = memo(function GenerateEchartsChartView({
+export function GenerateEchartsChartView({
   task,
 }: {
   task: ToolCallTask<any>;
@@ -440,9 +433,9 @@ export const GenerateEchartsChartView = memo(function GenerateEchartsChartView({
       ))}
     </div>
   );
-});
+}
 // 单个图表卡片组件
-export const ChartCard = function ChartCard({
+export const ChartCard = memo(function ChartCard({
   chart,
   resize,
   className,
@@ -486,12 +479,17 @@ export const ChartCard = function ChartCard({
       if (clientWidth === 0 || clientHeight === 0) return;
       try {
         // 初始化新实例
-        chartInstance.current = echarts.init(chartRef.current);
+        chartInstance.current = echarts.init(chartRef.current, undefined, {
+          renderer: "canvas",
+          devicePixelRatio: window.devicePixelRatio,
+          useDirtyRect: true,
+        });
         chartInstance.current.setOption(chartOption);
       } catch (error) {
         console.error("图表初始化失败:", error);
       }
     };
+
     // 使用 ResizeObserver 监听容器大小变化
     if (resizeObserverRef.current) {
       resizeObserverRef.current.disconnect();
@@ -499,7 +497,6 @@ export const ChartCard = function ChartCard({
     resizeObserverRef.current = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
-        console.log("width", width, "height", height);
         if (width > 0 && height > 0) {
           if (chartInstance.current) {
             chartInstance.current.resize();
@@ -516,6 +513,7 @@ export const ChartCard = function ChartCard({
       }
       initChart();
     }
+
     // 清理函数
     return () => {
       if (resizeObserverRef.current) {
@@ -527,7 +525,12 @@ export const ChartCard = function ChartCard({
         chartInstance.current = undefined;
       }
     };
-  }, [chartOption]);
+  }, [chartOption, resize]);
+
+  // 处理滚轮事件
+  const handleWheel = useCallback(() => {
+    // 空函数，只是为了标记事件为 passive
+  }, []);
 
   return (
     <div
@@ -540,6 +543,7 @@ export const ChartCard = function ChartCard({
         {/* 图表容器 */}
         <div
           ref={chartRef}
+          onWheel={handleWheel}
           style={{
             width: "100%",
             height: "450px",
@@ -553,71 +557,67 @@ export const ChartCard = function ChartCard({
       </div>
     </div>
   );
-};
-// 分析文档内容
-const AnalyzeDocumentContentToolCallView = memo(
-  function AnalyzeDocumentContentToolCallView({
-    task,
-  }: {
-    task: ToolCallTask<any>;
-  }) {
-    const documentData = useMemo(() => {
-      try {
-        if (task.payload.output) {
-          const data = JSON.parse(task.payload.output);
-          return data.data;
-        }
-        return null;
-      } catch (error) {
-        console.error("解析文档数据失败:", error);
-        return null;
-      }
-    }, [task.payload.output]);
+});
 
-    if (!documentData) {
-      return <div>无法解析文档数据</div>;
+function AnalyzeDocumentContentToolCallView({
+  task,
+}: {
+  task: ToolCallTask<any>;
+}) {
+  const documentData = useMemo(() => {
+    try {
+      if (task.payload.output) {
+        const data = JSON.parse(task.payload.output);
+        return data.data;
+      }
+      return null;
+    } catch (error) {
+      console.error("解析文档数据失败:", error);
+      return null;
     }
-    return (
-      <div className="space-y-4">
-        {/* 文档基本信息 */}
-        <div className="rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <div className="my-4 text-center text-gray-900 dark:text-gray-100">
-            {documentData.document_info.filename}
+  }, [task.payload.output]);
+
+  if (!documentData) {
+    return <div>无法解析文档数据</div>;
+  }
+  return (
+    <div className="space-y-4">
+      {/* 文档基本信息 */}
+      <div className="rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="my-4 text-center text-gray-900 dark:text-gray-100">
+          {documentData.document_info.filename}
+        </div>
+        <div className="mb-2 grid grid-cols-3 gap-4 px-4 text-sm">
+          <div className="col-span-1">
+            <span className="text-gray-500">文件类型：</span>
+            <span className="text-gray-900 dark:text-gray-100">
+              {documentData.document_info.file_type}
+            </span>
           </div>
-          <div className="mb-2 grid grid-cols-3 gap-4 px-4 text-sm">
-            <div className="col-span-1">
-              <span className="text-gray-500">文件类型：</span>
-              <span className="text-gray-900 dark:text-gray-100">
-                {documentData.document_info.file_type}
-              </span>
-            </div>
-            <div>
-              <span className="text-gray-500">文件大小：</span>
-              <span className="text-gray-900 dark:text-gray-100">
-                {(documentData.document_info.file_size / 1024).toFixed(2)} KB
-              </span>
-            </div>
-            <div>
-              <span className="text-gray-500">解析时间：</span>
-              <span className="text-gray-900 dark:text-gray-100">
-                {new Date(
-                  documentData.document_info.parsed_at,
-                ).toLocaleString()}
-              </span>
-            </div>
+          <div>
+            <span className="text-gray-500">文件大小：</span>
+            <span className="text-gray-900 dark:text-gray-100">
+              {(documentData.document_info.file_size / 1024).toFixed(2)} KB
+            </span>
           </div>
-          <div className="prose prose-sm overflow-y-auto rounded-lg bg-gray-50 p-4 dark:bg-gray-900">
-            <Markdown className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">
-              {documentData.document_content}
-            </Markdown>
+          <div>
+            <span className="text-gray-500">解析时间：</span>
+            <span className="text-gray-900 dark:text-gray-100">
+              {new Date(documentData.document_info.parsed_at).toLocaleString()}
+            </span>
           </div>
         </div>
+        <div className="prose prose-sm overflow-y-auto rounded-lg bg-gray-50 p-4 dark:bg-gray-900">
+          <Markdown className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">
+            {documentData.document_content}
+          </Markdown>
+        </div>
       </div>
-    );
-  },
-);
+    </div>
+  );
+}
 // 数据库查询工具结果视图
-const DatabaseQueryToolCallView = memo(function DatabaseQueryToolCallView({
+function DatabaseQueryToolCallView({
   search,
   content,
 }: {
@@ -634,9 +634,9 @@ const DatabaseQueryToolCallView = memo(function DatabaseQueryToolCallView({
       </div>
     </div>
   );
-});
+}
 
-export const TaskToolResultView = memo(function TaskToolResultView({
+export const TaskToolResultView = function TaskToolResultView({
   task,
 }: {
   task: ToolCallTask;
@@ -715,4 +715,4 @@ export const TaskToolResultView = memo(function TaskToolResultView({
       }
     }
   }
-});
+};

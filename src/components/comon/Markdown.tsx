@@ -1,6 +1,8 @@
+import { memo, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
+
 import { cn } from "~/core/utils";
 
 import "highlight.js/styles/atom-one-dark.css";
@@ -11,20 +13,12 @@ interface MarkdownProps {
   className?: string;
 }
 
-export function Markdown({ children, className }: MarkdownProps) {
-  return (
-    <div
-      className={cn(
-        "prose prose-base dark:prose-invert max-w-full overflow-x-auto",
-        "prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100",
-        "prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed",
-        "prose-strong:text-gray-900 dark:prose-strong:text-gray-100",
-        "prose-em:text-gray-800 dark:prose-em:text-gray-200",
-        "prose-blockquote:border-l-blue-500 prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20",
-        "prose-blockquote:pl-6 prose-blockquote:py-3 prose-blockquote:rounded-r-lg",
-        className,
-      )}
-    >
+export const Markdown = memo(function Markdown({
+  children,
+  className,
+}: MarkdownProps) {
+  const render = useMemo(() => {
+    return (
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeHighlight]}
@@ -140,6 +134,22 @@ export function Markdown({ children, className }: MarkdownProps) {
       >
         {children}
       </ReactMarkdown>
+    );
+  }, [children]);
+  return (
+    <div
+      className={cn(
+        "prose prose-base dark:prose-invert max-w-full overflow-x-auto",
+        "prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100",
+        "prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed",
+        "prose-strong:text-gray-900 dark:prose-strong:text-gray-100",
+        "prose-em:text-gray-800 dark:prose-em:text-gray-200",
+        "prose-blockquote:border-l-blue-500 prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20",
+        "prose-blockquote:pl-6 prose-blockquote:py-3 prose-blockquote:rounded-r-lg",
+        className,
+      )}
+    >
+      {render}
     </div>
   );
-}
+});

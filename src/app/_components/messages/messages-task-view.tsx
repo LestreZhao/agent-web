@@ -16,6 +16,7 @@ import {
   DatabaseBackup,
   FileText,
   ListTodo,
+  Loader2,
   LoaderIcon,
   Monitor,
   Search,
@@ -53,7 +54,7 @@ interface Task {
 }
 
 // 消息任务视图
-export const MessagesTaskView = memo(function MessagesTaskView({
+export const MessagesTaskView = function MessagesTaskView({
   className,
   workflow,
   loading,
@@ -136,9 +137,9 @@ export const MessagesTaskView = memo(function MessagesTaskView({
       )}
     </div>
   );
-});
+};
 
-export const ReportTaskView = memo(function ReportTaskView({
+export const ReportTaskView = function ReportTaskView({
   tasks,
 }: {
   tasks: WorkflowTask[];
@@ -178,12 +179,21 @@ export const ReportTaskView = memo(function ReportTaskView({
             }
           }
           return <Markdown key={task.id}>{task.payload.text}</Markdown>;
+        } else if (task.type === "thinking" && task.state !== "success") {
+          return (
+            <TaskTag
+              task={task}
+              key={task.id}
+              title={"正在生成任务报告…"}
+              icon={<Loader2 className="h-4 w-4 animate-spin" />}
+            />
+          );
         }
         return null;
       })}
     </div>
   );
-});
+};
 
 // 计划任务视图
 function PlanTaskView({
