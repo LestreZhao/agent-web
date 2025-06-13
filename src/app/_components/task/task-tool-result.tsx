@@ -921,9 +921,12 @@ export const TaskToolResultView = function TaskToolResultView({
               ? "**执行的sql语句：**\n```sql\n" +
                 (task.payload.input as any).sql +
                 "\n```\n **查询结果：**\n"
-              : ("**查询的表名：**\n" +
-                  (task.payload.input as any).table_name ?? "") +
-                "\n\n **查询结果：**\n";
+              : ((task.payload.input as any).table_name
+                  ? (task.payload.input as any).table_name === "undefined"
+                    ? ""
+                    : "**查询的表名：**\n \n" +
+                      (task.payload.input as any).table_name
+                  : "") + "\n\n **查询结果：**\n";
           const content = task.payload.output ?? "";
 
           return (
