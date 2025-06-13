@@ -278,7 +278,7 @@ const MessageView = memo(function MessageView({
       {message.role === "assistant" && message.content && (
         <div className="px-2">
           <img
-            src="/images/fusion_ai.png"
+            src="/images/fusion-ai.png"
             alt="FusionAI"
             className="h-5 w-auto"
           />

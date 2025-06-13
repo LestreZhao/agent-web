@@ -9,7 +9,7 @@ export function AppHeader({
     <div className="flex items-center gap-2 px-4">
       {asChild ? children : <></>}
       <img
-        src="/images/fusion_ai.png"
+        src="/images/fusion-ai.png"
         alt="FusionAI"
         className="h-[28px] w-auto"
       />
