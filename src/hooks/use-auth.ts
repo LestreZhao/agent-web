@@ -3,7 +3,6 @@ import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 
 import {
-  AuthService,
   type LoginCredentials,
   type RegisterData,
 } from "~/core/api/auth";

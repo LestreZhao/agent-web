@@ -484,41 +484,39 @@ function TravilySearchToolCallView({
   return (
     <div className="h-full w-full">
       {task.state !== "pending" ? (
-        <div className="flex flex-col gap-2">
-          <ul className="flex flex-col gap-2">
-            {results.map((result: { url: string; title: string }) => (
-              <li
-                key={result.url}
-                className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+        <ul className="flex flex-col gap-2">
+          {results.map((result: { url: string; title: string }) => (
+            <li
+              key={result.url}
+              className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+            >
+              <a
+                className="flex items-start gap-3 text-gray-900 hover:text-blue-600"
+                target="_blank"
+                rel="noopener noreferrer"
+                href={result.url}
               >
-                <a
-                  className="flex items-start gap-3 text-gray-900 hover:text-blue-600"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={result.url}
-                >
-                  <img
-                    className="mt-1 h-5 w-5 rounded-full bg-slate-100 shadow-sm"
-                    src={new URL(result.url).origin + "/favicon.ico"}
-                    alt={result.title}
-                    onError={(e) => {
-                      e.currentTarget.src =
-                        "https://perishablepress.com/wp/wp-content/images/2021/favicon-standard.png";
-                    }}
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-medium leading-relaxed">
-                      {result.title}
-                    </h3>
-                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-600">
-                      {(result as any).content ?? ""}
-                    </p>
-                  </div>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+                <img
+                  className="mt-1 h-5 w-5 rounded-full bg-slate-100 shadow-sm"
+                  src={new URL(result.url).origin + "/favicon.ico"}
+                  alt={result.title}
+                  onError={(e) => {
+                    e.currentTarget.src =
+                      "https://perishablepress.com/wp/wp-content/images/2021/favicon-standard.png";
+                  }}
+                />
+                <div className="flex-1">
+                  <h3 className="font-medium leading-relaxed">
+                    {result.title}
+                  </h3>
+                  <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-600">
+                    {(result as any).content ?? ""}
+                  </p>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
       ) : (
         <div className="flex h-full items-center justify-center gap-2 text-sm">
           <LoaderCircle size={20} className="animate-spin" />
@@ -753,6 +751,7 @@ export const ChartCard = memo(function ChartCard({
         <div
           ref={chartRef}
           onWheel={handleWheel}
+          className="flex justify-center"
           style={{
             width: "100%",
             height: "450px",
