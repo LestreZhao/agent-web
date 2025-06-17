@@ -5,7 +5,7 @@ import { ClipboardList, PanelLeft, Plus } from "lucide-react";
 import { nanoid } from "nanoid";
 import { useRouter } from "next/navigation";
 
-import { messagesList } from "~/app/(chat)/[id]/mock";
+import { messagesList } from "~/app/chat/[id]/mock";
 import { useMessageStore } from "~/core/store/message";
 import { useTaskStore } from "~/core/store/task";
 import { useUIStore } from "~/core/store/ui";
@@ -31,7 +31,7 @@ export function AppSidebar({ className }: { className?: string }) {
     setExpandTaskView(false);
     setIsSelectedTask(false);
     setChatId(nanoid());
-    router.push(`/`);
+    router.push(`/chat`);
   };
 
   const handleTaskClick = (id: string) => {
@@ -49,7 +49,7 @@ export function AppSidebar({ className }: { className?: string }) {
       setExpandTaskView(false);
       // 关闭任务选择
       setIsSelectedTask(false);
-      router.push(`/${id}`);
+      router.push(`/chat/${id}`);
     }
   };
 

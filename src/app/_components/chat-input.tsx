@@ -157,13 +157,13 @@ export function ChatInput({
         transition={{
           duration: 0.3,
         }}
-        className="flex flex-col overflow-hidden rounded-[24px] border bg-white p-3 shadow-lg"
+        className="flex flex-col overflow-hidden rounded-[24px] border bg-white/80 p-3 shadow-lg"
       >
         <FilePreview files={uploadedFiles ?? []} onRemove={handleDeleteFile} />
         <div className="w-full">
           <textarea
             className={cn(
-              "m-0 w-full resize-none border-none text-[15px]",
+              "m-0 w-full resize-none border-none bg-transparent text-[15px]",
               size === "large" ? "h-12" : size === "small" ? "h-8" : "min-h-4",
             )}
             placeholder={uploadedFiles.length > 0 ? "添加消息..." : placeholder}

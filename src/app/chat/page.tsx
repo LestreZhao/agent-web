@@ -1,5 +1,4 @@
 "use client";
-
 import { nanoid } from "nanoid";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
@@ -19,13 +18,14 @@ export default function HomePage() {
   const [message, setMessage] = useState("");
 
   const { setInitMessages, setFiles } = useMessageStore();
+
   // 发送消息
   const handleSendMessage = async (
     content: string,
     // config: { deepThinkingMode: boolean; searchBeforePlanning: boolean },
   ) => {
     setInitMessages(content);
-    router.push(`/${nanoid()}`);
+    router.push(`/chat/${nanoid()}`);
   };
   // 点击快速建议
   const handleSuggestionClick = useCallback((action: string) => {

@@ -1,6 +1,9 @@
 "use client";
 import { motion } from "framer-motion";
+import Cookies from "js-cookie";
 import { PanelLeft } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 import { AppSidebar } from "~/components/AppSidebar";
 import { useUIStore } from "~/core/store/ui";
@@ -11,13 +14,20 @@ import "~/styles/globals.css";
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  
+  const router = useRouter();
+  const pathname = usePathname();
   const {
     isFloatingSidebar,
     expandSidebar,
     setExpandSidebar,
     setIsFloatingSidebar,
   } = useUIStore();
+
+  useEffect(() => {
+    if (pathname === "/chat" && !Cookies.get("is_invited")) {
+      router.push("/");
+    }
+  }, [pathname, router]);
 
   return (
     <div className="fixed inset-0 overflow-hidden">
