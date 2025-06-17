@@ -1,4 +1,5 @@
 "use client";
+import { motion } from "framer-motion";
 import { nanoid } from "nanoid";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
@@ -77,7 +78,10 @@ export default function HomePage() {
             "mx-auto mt-[calc(28vh-10px)] w-full max-w-full sm:mt-[20vh] sm:min-w-[390px] sm:max-w-[768px]",
           )}
         >
-          <div
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
             className="mx-4 mb-4 w-full text-3xl font-medium leading-9"
             style={{
               fontFamily:
@@ -86,7 +90,7 @@ export default function HomePage() {
           >
             <h3>你好</h3>
             <h4 className="text-[#858481]">我能为你做什么?</h4>
-          </div>
+          </motion.div>
           <div>
             <ChatInput
               message={message}

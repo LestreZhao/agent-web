@@ -43,6 +43,14 @@ export default function Home() {
     <div className="relative h-screen w-full overflow-hidden">
       <div className="absolute inset-0 bg-[url('/images/login-bg.png')] bg-cover bg-center bg-no-repeat" />
       <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px]" />
+      <motion.img
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        src="/images/fusion-ai.png"
+        className="absolute left-8 top-8 h-8"
+        alt="FusionAI Logo"
+      />
       <motion.div
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
@@ -50,20 +58,20 @@ export default function Home() {
         className="relative flex h-screen w-full justify-center"
       >
         <div
-          className="mt-[20vh] flex flex-col items-center gap-6"
+          className="mt-[30vh] flex flex-col items-center gap-10"
           style={{
             fontFamily:
               "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif",
           }}
         >
-          <motion.img
+          {/* <motion.img
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             src="/images/fusion-ai.png"
             className="h-12"
             alt="FusionAI Logo"
-          />
+          /> */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
