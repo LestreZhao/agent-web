@@ -163,12 +163,13 @@ export const ReportTaskView = function ReportTaskView({
           return <Markdown key={task.id}>{task.payload.text}</Markdown>;
         } else if (task.type === "thinking" && task.state !== "success") {
           return (
-            <TaskTag
-              task={task}
-              key={task.id}
-              title={"正在生成任务报告…"}
-              icon={<Loader2 className="h-4 w-4 animate-spin" />}
-            />
+            <Markdown key={task.id}>{task.payload.text}</Markdown>
+            // <TaskTag
+            //   task={task}
+            //   key={task.id}
+            //   title={"正在生成任务报告…"}
+            //   icon={<Loader2 className="h-4 w-4 animate-spin" />}
+            // />
           );
         }
         return null;

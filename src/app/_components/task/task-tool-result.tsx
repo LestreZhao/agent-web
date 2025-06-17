@@ -1,8 +1,8 @@
 import { GlobalOutlined, PythonOutlined } from "@ant-design/icons";
 import * as echarts from "echarts";
 import { LRUCache } from "lru-cache";
-import { Loader2, LoaderCircle } from "lucide-react";
-import { memo, useEffect, useMemo, useRef, useCallback, useState } from "react";
+import { LoaderCircle } from "lucide-react";
+import { memo, useEffect, useMemo, useRef, useCallback } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
@@ -638,7 +638,7 @@ export function GenerateEchartsChartView({
   return (
     <div className="w-full space-y-4">
       {chartsData.map((chart: any, index: number) => (
-        <ChartCard key={`${task.id}_${index}`} chart={chart} />
+        <ChartCard key={`${task.id}_${index}`} chart={chart} resize={true} />
       ))}
     </div>
   );
