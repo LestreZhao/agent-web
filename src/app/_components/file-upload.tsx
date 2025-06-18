@@ -10,6 +10,7 @@ interface FileUploadProps {
   disabled?: boolean;
 }
 
+// 文件上传
 export function FileUpload({
   onUpload,
   maxFiles = 5,

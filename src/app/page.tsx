@@ -52,9 +52,9 @@ export default function Home() {
         alt="FusionAI Logo"
       />
       <motion.div
-        initial={{ opacity: 0, y: 100 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        transition={{ duration: 0.5, delay: 0.3 }}
         className="relative flex h-screen w-full justify-center"
       >
         <div
@@ -64,32 +64,13 @@ export default function Home() {
               "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif",
           }}
         >
-          {/* <motion.img
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            src="/images/fusion-ai.png"
-            className="h-12"
-            alt="FusionAI Logo"
-          /> */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex flex-col items-center gap-2"
-          >
+          <div className="flex flex-col items-center gap-2">
             <div className="text-3xl font-medium tracking-wide text-gray-800">
               欢迎使用FusionAI
             </div>
             <div className="text-xl text-gray-600">输入邀请码以继续</div>
-          </motion.div>
-          <motion.form
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            className="flex flex-col gap-3"
-            onSubmit={handleSubmit}
-          >
+          </div>
+          <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
             <div className="flex w-[320px] gap-3">
               <Input
                 type="text"
@@ -125,7 +106,7 @@ export default function Home() {
                 {error}
               </motion.div>
             )}
-          </motion.form>
+          </form>
         </div>
       </motion.div>
     </div>

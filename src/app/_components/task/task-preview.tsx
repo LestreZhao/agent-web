@@ -12,7 +12,6 @@ import { useMemo, useState, memo, useEffect } from "react";
 
 import { getStepName } from "~/app/_components/messages/messages-task-view";
 import { TaskToolResultView } from "~/app/_components/task/task-tool-result";
-import { Button } from "~/components/ui/button";
 import {
   ResizableHandle,
   ResizablePanel,

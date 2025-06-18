@@ -17,8 +17,7 @@ export default function HomePage() {
   const router = useRouter();
   // 用户输入
   const [message, setMessage] = useState("");
-
-  const { setInitMessages, setFiles } = useMessageStore();
+  const { setInitMessages, setFiles, files } = useMessageStore();
 
   // 发送消息
   const handleSendMessage = async (
@@ -32,8 +31,6 @@ export default function HomePage() {
   const handleSuggestionClick = useCallback((action: string) => {
     setMessage(action);
   }, []);
-
-  const { files } = useMessageStore();
 
   // 上传文件
   const handleFileUpload = useCallback(
@@ -73,15 +70,15 @@ export default function HomePage() {
         <AppHeader />
       </header>
       <main className="flex w-full flex-col items-center justify-center">
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
           className={cn(
             "mx-auto mt-[calc(28vh-10px)] w-full max-w-full sm:mt-[20vh] sm:min-w-[390px] sm:max-w-[768px]",
           )}
         >
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+          <div
             className="mx-4 mb-4 w-full text-3xl font-medium leading-9"
             style={{
               fontFamily:
@@ -90,21 +87,19 @@ export default function HomePage() {
           >
             <h3>你好</h3>
             <h4 className="text-[#858481]">我能为你做什么?</h4>
-          </motion.div>
-          <div>
-            <ChatInput
-              message={message}
-              setMessage={setMessage}
-              onSend={handleSendMessage}
-              onUpload={handleFileUpload}
-              deleteFile={handleDeleteFile}
-              placeholder="给 FusionAI 一个任务…"
-            />
           </div>
+          <ChatInput
+            message={message}
+            setMessage={setMessage}
+            onSend={handleSendMessage}
+            onUpload={handleFileUpload}
+            deleteFile={handleDeleteFile}
+            placeholder="给 FusionAI 一个任务…"
+          />
           <div className="my-4 w-full">
             <ChatSuggestions onSuggestionClick={handleSuggestionClick} />
           </div>
-        </div>
+        </motion.div>
       </main>
     </div>
   );

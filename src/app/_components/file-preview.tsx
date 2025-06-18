@@ -12,6 +12,7 @@ interface FilePreviewProps {
   onRemove?: (file: ReviewFile) => void;
 }
 
+// 文件预览
 export function FilePreview({ files, onRemove }: FilePreviewProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);

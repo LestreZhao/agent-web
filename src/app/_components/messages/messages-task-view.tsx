@@ -299,23 +299,26 @@ function StepView({
 }
 
 // 获取步骤名称
-export function getStepName(task: any) {
-  let taskInfo = {};
+export function getStepName(task: any): {
+  typeName: string;
+  title: string;
+  icon: React.ReactNode;
+} {
+  let taskInfo = {
+    typeName: "FusionAI 正在分析",
+    title: "正在分析数据内容…",
+    icon: (
+      <Image
+        src="/icon.png"
+        alt="FusionAI"
+        width={16}
+        height={16}
+        className="h-4 w-4 shrink-0 rounded-full"
+      />
+    ),
+  };
   switch (task.type) {
     case "thinking":
-      taskInfo = {
-        typeName: "FusionAI 正在分析",
-        title: "正在分析数据内容…",
-        icon: (
-          <Image
-            src="/icon.png"
-            alt="FusionAI"
-            width={16}
-            height={16}
-            className="h-4 w-4 shrink-0 rounded-full"
-          />
-        ),
-      };
       if (task.agentName === "db_analyst") {
         taskInfo.title = "正在分析数据库查询结果…";
       }
@@ -402,6 +405,6 @@ export function getStepName(task: any) {
       }
       return taskInfo;
     default:
-      return null;
+      return taskInfo;
   }
 }

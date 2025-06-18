@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowDown } from "lucide-react";
-import { useEffect, useRef, useState, useCallback, memo, useMemo } from "react";
+import { useEffect, useRef, useState, memo, useMemo } from "react";
 
 import { MessageLoading } from "~/app/_components/messages/message-loading";
 import { Markdown } from "~/components/comon/Markdown";
@@ -12,27 +12,6 @@ type UserMessage = Message;
 import { ChatFilePreviewItem } from "../file-preview";
 
 import { MessagesTaskView } from "./messages-task-view";
-
-// 节流函数
-const throttle = <T extends (...args: any[]) => void>(
-  func: T,
-  limit: number,
-) => {
-  let inThrottle: boolean;
-  let lastRan: number;
-  return function (this: any, ...args: Parameters<T>) {
-    if (!inThrottle) {
-      func.apply(this, args);
-      lastRan = Date.now();
-      inThrottle = true;
-      setTimeout(() => {
-        if (Date.now() - lastRan >= limit) {
-          inThrottle = false;
-        }
-      }, limit);
-    }
-  };
-};
 
 export function MessagesView({
   className,

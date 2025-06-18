@@ -16,7 +16,7 @@ import { useTaskStore } from "~/core/store/task";
 import { useUIStore } from "~/core/store/ui";
 import { cn } from "~/core/utils";
 import { useMessageHook } from "~/hooks/use-message";
-import { type Message, type WorkflowMessage } from "~/types/message";
+import { type WorkflowMessage } from "~/types/message";
 
 import { MessagesView } from "../../_components/messages";
 

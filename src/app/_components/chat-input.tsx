@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { ArrowUp, Square } from "lucide-react";
 import { nanoid } from "nanoid";
 import { type KeyboardEvent, useCallback, useEffect, useState } from "react";
@@ -8,7 +9,6 @@ import { type ResponseFile } from "~/types/message";
 
 import { FilePreview } from "./file-preview";
 import { FileUpload } from "./file-upload";
-import { motion } from "framer-motion";
 
 interface UploadFile extends Partial<File> {
   id: string;
