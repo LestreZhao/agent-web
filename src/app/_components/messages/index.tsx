@@ -74,7 +74,7 @@ export function MessagesView({
     >
       <div
         className={cn(
-          "overflow-y-scroll scroll-smooth",
+          "overflow-y-auto scroll-smooth",
           messages.length > 0 && "pb-[80px]",
         )}
         ref={containerRef}

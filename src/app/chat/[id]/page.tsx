@@ -173,13 +173,11 @@ export default function ChatPage() {
           <div className="sticky top-0 flex flex-shrink-0 flex-row items-center justify-between bg-[var(--background-gray-main)] pb-1 pl-4 pt-3">
             <ChatHeader header={chatHeader} />
           </div>
-          <div className="flex w-full flex-1 flex-col gap-[12px] overflow-scroll pt-[12px]">
-            <MessagesView
-              className="w-full"
-              messages={messages}
-              loading={responding}
-            />
-          </div>
+          <MessagesView
+            className="w-full flex-1 pt-[12px]"
+            messages={messages}
+            loading={responding}
+          />
           <div className={cn("sticky bottom-8 flex flex-col")}>
             {!expandTaskView && showTaskPreview && (
               <TaskPreview
